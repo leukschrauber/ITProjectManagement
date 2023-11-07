@@ -1,0 +1,13 @@
+*.iml
+.idea/
+.DS_Store
+.flattened-pom.xml
+target/
+*_.java
+.gradle
+overlays/
+.settings/
+.classpath
+.project
+Temp/
+*.properties

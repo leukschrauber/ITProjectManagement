@@ -1,0 +1,245 @@
+openapi: '3.0.0'
+info:
+  version: 1.0.0
+  title: HTI Bot API
+  description: Interact with the HTI Bot Backend
+servers:
+  - url: http://localhost:9191/rest/v1.0
+paths:
+  /htibot/hasOpenConversation:
+    get:
+      security:
+        - apiKeyAuth: [ ]
+      summary: Checks whether user currently has any open conversation with the Bot Backend.
+      operationId: hasOpenConversation
+      description: A user that has not closed his conversation yet and that has not requested to continue the current conversation has an open conversation.
+      parameters:
+        - name: userId
+          in: query
+          description: The user id as determined by the caller
+          required: true
+          schema:
+            type: string
+            example: 123abc
+      responses:
+        '200':
+          description: "OK"
+          content:
+            'application/json':
+              schema:
+                properties:
+                  resultCode:
+                    description: The result code
+                    type: integer
+                    format: int32
+                    example: 200
+                  hasOpenConversation:
+                    type: boolean
+                    description: Whether the user has an unclosed conversation and did not request further conversation.
+        '401':
+          description: Unauthorized
+        '404':
+          $ref: "#/components/responses/Error"
+        '500':
+          $ref: "#/components/responses/Error"
+  /htibot/updateKnowledgeDB:
+    post:
+      security:
+        - apiKeyAuth: [ ]
+      summary: Updates the vector database with the uploaded zipfile.
+      operationId: updateKnowledgeDB
+      description: Updates the vector database with the uploaded zipfile.
+        Zipfile consists of FAQ in html format and enclosed resources folder with pictures.
+        CleanUp=True will result in the old entries being wiped from the database after succesful upload.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - zipFile
+              properties:
+                zipFile:
+                  type: string
+                  format: binary
+                  description: The FAQ Zip File with HTML FAQs and enclosed resources folder
+                cleanUp:
+                  type: boolean
+                  default: false
+                  description: Whether to delete old entries after succesful upload of new entries.
+      responses:
+        '200':
+          description: "OK"
+          content:
+            'application/json':
+              schema:
+                properties:
+                  resultCode:
+                    description: The result code
+                    type: integer
+                    format: int32
+                    example: 200
+        '401':
+          description: Unauthorized
+        '500':
+          $ref: "#/components/responses/Error"
+  /htibot/rateConversation:
+    put:
+      security:
+        - apiKeyAuth: [ ]
+      summary: Rates the currently open conversation as positive or negative.
+      operationId: rateConversation
+      description: Rates the currently open conversation as positive or negative.
+      parameters:
+        - name: userId
+          in: query
+          description: The user id as determined by the caller
+          required: true
+          schema:
+            type: string
+            example: 1
+        - name: rating
+          in: query
+          description: The rating of the conversation
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: "OK"
+          content:
+            'application/json':
+              schema:
+                properties:
+                  resultCode:
+                    description: The result code
+                    type: integer
+                    format: int32
+                    example: 200
+        '401':
+          description: Unauthorized
+        '404':
+          $ref: "#/components/responses/Error"
+        '409':
+          $ref: "#/components/responses/Error"
+        '500':
+          $ref: "#/components/responses/Error"
+  /htibot/continueConversation:
+    put:
+      security:
+        - apiKeyAuth: [ ]
+      summary: Requests further conversation in the ongoing conversation
+      operationId: continueConversation
+      description: Requests further conversation in the ongoing conversation enabling to follow-up on messages.
+      parameters:
+        - name: userId
+          in: query
+          description: The user id as determined by the caller
+          required: true
+          schema:
+            type: string
+            example: 123abc
+      responses:
+        '200':
+          description: "OK"
+          content:
+            'application/json':
+              schema:
+                properties:
+                  resultCode:
+                    description: The result code
+                    type: integer
+                    format: int32
+                    example: 200
+        '401':
+          description: Unauthorized
+        '404':
+          $ref: "#/components/responses/Error"
+        '409':
+          $ref: "#/components/responses/Error"
+        '500':
+          $ref: "#/components/responses/Error"
+  /htibot/getAnswer:
+    get:
+      security:
+        - apiKeyAuth: [ ]
+      summary: Retrieves an answer to a user prompt.
+      operationId: getAnswer
+      description: Retrieves relevant internal documentation and generates an answer using a Large Language Model.
+      parameters:
+        - name: prompt
+          in: query
+          description: The prompt of the user
+          required: true
+          schema:
+            type: string
+            example: Tell me what the weather is like tomorrow
+        - name: userId
+          in: query
+          required: true
+          description: The user id as determined by the caller
+          schema:
+            type: string
+            example: 123abc
+        - name: language
+          in: query
+          description: The language for the operation.
+          required: true
+          schema:
+            $ref: '#/components/schemas/LanguageEnum'
+      responses:
+        '200':
+          description: "OK"
+          content:
+            'application/json':
+              schema:
+                properties:
+                  resultCode:
+                    description: The result code
+                    type: integer
+                    format: int32
+                    example: 0
+                  answer:
+                    type: string
+                    example: Tomorrow it is gonna be 36 degrees and it gets even hotter.
+                    description: The answer to the users prompt.
+        '401':
+          description: Unauthorized
+        '500':
+          $ref: "#/components/responses/Error"
+components:
+  schemas:
+    LanguageEnum:
+      type: string
+      enum:
+        - English
+        - French
+        - Italian
+        - German
+      description: Enumeration of supported languages
+      default: English
+    BaseErrorModel:
+      type: object
+      properties:
+        resultCode:
+          type: integer
+          format: int32
+          example: 404
+          description: HTTP Status Code
+        message:
+          type: string
+          example: "PersistenceException"
+          description: Error Message
+  responses:
+    Error:
+      description: "Error."
+      content:
+        'application/json':
+          schema:
+            $ref: "#/components/schemas/BaseErrorModel"
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
