@@ -2,7 +2,7 @@
 IT Project Management Class Group 7
 
 ## SetUp
-0. Prerequisites: Install Maven, Java JDK 21, Docker Desktop, IntelliJ, Visual Studio Code
+0. Prerequisites: Install Maven, Java JDK 21, Docker Desktop, IntelliJ, Visual Studio Code, NodeJS
 1. Load service project into IntelliJ
 2. Run mvn clean install
 3. Set Up MySQL 8 Database: https://hub.docker.com/_/mysql
