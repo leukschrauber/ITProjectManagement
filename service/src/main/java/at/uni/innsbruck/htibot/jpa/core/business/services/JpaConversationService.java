@@ -1,0 +1,116 @@
+package at.uni.innsbruck.htibot.jpa.core.business.services;
+
+import at.uni.innsbruck.htibot.core.business.services.ConversationService;
+import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
+import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
+import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
+import at.uni.innsbruck.htibot.core.exceptions.RatingFinalException;
+import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
+import at.uni.innsbruck.htibot.core.model.conversation.Message;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
+import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
+import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
+import at.uni.innsbruck.htibot.jpa.model.conversation.JpaConversation;
+import at.uni.innsbruck.htibot.jpa.model.conversation.JpaConversation_;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.util.Set;
+
+@ApplicationScoped
+@Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Throwable.class)
+public class JpaConversationService extends JpaPersistenceService<Conversation, JpaConversation, Long> implements ConversationService {
+
+  @Serial
+  private static final long serialVersionUID = -3507242399388356601L;
+
+  @Override
+  @NotNull
+  public Conversation createAndSave(@NotBlank final String questionVector, final Boolean closed, @NotNull final ConversationLanguage language, final Boolean rating,
+                                    @NotBlank final String userId, final IncidentReport incidentReport, @NotNull final Set<Message> messages,
+                                    final Knowledge knowledge)
+      throws PersistenceException {
+    final Conversation conversation = new JpaConversation(questionVector, language, userId);
+
+    conversation.setClosed(closed);
+    conversation.setRating(rating);
+    conversation.setIncidentReport(incidentReport);
+    conversation.setMessages(messages);
+    conversation.setKnowledge(knowledge);
+
+    return this.save(conversation);
+  }
+
+  @Override
+  @NotNull
+  public Conversation update(@NotNull final Conversation conversation, @NotBlank final String questionVector, final Boolean closed,
+                             @NotNull final ConversationLanguage language,
+                             final Boolean rating,
+                             @NotBlank final String userId, final IncidentReport incidentReport, @NotNull final Set<Message> messages, final Knowledge knowledge)
+      throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException {
+
+    if (conversation.getClosed().orElse(Boolean.FALSE)) {
+      throw new ConversationClosedException("Closed conversation can not be changed.");
+    }
+
+    if (!conversation.getLanguage().equals(language)) {
+      throw new LanguageFinalException("Language of a Conversation can not be changed once set.");
+    }
+
+    if (rating != null && conversation.getRating().isPresent() && conversation.getRating().equals(rating)) {
+      throw new RatingFinalException("Rating of a Conversation can not be changed once set.");
+    }
+
+    conversation.setQuestionVector(questionVector);
+    conversation.setClosed(closed);
+    conversation.setLanguage(language);
+    conversation.setRating(rating);
+    conversation.setUserId(userId);
+    conversation.setIncidentReport(incidentReport);
+    conversation.setMessages(messages);
+    conversation.setKnowledge(knowledge);
+
+    return this.update(conversation);
+  }
+
+  @Override
+  public boolean hasOpenConversation(final @NotBlank String userId) {
+    return this.executeCountQuery(
+        ((query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId), cb.isFalse(root.get(JpaConversation_.CLOSED)))),
+        true) > 0;
+  }
+
+  @Override
+  @NotNull
+  public <W extends Conversation> W save(final @NotNull W entity) throws PersistenceException {
+    return this._save(entity);
+  }
+
+  @Override
+  @NotNull
+  public <W extends Conversation> W update(final @NotNull W entity) throws PersistenceException {
+    return this._update(entity);
+  }
+
+  @Override
+  @NotNull
+  public <W extends Conversation> W delete(final @NotNull W entity) throws PersistenceException {
+    return this._delete(entity);
+  }
+
+  @Override
+  @NotNull
+  protected Class<JpaConversation> getPersistenceClass() {
+    return JpaConversation.class;
+  }
+
+  @Override
+  @NotNull
+  protected Class<Conversation> getInterfaceClass() {
+    return Conversation.class;
+  }
+
+}
