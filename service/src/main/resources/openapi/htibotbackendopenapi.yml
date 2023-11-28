@@ -204,8 +204,12 @@ paths:
                     type: string
                     example: Tomorrow it is gonna be 36 degrees and it gets even hotter.
                     description: The answer to the users prompt.
+        '400':
+          $ref: "#/components/responses/Error"
         '401':
           description: Unauthorized
+        '409':
+          $ref: "#/components/responses/Error"
         '500':
           $ref: "#/components/responses/Error"
 components:

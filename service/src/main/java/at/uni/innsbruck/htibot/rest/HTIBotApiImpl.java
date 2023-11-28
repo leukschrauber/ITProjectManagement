@@ -8,10 +8,10 @@ import at.uni.innsbruck.htibot.core.business.util.Logger;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
-import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
+import at.uni.innsbruck.htibot.core.util.ExceptionalSupplier;
 import at.uni.innsbruck.htibot.rest.generated.RestResourceRoot;
 import at.uni.innsbruck.htibot.rest.generated.api.HtibotApi;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
@@ -54,36 +54,19 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   @Override
   @NotNull
   public Response continueConversation(@NotNull final String userId) {
-    final long startTime = System.currentTimeMillis();
-    try {
+    return this.runWithinTryCatch("continueConversation", () -> {
       this.conversationService.continueConversation(userId);
       return Response.ok().build();
-    } catch (final PermissionDeniedException e) {
-      return Response.status(Status.UNAUTHORIZED)
-                     .entity(new BaseErrorModel().resultCode(Status.UNAUTHORIZED.getStatusCode()).message(e.getMessage())).build();
-    } catch (final ConstraintViolationException e) {
-      return Response.status(Status.BAD_REQUEST)
-                     .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode()).message(e.getMessage())).build();
-    } catch (final ConversationNotFoundException e) {
-      return Response.status(Status.NOT_FOUND)
-                     .entity(new BaseErrorModel().resultCode(Status.NOT_FOUND.getStatusCode()).message(e.getMessage())).build();
-    } catch (final Exception e) {
-      return Response.status(Status.INTERNAL_SERVER_ERROR)
-                     .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
-    } finally {
-      this.logger.info(
-          String.format("continueConversation with userId %s completed in %s ms", userId, System.currentTimeMillis() - startTime));
-    }
+    });
   }
 
   @Override
   @NotNull
   public Response getAnswer(@NotNull final String prompt, final @NotNull String userId, final @NotNull LanguageEnum language) {
-    final long startTime = System.currentTimeMillis();
-    try {
-    if (StringUtils.isBlank(prompt)) {
-      throw new IllegalArgumentException("prompt must not be blank");
-    }
+    return this.runWithinTryCatch("getAnswer", () -> {
+      if (StringUtils.isBlank(prompt)) {
+        throw new IllegalArgumentException("prompt must not be blank");
+      }
 
       if (this.conversationService.hasOpenConversation(userId)) {
         throw new ConversationNotClosedException(
@@ -118,43 +101,19 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       this.conversationService.addMessage(conversation, answer, UserType.SYSTEM);
 
       return Response.ok(new GetAnswer200Response().answer(answer).resultCode(Status.OK.getStatusCode())).build();
-    } catch (final ConversationNotClosedException e) {
-      return Response.status(Status.CONFLICT)
-                     .entity(new BaseErrorModel().resultCode(Status.CONFLICT.getStatusCode()).message(e.getMessage())).build();
-    } catch (final IllegalArgumentException e) {
-      return Response.status(Status.BAD_REQUEST)
-                     .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode()).message(e.getMessage())).build();
-    } catch (final PersistenceException e) {
-      return Response.status(Status.INTERNAL_SERVER_ERROR)
-                     .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
-    } finally {
-      this.logger.info(
-          String.format("getAnswer with userId %s completed in %s ms", userId, System.currentTimeMillis() - startTime));
-    }
+    });
   }
 
   @Override
   @NotNull
   public Response hasOpenConversation(final @NotNull String userId) {
-    final long startTime = System.currentTimeMillis();
-    try {
+
+    return this.runWithinTryCatch("hasOpenConversation", () -> {
       final HasOpenConversation200Response response = new HasOpenConversation200Response();
       response.setHasOpenConversation(this.conversationService.hasOpenConversation(userId));
       response.setResultCode(Status.OK.getStatusCode());
       return Response.ok(response).build();
-    } catch (final PermissionDeniedException e) {
-      return Response.status(Status.UNAUTHORIZED)
-                     .entity(new BaseErrorModel().resultCode(Status.UNAUTHORIZED.getStatusCode()).message(e.getMessage())).build();
-    } catch (final ConstraintViolationException e) {
-      return Response.status(Status.BAD_REQUEST)
-                     .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode()).message(e.getMessage())).build();
-    } catch (final Exception e) {
-      return Response.status(Status.INTERNAL_SERVER_ERROR)
-                     .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
-    } finally {
-      this.logger.info(
-          String.format("hasOpenConversation with userId %s completed in %s ms", userId, System.currentTimeMillis() - startTime));
-    }
+    });
   }
 
   @Override
@@ -170,5 +129,35 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       throw new IllegalArgumentException("zipFileInputStream must not be null");
     }
     return null;
+  }
+
+  private Response runWithinTryCatch(final String operationId, final ExceptionalSupplier<Response> supplier) {
+    final long startTime = System.currentTimeMillis();
+    try {
+      return supplier.get();
+    } catch (final PermissionDeniedException e) {
+      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      return Response.status(Status.UNAUTHORIZED).build();
+    } catch (final ConstraintViolationException | IllegalArgumentException e) {
+      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      return Response.status(Status.BAD_REQUEST)
+                     .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode()).message(e.getMessage())).build();
+    } catch (final ConversationNotClosedException e) {
+      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      return Response.status(Status.CONFLICT)
+                     .entity(new BaseErrorModel().resultCode(Status.CONFLICT.getStatusCode()).message(e.getMessage())).build();
+    } catch (final ConversationNotFoundException e) {
+      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      return Response.status(Status.NOT_FOUND)
+                     .entity(new BaseErrorModel().resultCode(Status.NOT_FOUND.getStatusCode()).message(e.getMessage())).build();
+    } catch (final Exception e) {
+      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      return Response.status(Status.INTERNAL_SERVER_ERROR)
+                     .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
+
+    } finally {
+      this.logger.info(
+          String.format("%s completed in %s ms", operationId, System.currentTimeMillis() - startTime));
+    }
   }
 }
