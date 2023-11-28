@@ -156,7 +156,7 @@ paths:
           description: Unauthorized
         '404':
           $ref: "#/components/responses/Error"
-        '409':
+        '400':
           $ref: "#/components/responses/Error"
         '500':
           $ref: "#/components/responses/Error"

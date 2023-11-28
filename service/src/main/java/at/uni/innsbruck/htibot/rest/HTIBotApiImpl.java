@@ -3,6 +3,7 @@ package at.uni.innsbruck.htibot.rest;
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
+import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
 import at.uni.innsbruck.htibot.rest.generated.RestResourceRoot;
 import at.uni.innsbruck.htibot.rest.generated.api.HtibotApi;
@@ -36,7 +37,26 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   @Override
   @NotNull
   public Response continueConversation(@NotNull final String userId) {
-    return null;
+    final long startTime = System.currentTimeMillis();
+    try {
+      this.conversationService.continueConversation(userId);
+      return Response.ok().build();
+    } catch (final PermissionDeniedException e) {
+      return Response.status(Status.UNAUTHORIZED)
+                     .entity(new BaseErrorModel().resultCode(Status.UNAUTHORIZED.getStatusCode()).message(e.getMessage())).build();
+    } catch (final ConstraintViolationException e) {
+      return Response.status(Status.BAD_REQUEST)
+                     .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode()).message(e.getMessage())).build();
+    } catch (final ConversationNotFoundException e) {
+      return Response.status(Status.NOT_FOUND)
+                     .entity(new BaseErrorModel().resultCode(Status.NOT_FOUND.getStatusCode()).message(e.getMessage())).build();
+    } catch (final Exception e) {
+      return Response.status(Status.INTERNAL_SERVER_ERROR)
+                     .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
+    } finally {
+      this.logger.info(
+          String.format("continueConversation with userId %s completed in %s ms", userId, System.currentTimeMillis() - startTime));
+    }
   }
 
   @Override
@@ -68,7 +88,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
                      .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
     } finally {
       this.logger.info(
-          String.format("hasOpenConversation with userId %s completed in %s", userId, System.currentTimeMillis() - startTime));
+          String.format("hasOpenConversation with userId %s completed in %s ms", userId, System.currentTimeMillis() - startTime));
     }
   }
 

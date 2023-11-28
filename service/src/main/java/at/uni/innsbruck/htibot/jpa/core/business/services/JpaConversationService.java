@@ -2,6 +2,7 @@ package at.uni.innsbruck.htibot.jpa.core.business.services;
 
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
+import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.exceptions.RatingFinalException;
@@ -74,6 +75,20 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
     conversation.setKnowledge(knowledge);
 
     return this.update(conversation);
+  }
+
+
+  @NotNull
+  @Override
+  public Conversation continueConversation(@NotBlank final String userId) throws ConversationNotFoundException {
+    final Conversation conversation = this.executeSingleResultQuery(
+                                        (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId), cb.isFalse(root.get(JpaConversation_.CLOSED))))
+                                          .orElseThrow(
+                                        () -> new ConversationNotFoundException(String.format("User %s has no conversation yet.", userId)));
+
+    conversation.setClosed(Boolean.FALSE);
+
+    return conversation;
   }
 
   @Override

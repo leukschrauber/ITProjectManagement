@@ -48,7 +48,7 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
 
   private static final long serialVersionUID = 6605871483494404140L;
 
-  @PersistenceContext(unitName = "sozialroutenplan-ds", type = PersistenceContextType.TRANSACTION)
+  @PersistenceContext(unitName = "htiBotDs", type = PersistenceContextType.TRANSACTION)
   private EntityManager entityManager;
 
   @Inject

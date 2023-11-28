@@ -1,6 +1,7 @@
 package at.uni.innsbruck.htibot.core.business.services;
 
 import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
+import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.exceptions.RatingFinalException;
@@ -29,5 +30,8 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException;
 
   boolean hasOpenConversation(@NotBlank String userId);
+
+  @NotNull
+  Conversation continueConversation(@NotBlank String userId) throws ConversationNotFoundException;
 
 }
