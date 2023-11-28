@@ -1,6 +1,7 @@
-package at.uni.innsbruck.htibot.openai;
+package at.uni.innsbruck.htibot.dl;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
+import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigPropertyBuilder;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
 import com.azure.ai.openai.OpenAIClient;
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class OpenAIConnectorService implements ConnectorService {
@@ -36,12 +38,19 @@ public class OpenAIConnectorService implements ConnectorService {
 
   @Override
   @NotBlank
-  public String getAnswer(@NotBlank final String prompt, @NotNull final LanguageEnum language) {
+  public String getAnswer(@NotBlank final String prompt, final @NotNull Optional<Knowledge> knowledge,
+                          @NotNull final LanguageEnum language) {
     final List<String> promptList = Collections.singletonList(prompt);
 
     final Completions completions = this.openAIClient.getCompletions(this.deploymentId,
                                                                      new CompletionsOptions(promptList).setMaxTokens(200));
 
     return completions.getChoices().stream().findFirst().orElseThrow().getText();
+  }
+
+  @Override
+  @NotBlank
+  public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from, @NotNull final LanguageEnum to) {
+    return null;
   }
 }

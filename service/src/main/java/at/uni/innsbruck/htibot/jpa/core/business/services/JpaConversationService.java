@@ -1,6 +1,7 @@
 package at.uni.innsbruck.htibot.jpa.core.business.services;
 
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
+import at.uni.innsbruck.htibot.core.business.services.MessageService;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
@@ -10,15 +11,18 @@ import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
+import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
 import at.uni.innsbruck.htibot.jpa.model.conversation.JpaConversation;
 import at.uni.innsbruck.htibot.jpa.model.conversation.JpaConversation_;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
+import java.util.Optional;
 import java.util.Set;
 
 @ApplicationScoped
@@ -27,6 +31,9 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
 
   @Serial
   private static final long serialVersionUID = -3507242399388356601L;
+
+  @Inject
+  private MessageService messageService;
 
   @Override
   @NotNull
@@ -77,6 +84,16 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
     return this.update(conversation);
   }
 
+  @Override
+  @NotNull
+  public Conversation addMessage(final @NotNull Conversation conversation, final @NotBlank String message,
+                                 final @NotNull UserType createdBy)
+      throws PersistenceException {
+    final Message messageObject = this.messageService.createAndSave(conversation, message, createdBy);
+    conversation.getMessages().add(messageObject);
+    return this._update(conversation);
+  }
+
 
   @NotNull
   @Override
@@ -89,6 +106,12 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
     conversation.setClosed(Boolean.FALSE);
 
     return conversation;
+  }
+
+  @Override
+  public Optional<Conversation> getByUserId(final String userId) {
+    return this.executeSingleResultQuery(
+        (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId), cb.isFalse(root.get(JpaConversation_.CLOSED))));
   }
 
   @Override

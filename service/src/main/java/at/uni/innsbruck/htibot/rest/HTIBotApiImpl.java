@@ -2,14 +2,23 @@ package at.uni.innsbruck.htibot.rest;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
+import at.uni.innsbruck.htibot.core.business.services.InputClassifierService;
+import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
+import at.uni.innsbruck.htibot.core.exceptions.ConversationNotClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
+import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
+import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.enums.UserType;
+import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.rest.generated.RestResourceRoot;
 import at.uni.innsbruck.htibot.rest.generated.api.HtibotApi;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
+import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
+import at.uni.innsbruck.htibot.rest.util.RestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
@@ -19,6 +28,8 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 @ApplicationPath(RestResourceRoot.APPLICATION_PATH)
@@ -30,6 +41,12 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
   @Inject
   private ConversationService conversationService;
+
+  @Inject
+  private InputClassifierService inputClassifierService;
+
+  @Inject
+  private KnowledgeService knowledgeService;
 
   @Inject
   private Logger logger;
@@ -61,11 +78,59 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
   @Override
   @NotNull
-  public Response getAnswer(final @NotNull String prompt, final @NotNull String userId, final @NotNull LanguageEnum language) {
+  public Response getAnswer(@NotNull final String prompt, final @NotNull String userId, final @NotNull LanguageEnum language) {
+    final long startTime = System.currentTimeMillis();
+    try {
     if (StringUtils.isBlank(prompt)) {
-      throw new IllegalArgumentException("prompt must not be null");
+      throw new IllegalArgumentException("prompt must not be blank");
     }
-    return Response.ok(this.connectorService.getAnswer(prompt, language)).build();
+
+      if (this.conversationService.hasOpenConversation(userId)) {
+        throw new ConversationNotClosedException(
+            "User can not conversate in Conversation that has not been closed or been requested for further conversation.");
+      }
+
+      final Optional<Conversation> conversationOptional = this.conversationService.getByUserId(userId);
+
+      String englishPrompt = "";
+
+      if (!LanguageEnum.ENGLISH.equals(language)) {
+        englishPrompt = this.connectorService.translate(prompt, language, LanguageEnum.ENGLISH);
+      } else {
+        englishPrompt = prompt;
+      }
+
+      final String questionVector = this.inputClassifierService.retrieveQuestionVector(englishPrompt);
+      final Optional<Knowledge> knowledge = this.knowledgeService.retrieveKnowledge(questionVector);
+      final String answer = this.connectorService.getAnswer(englishPrompt, knowledge, language);
+
+      Conversation conversation = null;
+
+      if (conversationOptional.isEmpty()) {
+        conversation = this.conversationService.createAndSave(questionVector, false, RestUtil.fromLanguageEnum(language), null, userId,
+                                                              null,
+                                                              new HashSet<>(), knowledge.orElse(null));
+      } else {
+        conversation = conversationOptional.orElseThrow();
+      }
+
+      this.conversationService.addMessage(conversation, prompt, UserType.USER);
+      this.conversationService.addMessage(conversation, answer, UserType.SYSTEM);
+
+      return Response.ok(new GetAnswer200Response().answer(answer).resultCode(Status.OK.getStatusCode())).build();
+    } catch (final ConversationNotClosedException e) {
+      return Response.status(Status.CONFLICT)
+                     .entity(new BaseErrorModel().resultCode(Status.CONFLICT.getStatusCode()).message(e.getMessage())).build();
+    } catch (final IllegalArgumentException e) {
+      return Response.status(Status.BAD_REQUEST)
+                     .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode()).message(e.getMessage())).build();
+    } catch (final PersistenceException e) {
+      return Response.status(Status.INTERNAL_SERVER_ERROR)
+                     .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
+    } finally {
+      this.logger.info(
+          String.format("getAnswer with userId %s completed in %s ms", userId, System.currentTimeMillis() - startTime));
+    }
   }
 
   @Override

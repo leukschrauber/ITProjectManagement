@@ -9,9 +9,11 @@ import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
+import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.Set;
 
 public interface ConversationService extends PersistenceService<Conversation, Long> {
@@ -29,9 +31,15 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
                       @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages, Knowledge knowledge)
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException;
 
+  @NotNull
+  Conversation addMessage(@NotNull Conversation conversation, @NotBlank String message, @NotNull UserType createdBy)
+      throws PersistenceException;
+
   boolean hasOpenConversation(@NotBlank String userId);
 
   @NotNull
   Conversation continueConversation(@NotBlank String userId) throws ConversationNotFoundException;
+
+  Optional<Conversation> getByUserId(@NotBlank String userId);
 
 }
