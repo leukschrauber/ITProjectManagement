@@ -1,10 +1,11 @@
 package at.uni.innsbruck.htibot.dl;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
+import at.uni.innsbruck.htibot.core.exceptions.MaxMessagesExceededException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
-import at.uni.innsbruck.htibot.core.util.properties.ConfigPropertyBuilder;
+import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
 import com.azure.ai.openai.OpenAIClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
@@ -14,12 +15,16 @@ import com.azure.ai.openai.models.ChatRole;
 import com.azure.core.credential.AzureKeyCredential;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 public class OpenAIConnectorService implements ConnectorService {
@@ -54,11 +59,16 @@ public class OpenAIConnectorService implements ConnectorService {
 
   private String deploymentId;
 
+  private Pair<LocalDate, Integer> messageCounter;
+
+  @Inject
+  private ConfigProperties configProperties;
+
   @PostConstruct
   public void init() {
-    final String azureOpenaiKey = ConfigPropertyBuilder.property("at.uni.innsbruck.htibot.openai.connector.token");
-    final String endpoint = ConfigPropertyBuilder.property("at.uni.innsbruck.htibot.openai.connector.host");
-    this.deploymentId = ConfigPropertyBuilder.property("at.uni.innsbruck.htibot.openai.connector.deploymentid");
+    final String azureOpenaiKey = this.configProperties.getProperty(ConfigProperties.OPENAI_TOKEN.getLeft());
+    final String endpoint = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
+    this.deploymentId = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
 
     this.openAIClient = new OpenAIClientBuilder()
         .endpoint(endpoint)
@@ -70,7 +80,20 @@ public class OpenAIConnectorService implements ConnectorService {
   @NotBlank
   public String getAnswer(@NotBlank final String prompt, final @NotNull Optional<Knowledge> knowledge,
                           @NotNull final Optional<Conversation> conversation,
-                          @NotNull final LanguageEnum language, final boolean close) {
+                          @NotNull final LanguageEnum language, final boolean close) throws MaxMessagesExceededException {
+
+    if ((this.messageCounter == null || !this.messageCounter.getLeft().equals(LocalDate.now())) && this.configProperties.keyExists(
+        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft())) {
+      this.messageCounter = new MutablePair<>(LocalDate.now(), 0);
+    }
+
+    if (this.configProperties.keyExists(
+        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft()) && this.messageCounter.getRight() > this.configProperties.getProperty(
+        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft(), Integer.class)) {
+      throw new MaxMessagesExceededException(String.format("Maximum messages exceeded for today. Try again tomorrow. Max Messages: %s",
+                                                           this.configProperties.getProperty(
+                                                               ConfigProperties.OPENAI_MAX_MESSAGES.getLeft())));
+    }
 
     final List<ChatMessage> messageList = new ArrayList<>();
     if (close) {
@@ -87,13 +110,21 @@ public class OpenAIConnectorService implements ConnectorService {
                                      .toList());
     }
 
-    return this.openAIClient.getChatCompletions(this.deploymentId,
-                                                new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS).setTemperature(TEMPERATURE)
+    final String answer = this.openAIClient.getChatCompletions(this.deploymentId,
+                                                               new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
+                                                                                                      .setTemperature(TEMPERATURE)
                                                                                        .setTopP(TOP_P)
                                                                                        .setFrequencyPenalty(
                                                                                            FREQUENCY_PENALTY).setPresencePenalty(
                                                                                            PRESENCE_PENALTY).setStop(Collections.emptyList())).getChoices().stream().findFirst()
-                            .orElseThrow().getMessage().getContent();
+                                           .orElseThrow().getMessage().getContent();
+
+    if (this.configProperties.keyExists(
+        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft())) {
+      this.messageCounter.setValue(this.messageCounter.getValue() + 1);
+    }
+
+    return answer;
   }
 
   @Override

@@ -4,7 +4,7 @@ info:
   title: HTI Bot API
   description: Interact with the HTI Bot Backend
 servers:
-  - url: http://localhost:9191/rest/v1.0
+  - url: http://localhost:9191/hti-bot-backend-1.0.0/rest/v1.0
 paths:
   /htibot/hasOpenConversation:
     get:

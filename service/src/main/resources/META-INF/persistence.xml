@@ -6,7 +6,7 @@
 
   <persistence-unit name="htiBotDs" transaction-type="JTA">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <jta-data-source>java:/${datasource.name}</jta-data-source>
+    <jta-data-source>java:/htiBotDs</jta-data-source>
 
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
 
@@ -16,7 +16,7 @@
       <property name="hibernate.jdbc.time_zone" value="Europe/Vienna"/>
       <property name="hibernate.archive.autodetection" value="class, hbm"/>
       <property name="hibernate.show_sql" value="false"/>
-      <property name="hibernate.hbm2ddl.auto" value="${hbm2ddl}"/>
+      <property name="hibernate.hbm2ddl.auto" value="validate"/>
       <property name="hibernate.flushMode" value="AUTO"/>
       <property name="hibernate.enable_lazy_load_no_trans" value="true"/>
       <property name="hibernate.physical_naming_strategy" value="at.uni.innsbruck.htibot.jpa.common.misc.LowerCaseNamingStrategy"/>

@@ -12,6 +12,7 @@ import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.ExceptionalSupplier;
+import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.rest.generated.RestResourceRoot;
 import at.uni.innsbruck.htibot.rest.generated.api.HtibotApi;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
@@ -51,6 +52,9 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   @Inject
   private Logger logger;
 
+  @Inject
+  private ConfigProperties configProperties;
+
   @Override
   @NotNull
   public Response continueConversation(@NotNull final String userId) {
@@ -80,8 +84,11 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
       String answer = null;
       final boolean closeConversation =
-          conversationOptional.isPresent() && (conversationOptional.orElseThrow().getMessages().size() > 20 || (
-              conversationOptional.orElseThrow().getMessages().size() > 6 && (knowledgeOptional.isEmpty()
+          conversationOptional.isPresent() && (conversationOptional.orElseThrow().getMessages().size() >
+              this.configProperties.getProperty(ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE.getLeft(), Integer.class) || (
+              conversationOptional.orElseThrow().getMessages().size() >
+                  this.configProperties.getProperty(ConfigProperties.HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE.getLeft(), Integer.class) && (
+                  knowledgeOptional.isEmpty()
                   && conversationOptional.orElseThrow()
                                          .getKnowledge()
                                          .isEmpty())));
