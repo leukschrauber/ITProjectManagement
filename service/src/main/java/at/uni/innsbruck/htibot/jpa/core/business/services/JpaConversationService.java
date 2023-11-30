@@ -37,11 +37,11 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
 
   @Override
   @NotNull
-  public Conversation createAndSave(@NotBlank final String questionVector, final Boolean closed, @NotNull final ConversationLanguage language, final Boolean rating,
+  public Conversation createAndSave(final Boolean closed, @NotNull final ConversationLanguage language, final Boolean rating,
                                     @NotBlank final String userId, final IncidentReport incidentReport, @NotNull final Set<Message> messages,
                                     final Knowledge knowledge)
       throws PersistenceException {
-    final Conversation conversation = new JpaConversation(questionVector, language, userId);
+    final Conversation conversation = new JpaConversation(language, userId);
 
     conversation.setClosed(closed);
     conversation.setRating(rating);
@@ -54,7 +54,7 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
 
   @Override
   @NotNull
-  public Conversation update(@NotNull final Conversation conversation, @NotBlank final String questionVector, final Boolean closed,
+  public Conversation update(@NotNull final Conversation conversation, final Boolean closed,
                              @NotNull final ConversationLanguage language,
                              final Boolean rating,
                              @NotBlank final String userId, final IncidentReport incidentReport, @NotNull final Set<Message> messages, final Knowledge knowledge)
@@ -72,7 +72,6 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
       throw new RatingFinalException("Rating of a Conversation can not be changed once set.");
     }
 
-    conversation.setQuestionVector(questionVector);
     conversation.setClosed(closed);
     conversation.setLanguage(language);
     conversation.setRating(rating);
@@ -106,6 +105,15 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
     conversation.setClosed(Boolean.FALSE);
 
     return conversation;
+  }
+
+  @Override
+  @NotNull
+  public Conversation rateConversation(@NotNull final Conversation conversation, final boolean rating)
+      throws PersistenceException {
+    conversation.setClosed(true);
+    conversation.setRating(rating);
+    return this._update(conversation);
   }
 
   @Override

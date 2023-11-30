@@ -28,9 +28,6 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
 
   @Serial
   private static final long serialVersionUID = 1308078277910368033L;
-  @NotBlank
-  @Column
-  private String questionVector;
 
   @Column
   private Boolean closed;
@@ -72,23 +69,11 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
     //needed for JPA
   }
 
-  public JpaConversation(@NotBlank final String questionVector, @NotNull final ConversationLanguage language,
+  public JpaConversation(@NotNull final ConversationLanguage language,
                          @NotBlank final String userId) {
-    this.questionVector = questionVector;
     this.language = language;
     this.userId = userId;
     this.messages = new HashSet<>();
-  }
-
-  @Override
-  @NotBlank
-  public String getQuestionVector() {
-    return this.questionVector;
-  }
-
-  @Override
-  public void setQuestionVector(@NotBlank final String questionVector) {
-    this.questionVector = questionVector;
   }
 
   @Override
@@ -154,8 +139,8 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   }
 
   @Override
-  public Knowledge getKnowledge() {
-    return this.knowledge;
+  public Optional<Knowledge> getKnowledge() {
+    return Optional.ofNullable(this.knowledge);
   }
 
   @Override

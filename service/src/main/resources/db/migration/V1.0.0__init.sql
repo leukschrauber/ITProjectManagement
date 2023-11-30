@@ -7,8 +7,8 @@ CREATE TABLE jpa_knowledge
     created_at      datetime(6),
     updated_at      datetime(6),
     question_vector varchar(255) not null,
-    question        varchar(255) not null,
-    answer          varchar(255) not null,
+    question TEXT not null,
+    answer   TEXT not null,
     created_by      varchar(255) not null,
     PRIMARY KEY (id)
 );
@@ -31,13 +31,12 @@ CREATE TABLE jpa_conversation
     id              bigint       not null auto_increment,
     created_at      datetime(6),
     updated_at      datetime(6),
-    question_vector varchar(255) not null,
     closed          BOOLEAN,
     language        varchar(255) not null,
     rating          BOOLEAN,
     user_id         varchar(255) not null,
-    knowledge_id    bigint       not null,
-    incident_report_id bigint not null,
+    knowledge_id       bigint,
+    incident_report_id bigint,
     PRIMARY KEY (id)
 );
 
@@ -46,7 +45,7 @@ CREATE TABLE jpa_message
 (
     id              bigint       not null auto_increment,
     conversation_id bigint       not null,
-    message         varchar(255) not null,
+    message TEXT not null,
     created_at      datetime(6),
     updated_at      datetime(6),
     created_by      varchar(255) not null,

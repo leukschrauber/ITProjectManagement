@@ -10,11 +10,6 @@ import java.util.Set;
 
 public interface Conversation extends IdentityIdHolder {
 
-  @NotBlank
-  String getQuestionVector();
-
-  void setQuestionVector(@NotBlank String questionVector);
-
   Optional<Boolean> getClosed();
 
   void setClosed(@NotNull Boolean closed);
@@ -42,8 +37,7 @@ public interface Conversation extends IdentityIdHolder {
 
   void setMessages(@NotNull Set<Message> messages);
 
-  @NotNull
-  Knowledge getKnowledge();
+  Optional<Knowledge> getKnowledge();
 
   void setKnowledge(@NotNull Knowledge knowledge);
 

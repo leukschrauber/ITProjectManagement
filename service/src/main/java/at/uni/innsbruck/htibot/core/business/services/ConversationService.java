@@ -20,12 +20,12 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
 
 
   @NotNull
-  Conversation createAndSave(@NotBlank String questionVector, Boolean closed, @NotNull ConversationLanguage language, Boolean rating,
+  Conversation createAndSave(Boolean closed, @NotNull ConversationLanguage language, Boolean rating,
                              @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages, Knowledge knowledge)
       throws PersistenceException;
 
   @NotNull
-  Conversation update(@NotNull Conversation conversation, @NotBlank String questionVector, Boolean closed,
+  Conversation update(@NotNull Conversation conversation, Boolean closed,
                       @NotNull ConversationLanguage language,
                       Boolean rating,
                       @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages, Knowledge knowledge)
@@ -39,6 +39,10 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
 
   @NotNull
   Conversation continueConversation(@NotBlank String userId) throws ConversationNotFoundException;
+
+  @NotNull
+  Conversation rateConversation(@NotNull Conversation conversation, boolean rating)
+      throws PersistenceException;
 
   Optional<Conversation> getByUserId(@NotBlank String userId);
 

@@ -67,32 +67,36 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       if (StringUtils.isBlank(prompt)) {
         throw new IllegalArgumentException("prompt must not be blank");
       }
-
       if (this.conversationService.hasOpenConversation(userId)) {
         throw new ConversationNotClosedException(
             "User can not conversate in Conversation that has not been closed or been requested for further conversation.");
       }
-
       final Optional<Conversation> conversationOptional = this.conversationService.getByUserId(userId);
+      Optional<Knowledge> knowledgeOptional = Optional.empty();
 
-      String englishPrompt = "";
-
-      if (!LanguageEnum.ENGLISH.equals(language)) {
-        englishPrompt = this.connectorService.translate(prompt, language, LanguageEnum.ENGLISH);
-      } else {
-        englishPrompt = prompt;
+      if (conversationOptional.isEmpty() || conversationOptional.orElseThrow().getKnowledge().isEmpty()) {
+        knowledgeOptional = this.findKnowledge(prompt, language);
       }
 
-      final String questionVector = this.inputClassifierService.retrieveQuestionVector(englishPrompt);
-      final Optional<Knowledge> knowledge = this.knowledgeService.retrieveKnowledge(questionVector);
-      final String answer = this.connectorService.getAnswer(englishPrompt, knowledge, language);
+      String answer = null;
+      final boolean closeConversation =
+          conversationOptional.isPresent() && (conversationOptional.orElseThrow().getMessages().size() > 20 || (
+              conversationOptional.orElseThrow().getMessages().size() > 6 && (knowledgeOptional.isEmpty()
+                  && conversationOptional.orElseThrow()
+                                         .getKnowledge()
+                                         .isEmpty())));
+      if (closeConversation) {
+        answer = this.connectorService.getAnswer(prompt, knowledgeOptional, conversationOptional, language, true);
+      } else {
+        answer = this.connectorService.getAnswer(prompt, knowledgeOptional, conversationOptional, language, false);
+      }
 
       Conversation conversation = null;
 
       if (conversationOptional.isEmpty()) {
-        conversation = this.conversationService.createAndSave(questionVector, false, RestUtil.fromLanguageEnum(language), null, userId,
+        conversation = this.conversationService.createAndSave(closeConversation, RestUtil.fromLanguageEnum(language), null, userId,
                                                               null,
-                                                              new HashSet<>(), knowledge.orElse(null));
+                                                              new HashSet<>(), knowledgeOptional.orElse(null));
       } else {
         conversation = conversationOptional.orElseThrow();
       }
@@ -100,8 +104,24 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       this.conversationService.addMessage(conversation, prompt, UserType.USER);
       this.conversationService.addMessage(conversation, answer, UserType.SYSTEM);
 
+      if (closeConversation) {
+        this.conversationService.rateConversation(conversation, false);
+      }
+
       return Response.ok(new GetAnswer200Response().answer(answer).resultCode(Status.OK.getStatusCode())).build();
     });
+  }
+
+  private Optional<Knowledge> findKnowledge(final String prompt, final LanguageEnum language) {
+    String englishPrompt = "";
+    if (!LanguageEnum.ENGLISH.equals(language)) {
+      englishPrompt = this.connectorService.translate(prompt, language, LanguageEnum.ENGLISH);
+    } else {
+      englishPrompt = prompt;
+    }
+
+    final String questionVector = this.inputClassifierService.retrieveQuestionVector(englishPrompt);
+    return this.knowledgeService.retrieveKnowledge(questionVector);
   }
 
   @Override
