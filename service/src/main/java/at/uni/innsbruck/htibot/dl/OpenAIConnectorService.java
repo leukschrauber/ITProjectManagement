@@ -66,14 +66,17 @@ public class OpenAIConnectorService implements ConnectorService {
 
   @PostConstruct
   public void init() {
-    final String azureOpenaiKey = this.configProperties.getProperty(ConfigProperties.OPENAI_TOKEN.getLeft());
-    final String endpoint = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
-    this.deploymentId = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
+    if (Boolean.FALSE.equals(
+        this.configProperties.getPropertyWithDefault(ConfigProperties.MOCK_OPENAI.getLeft(), Boolean.class, Boolean.FALSE))) {
+      final String azureOpenaiKey = this.configProperties.getProperty(ConfigProperties.OPENAI_TOKEN.getLeft());
+      final String endpoint = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
+      this.deploymentId = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
 
-    this.openAIClient = new OpenAIClientBuilder()
-        .endpoint(endpoint)
-        .credential(new AzureKeyCredential(azureOpenaiKey))
-        .buildClient();
+      this.openAIClient = new OpenAIClientBuilder()
+          .endpoint(endpoint)
+          .credential(new AzureKeyCredential(azureOpenaiKey))
+          .buildClient();
+    }
   }
 
   @Override
@@ -81,6 +84,11 @@ public class OpenAIConnectorService implements ConnectorService {
   public String getAnswer(@NotBlank final String prompt, final @NotNull Optional<Knowledge> knowledge,
                           @NotNull final Optional<Conversation> conversation,
                           @NotNull final LanguageEnum language, final boolean close) throws MaxMessagesExceededException {
+
+    if (Boolean.TRUE.equals(
+        this.configProperties.getPropertyWithDefault(ConfigProperties.MOCK_OPENAI.getLeft(), Boolean.class, Boolean.FALSE))) {
+      return this.mockAnswer(prompt, knowledge, conversation, language, close);
+    }
 
     if ((this.messageCounter == null || !this.messageCounter.getLeft().equals(LocalDate.now())) && this.configProperties.keyExists(
         ConfigProperties.OPENAI_MAX_MESSAGES.getLeft())) {
@@ -131,5 +139,37 @@ public class OpenAIConnectorService implements ConnectorService {
   @NotBlank
   public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from, @NotNull final LanguageEnum to) {
     return null;
+  }
+
+  private String mockAnswer(@NotBlank final String prompt, final @NotNull Optional<Knowledge> knowledge,
+                            @NotNull final Optional<Conversation> conversation,
+                            @NotNull final LanguageEnum language, final boolean close) {
+
+    final StringBuilder sb = new StringBuilder();
+    sb.append("This is an answer from a mocked OpenAI-Service.").append("\n").append("\n");
+
+    sb.append("You have asked me: ").append(prompt).append("\n");
+
+    if (knowledge.isPresent()) {
+      sb.append("I will use this answer to reply: ").append(knowledge.orElseThrow().getAnswer()).append("\n");
+    } else {
+      sb.append("I have not found any FAQ I could use to answer. ").append("\n");
+    }
+
+    if (conversation.isPresent()) {
+      sb.append(
+            String.format("This is part of a conversation in which there were %s messages.", conversation.orElseThrow().getMessages().size()))
+        .append("\n");
+    } else {
+      sb.append("This is the beginning of a conversation").append("\n");
+    }
+
+    sb.append(String.format("Your language is %s. However, this is mock mode and everything is in English", language.name())).append("\n");
+
+    if (close) {
+      sb.append("I have been asked to close this conversation").append("\n");
+    }
+
+    return sb.toString();
   }
 }

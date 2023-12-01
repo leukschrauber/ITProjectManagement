@@ -31,8 +31,6 @@ public class ConfigProperties {
                                                                                        String.class);
   public static final Pair<String, Class<?>> HTBOT_DATABASE_PASSWORD = new ImmutablePair<>("at.uni.innsbruck.htibot.mysql.password",
                                                                                            String.class);
-  public static final Pair<String, Class<?>> HTBOT_DEFAULT_LANGUAGE = new ImmutablePair<>("at.uni.innsbruck.htibot.defaultLanguage",
-                                                                                          String.class);
   public static final Pair<String, Class<?>> HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE = new ImmutablePair<>(
       "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithoutKnowledge", Integer.class);
   public static final Pair<String, Class<?>> HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE = new ImmutablePair<>(
@@ -77,6 +75,11 @@ public class ConfigProperties {
                                                    .toList();
 
     for (final String mandatoryProperty : mandatoryProperties) {
+
+      if (Boolean.TRUE.equals(this.getPropertyWithDefault(ConfigProperties.MOCK_OPENAI.getLeft(), Boolean.class, Boolean.FALSE))
+          && (mandatoryProperty.toLowerCase().contains("openai"))) {
+        continue;
+      }
       if (!this.keyExists(mandatoryProperty)) {
         throw new IllegalStateException(
             String.format("Missing properties! The following properties are mandatory: %s", mandatoryProperties));
