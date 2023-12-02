@@ -11,6 +11,7 @@ import at.uni.innsbruck.htibot.core.model.conversation.Message;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
+import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
   Conversation addMessage(@NotNull Conversation conversation, @NotBlank String message, @NotNull UserType createdBy)
       throws PersistenceException;
 
+  @ApiKeyRestricted
   boolean hasOpenConversation(@NotBlank String userId);
 
   @NotNull

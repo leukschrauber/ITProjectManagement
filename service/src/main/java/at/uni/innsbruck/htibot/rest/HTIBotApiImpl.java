@@ -163,22 +163,22 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
     try {
       return supplier.get();
     } catch (final PermissionDeniedException e) {
-      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      this.logger.warn(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
       return Response.status(Status.UNAUTHORIZED).build();
     } catch (final ConstraintViolationException | IllegalArgumentException e) {
-      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      this.logger.info(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
       return Response.status(Status.BAD_REQUEST)
                      .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode()).message(e.getMessage())).build();
     } catch (final ConversationNotClosedException e) {
-      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      this.logger.info(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
       return Response.status(Status.CONFLICT)
                      .entity(new BaseErrorModel().resultCode(Status.CONFLICT.getStatusCode()).message(e.getMessage())).build();
     } catch (final ConversationNotFoundException e) {
-      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      this.logger.info(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
       return Response.status(Status.NOT_FOUND)
                      .entity(new BaseErrorModel().resultCode(Status.NOT_FOUND.getStatusCode()).message(e.getMessage())).build();
     } catch (final Exception e) {
-      this.logger.error(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+      this.logger.warn(String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
       return Response.status(Status.INTERNAL_SERVER_ERROR)
                      .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).message(e.getMessage())).build();
 

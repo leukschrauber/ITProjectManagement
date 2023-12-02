@@ -16,6 +16,7 @@ import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
 import at.uni.innsbruck.htibot.jpa.model.conversation.JpaConversation;
 import at.uni.innsbruck.htibot.jpa.model.conversation.JpaConversation_;
+import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -123,6 +124,7 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
   }
 
   @Override
+  @ApiKeyRestricted
   public boolean hasOpenConversation(final @NotBlank String userId) {
     return this.executeCountQuery(
         ((query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId), cb.isFalse(root.get(JpaConversation_.CLOSED)))),
