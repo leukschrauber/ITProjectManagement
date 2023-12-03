@@ -1,5 +1,8 @@
-const { TeamsActivityHandler, CardFactory, TurnContext } = require("botbuilder");
-const rawWelcomeCard = require("./adaptiveCards/welcome.json");
+const { TeamsActivityHandler, CardFactory, TurnContext, useBotState } = require("botbuilder");
+const germanWelcomeCard = require("./adaptiveCards/german/welcome.json");
+const englishWelcomeCard = require("./adaptiveCards/english/welcome.json");
+const frenchWelcomeCard = require("./adaptiveCards/french/welcome.json");
+const italianWelcomeCard = require("./adaptiveCards/italian/welcome.json");
 const rawLearnCard = require("./adaptiveCards/learn.json");
 const cardTools = require("@microsoft/adaptivecards-tools");
 const ApiClient =  require("./apiclient");
@@ -29,15 +32,98 @@ class TeamsBot extends TeamsActivityHandler {
       });
     }
 
+    async function getAnswer(prompt, userId, language) {
+      return new Promise((resolve, reject) => {
+        var callback = function (error, data, response) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(data.answer);
+          }
+        };
+        htBotApi.getAnswer(prompt, userId, language, callback);
+      });
+    }
+
+    function retrieveWelcomeCard(userLocale) {
+      if(!userLocale) {
+        return englishWelcomeCard;
+      }
+
+      var welcomeCard;
+
+      if(userLocale.startsWith("en-")) {
+        welcomeCard = englishWelcomeCard;
+      } else if(userLocale.startsWith("de-")) {
+        welcomeCard = germanWelcomeCard;
+      } else if(userLocale.startsWith("it-")) {
+        welcomeCard = italianWelcomeCard;
+      } else if(userLocale.startsWith("fr-")) {
+        welcomeCard = frenchWelcomeCard;
+      }
+
+      return welcomeCard;
+    }
+
+    function mapToLanguageEnum(userLocale) {
+      if(!userLocale) {
+        return "English";
+      }
+
+      var languageEnum;
+
+      if(userLocale.startsWith("en-")) {
+        languageEnum = "English";
+      } else if(userLocale.startsWith("de-")) {
+        languageEnum = "German";
+      } else if(userLocale.startsWith("it-")) {
+        languageEnum = "Italian";
+      } else if(userLocale.startsWith("fr-")) {
+        languageEnum = "French"
+      }
+
+      return languageEnum;
+    }
+
+    this.onMembersAdded(async (context, next) => {
+      const membersAdded = context.activity.membersAdded;
+      for (let cnt = 0; cnt < 1; cnt++) {
+        if (membersAdded[cnt].id) {
+        var welcomeCard = retrieveWelcomeCard(membersAdded.locale);
+
+        const card = cardTools.AdaptiveCards.declareWithoutData(welcomeCard).render();
+        await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
+        break;
+        }
+      }
+      await next();
+    });
+
 
     this.onMessage(async (context, next) => {
 
       var userId = context.activity.from.id;
+      var language = context.activity.locale;
+      var prompt = context.activity.text.trim();
+
+      switch (prompt) {
+        case "welcome": {
+          var welcomeCard = retrieveWelcomeCard(language);
+          const card = cardTools.AdaptiveCards.declareWithoutData(welcomeCard).render();
+          await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
+          return;
+        }
+      }
+
+
       try {
         if (await hasOpenConversation(userId)) {
-          context.sendActivity("User has open conversation");
+          //TODO: Translation
+          context.sendActivity("It seems as there would be an open conversation for you. If you'd like to continue in this conversation, let us know by clicking the button. Otherwise, rate the conversation to close it.");
         } else {
-          context.sendActivity("User has no open conversation");
+          var answer = await getAnswer(prompt, userId, mapToLanguageEnum(language));
+          //TODO: Adaptive card
+          context.sendActivity(answer)
         }
       } catch (error) {
         console.error(error);
@@ -79,42 +165,7 @@ class TeamsBot extends TeamsActivityHandler {
         // Remove the line break
         txt = removedMentionText.toLowerCase().replace(/\n|\r/g, "").trim();
       }
-
-      // Trigger command by IM text
-      switch (txt) {
-        case "welcome": {
-          const card = cardTools.AdaptiveCards.declareWithoutData(rawWelcomeCard).render();
-          await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
-          break;
-        }
-        case "learn": {
-          this.likeCountObj.likeCount = 0;
-          const card = cardTools.AdaptiveCards.declare(rawLearnCard).render(this.likeCountObj);
-          await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
-          break;
-        }
-        /**
-         * case "yourCommand": {
-         *   await context.sendActivity(`Add your response here!`);
-         *   break;
-         * }
-         */
-      }
-
       // By calling next() you ensure that the next BotHandler is run.
-      await next();
-    });
-
-    // Listen to MembersAdded event, view https://docs.microsoft.com/en-us/microsoftteams/platform/resources/bot-v3/bots-notifications for more events
-    this.onMembersAdded(async (context, next) => {
-      const membersAdded = context.activity.membersAdded;
-      for (let cnt = 0; cnt < membersAdded.length; cnt++) {
-        if (membersAdded[cnt].id) {
-          const card = cardTools.AdaptiveCards.declareWithoutData(rawWelcomeCard).render();
-          await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
-          break;
-        }
-      }
       await next();
     });
   }

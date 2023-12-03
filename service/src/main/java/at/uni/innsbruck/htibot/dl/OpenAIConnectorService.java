@@ -146,14 +146,14 @@ public class OpenAIConnectorService implements ConnectorService {
                             @NotNull final LanguageEnum language, final boolean close) {
 
     final StringBuilder sb = new StringBuilder();
-    sb.append("This is an answer from a mocked OpenAI-Service.").append("\n").append("\n");
+    sb.append("This is an answer from a mocked OpenAI-Service.").append("\n\n");
 
-    sb.append("You have asked me: ").append(prompt).append("\n");
+    sb.append("You have asked me: ").append(prompt).append(".\n\n");
 
     if (knowledge.isPresent()) {
-      sb.append("I will use this answer to reply: ").append(knowledge.orElseThrow().getAnswer()).append("\n");
+      sb.append("I will use this answer to reply: ").append(knowledge.orElseThrow().getAnswer()).append("\n\n");
     } else {
-      sb.append("I have not found any FAQ I could use to answer. ").append("\n");
+      sb.append("I have not found any FAQ I could use to answer. ").append("\n\n");
     }
 
     if (conversation.isPresent()) {
@@ -161,13 +161,14 @@ public class OpenAIConnectorService implements ConnectorService {
             String.format("This is part of a conversation in which there were %s messages.", conversation.orElseThrow().getMessages().size()))
         .append("\n");
     } else {
-      sb.append("This is the beginning of a conversation").append("\n");
+      sb.append("This is the beginning of a conversation.").append("\n\n");
     }
 
-    sb.append(String.format("Your language is %s. However, this is mock mode and everything is in English", language.name())).append("\n");
+    sb.append(String.format("Your language is %s. However, this is mock mode and everything is in English.", language.name()))
+      .append("\n\n");
 
     if (close) {
-      sb.append("I have been asked to close this conversation").append("\n");
+      sb.append("I have been asked to close this conversation").append("\n\n");
     }
 
     return sb.toString();
