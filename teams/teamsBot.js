@@ -7,7 +7,10 @@ const ApiClient =  require("./apiclient");
 class TeamsBot extends TeamsActivityHandler {
   constructor() {
     super();
-    var client = new ApiClient.ApiClient("http://localhost:9191/hti-bot-backend-1.0.0-SNAPSHOT/rest/v1.0");
+    var client = new ApiClient.ApiClient("http://localhost:9191/hti-bot-backend-1.0.0-SNAPSHOT/hti-bot-backend-1.0.0/rest/v1.0");
+    client.defaultHeaders = {
+      'X-API-Key': '9562015e-95c8-44bc-a5c3-d8f8c132b429'
+  }
     var htBotApi = new ApiClient.DefaultApi(client);
 
     // record the likeCount
