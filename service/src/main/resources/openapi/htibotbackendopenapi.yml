@@ -37,7 +37,7 @@ paths:
                     type: boolean
                     description: Whether the user has an unclosed conversation and did not request further conversation.
         '400':
-          description: "#/components/responses/Error"
+          $ref: "#/components/responses/Error"
         '401':
           description: Unauthorized
         '500':

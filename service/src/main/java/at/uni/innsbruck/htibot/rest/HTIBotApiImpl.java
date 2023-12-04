@@ -85,9 +85,9 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       String answer = null;
       final boolean closeConversation =
           conversationOptional.isPresent() && (conversationOptional.orElseThrow().getMessages().size() >
-              this.configProperties.getProperty(ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE.getLeft(), Integer.class) || (
+              this.configProperties.getProperty(ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE) || (
               conversationOptional.orElseThrow().getMessages().size() >
-                  this.configProperties.getProperty(ConfigProperties.HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE.getLeft(), Integer.class) && (
+                  this.configProperties.getProperty(ConfigProperties.HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE) && (
                   knowledgeOptional.isEmpty()
                   && conversationOptional.orElseThrow()
                                          .getKnowledge()

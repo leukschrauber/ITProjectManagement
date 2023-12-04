@@ -8,33 +8,31 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 public class ConfigProperties {
 
-  public static final Pair<String, Class<?>> MOCK_OPENAI = new ImmutablePair<>("at.uni.innsbruck.htibot.openai.connector.mockOpenAI",
-                                                                               Boolean.class);
-  public static final Pair<String, Class<?>> OPENAI_TOKEN = new ImmutablePair<>("at.uni.innsbruck.htibot.openai.connector.token",
-                                                                                String.class);
-  public static final Pair<String, Class<?>> OPENAI_HOST = new ImmutablePair<>("at.uni.innsbruck.htibot.openai.connector.host",
-                                                                               String.class);
-  public static final Pair<String, Class<?>> OPENAI_DEPLOYMENT = new ImmutablePair<>(
-      "at.uni.innsbruck.htibot.openai.connector.deploymentid", String.class);
-  public static final Pair<String, Class<?>> OPENAI_MAX_MESSAGES = new ImmutablePair<>("at.uni.innsbruck.htibot.openai.maxMessagesPerDay",
-                                                                                       Integer.class);
-  public static final Pair<String, Class<?>> HTBOT_API_KEY = new ImmutablePair<>("at.uni.innsbruck.htibot.apiKey", String.class);
-  public static final Pair<String, Class<?>> HTBOT_DATABASE_URL = new ImmutablePair<>("at.uni.innsbruck.htibot.mysql.databaseUrl",
-                                                                                      String.class);
-  public static final Pair<String, Class<?>> HTBOT_DATABASE_USER = new ImmutablePair<>("at.uni.innsbruck.htibot.mysql.user",
-                                                                                       String.class);
-  public static final Pair<String, Class<?>> HTBOT_DATABASE_PASSWORD = new ImmutablePair<>("at.uni.innsbruck.htibot.mysql.password",
-                                                                                           String.class);
-  public static final Pair<String, Class<?>> HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE = new ImmutablePair<>(
-      "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithoutKnowledge", Integer.class);
-  public static final Pair<String, Class<?>> HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE = new ImmutablePair<>(
-      "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithKnowledge", Integer.class);
+  public static final ConfigProperty<Boolean> MOCK_OPENAI = new ConfigProperty<>("at.uni.innsbruck.htibot.openai.connector.mockOpenAI",
+                                                                                 Boolean.class, Boolean.FALSE);
+  public static final ConfigProperty<String> OPENAI_TOKEN = new ConfigProperty<>("at.uni.innsbruck.htibot.openai.connector.token",
+                                                                                 String.class, null);
+  public static final ConfigProperty<String> OPENAI_HOST = new ConfigProperty<>("at.uni.innsbruck.htibot.openai.connector.host",
+                                                                                String.class, null);
+  public static final ConfigProperty<String> OPENAI_DEPLOYMENT = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.openai.connector.deploymentid", String.class, null);
+  public static final ConfigProperty<Integer> OPENAI_MAX_MESSAGES = new ConfigProperty<>("at.uni.innsbruck.htibot.openai.maxMessagesPerDay",
+                                                                                         Integer.class, null);
+  public static final ConfigProperty<String> HTBOT_API_KEY = new ConfigProperty<>("at.uni.innsbruck.htibot.apiKey", String.class, null);
+  public static final ConfigProperty<String> HTBOT_DATABASE_URL = new ConfigProperty<>("at.uni.innsbruck.htibot.mysql.databaseUrl",
+                                                                                       String.class, null);
+  public static final ConfigProperty<String> HTBOT_DATABASE_USER = new ConfigProperty<>("at.uni.innsbruck.htibot.mysql.user",
+                                                                                        String.class, "root");
+  public static final ConfigProperty<String> HTBOT_DATABASE_PASSWORD = new ConfigProperty<>("at.uni.innsbruck.htibot.mysql.password",
+                                                                                            String.class, "root");
+  public static final ConfigProperty<Integer> HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithoutKnowledge", Integer.class, 6);
+  public static final ConfigProperty<Integer> HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithKnowledge", Integer.class, 20);
 
   private static final String DEFAULT_PROPERTY_PATH = "at/uni/innsbruck/htibot/config.properties";
 
@@ -71,12 +69,13 @@ public class ConfigProperties {
 
   private void validateMandatoryProperties() {
     final List<String> mandatoryProperties = Stream.of(OPENAI_HOST, OPENAI_DEPLOYMENT, OPENAI_TOKEN,
-                                                       HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD).map(Pair::getLeft)
+                                                       HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD)
+                                                   .map(ConfigProperty::getKey)
                                                    .toList();
 
     for (final String mandatoryProperty : mandatoryProperties) {
 
-      if (Boolean.TRUE.equals(this.getPropertyWithDefault(ConfigProperties.MOCK_OPENAI.getLeft(), Boolean.class, Boolean.FALSE))
+      if (Boolean.TRUE.equals(this.getProperty(ConfigProperties.MOCK_OPENAI))
           && (mandatoryProperty.toLowerCase().contains("openai"))) {
         continue;
       }
@@ -88,19 +87,17 @@ public class ConfigProperties {
   }
 
   private void validatePropertyTypes() {
-    final List<Pair<String, Class<?>>> typedProperties = List.of(HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE, HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE,
+    final List<ConfigProperty<Integer>> typedProperties = List.of(HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE, HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE,
                                                                  OPENAI_MAX_MESSAGES);
 
-    for (final Pair<String, Class<?>> typedProperty : typedProperties) {
-      if (this.keyExists(typedProperty.getLeft())) {
+    for (final ConfigProperty<Integer> typedProperty : typedProperties) {
+      if (this.keyExists(typedProperty.getKey())) {
         try {
-          if (typedProperty.getRight() == Integer.class) {
-            Integer.parseInt(this.getProperty(typedProperty.getLeft(), String.class));
-          }
+          Integer.parseInt(this.properties.getProperty(typedProperty.getKey()));
         } catch (final NumberFormatException e) {
           throw new IllegalArgumentException(
-              String.format("Property %s is not of type %s, but is expected to be.", typedProperty.getLeft(),
-                            typedProperty.getRight().getSimpleName()));
+              String.format("Property %s is not of type %s, but is expected to be.", typedProperty.getKey(),
+                            typedProperty.getPropertyClass().getSimpleName()));
         }
       }
     }
@@ -111,25 +108,30 @@ public class ConfigProperties {
     return this.properties.containsKey(key);
   }
 
-  public String getProperty(final String key) {
-    return this.getProperty(key, String.class);
-  }
+  public <T> T getProperty(final ConfigProperty<T> configProperty) {
 
-  public <T> T getProperty(final String key, final Class<T> returnType) {
+    if (!this.keyExists(configProperty.getKey())) {
+      return (T) configProperty.getDefaultValue();
+    }
+
+    final Class<T> returnType = configProperty.getPropertyClass();
+
+    T returnValue = null;
+
     if (returnType == Integer.class) {
-      return (T) (Integer) Integer.parseInt(this.properties.getProperty(key));
+      returnValue = (T) (Integer) Integer.parseInt(this.properties.getProperty(configProperty.getKey()));
     } else if (returnType == Boolean.class) {
-      return (T) (Boolean) Boolean.parseBoolean(this.properties.getProperty(key));
+      returnValue = (T) (Boolean) Boolean.parseBoolean(this.properties.getProperty(configProperty.getKey()));
     }
-    return (T) this.properties.getProperty(key);
+    returnValue = (T) this.properties.getProperty(configProperty.getKey());
+
+    if (returnValue == null) {
+      return (T) configProperty.getDefaultValue();
+    }
+
+    return returnValue;
   }
 
-  public <T> T getPropertyWithDefault(final String key, final Class<T> returnType, final T defaultProperty) {
-    if (this.keyExists(key)) {
-      return this.getProperty(key, returnType);
-    }
-    return defaultProperty;
-  }
 
 }
 

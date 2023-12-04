@@ -27,8 +27,8 @@ public class ApiKeyRestrictedInterceptor extends
 
   @Override
   protected boolean hasPermission(final InvocationContext ctx, final ApiKeyRestricted annotation) throws PermissionDeniedException {
-    return this.configProperties.getProperty(ConfigProperties.HTBOT_API_KEY.getLeft()) == null || this.configProperties.getProperty(
-        ConfigProperties.HTBOT_API_KEY.getLeft()).equals(this.request.getHeader("X-API-Key"));
+    return this.configProperties.getProperty(ConfigProperties.HTBOT_API_KEY) == null || this.configProperties.getProperty(
+        ConfigProperties.HTBOT_API_KEY).equals(this.request.getHeader("X-API-Key"));
   }
 
 }

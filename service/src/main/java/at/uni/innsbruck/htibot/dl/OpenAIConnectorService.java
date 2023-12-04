@@ -67,10 +67,10 @@ public class OpenAIConnectorService implements ConnectorService {
   @PostConstruct
   public void init() {
     if (Boolean.FALSE.equals(
-        this.configProperties.getPropertyWithDefault(ConfigProperties.MOCK_OPENAI.getLeft(), Boolean.class, Boolean.FALSE))) {
-      final String azureOpenaiKey = this.configProperties.getProperty(ConfigProperties.OPENAI_TOKEN.getLeft());
-      final String endpoint = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
-      this.deploymentId = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST.getLeft());
+        this.configProperties.getProperty(ConfigProperties.MOCK_OPENAI))) {
+      final String azureOpenaiKey = this.configProperties.getProperty(ConfigProperties.OPENAI_TOKEN);
+      final String endpoint = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST);
+      this.deploymentId = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST);
 
       this.openAIClient = new OpenAIClientBuilder()
           .endpoint(endpoint)
@@ -86,21 +86,21 @@ public class OpenAIConnectorService implements ConnectorService {
                           @NotNull final LanguageEnum language, final boolean close) throws MaxMessagesExceededException {
 
     if (Boolean.TRUE.equals(
-        this.configProperties.getPropertyWithDefault(ConfigProperties.MOCK_OPENAI.getLeft(), Boolean.class, Boolean.FALSE))) {
+        this.configProperties.getProperty(ConfigProperties.MOCK_OPENAI))) {
       return this.mockAnswer(prompt, knowledge, conversation, language, close);
     }
 
     if ((this.messageCounter == null || !this.messageCounter.getLeft().equals(LocalDate.now())) && this.configProperties.keyExists(
-        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft())) {
+        ConfigProperties.OPENAI_MAX_MESSAGES.getKey())) {
       this.messageCounter = new MutablePair<>(LocalDate.now(), 0);
     }
 
     if (this.configProperties.keyExists(
-        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft()) && this.messageCounter.getRight() > this.configProperties.getProperty(
-        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft(), Integer.class)) {
+        ConfigProperties.OPENAI_MAX_MESSAGES.getKey()) && this.messageCounter.getRight() > this.configProperties.getProperty(
+        ConfigProperties.OPENAI_MAX_MESSAGES)) {
       throw new MaxMessagesExceededException(String.format("Maximum messages exceeded for today. Try again tomorrow. Max Messages: %s",
                                                            this.configProperties.getProperty(
-                                                               ConfigProperties.OPENAI_MAX_MESSAGES.getLeft())));
+                                                               ConfigProperties.OPENAI_MAX_MESSAGES)));
     }
 
     final List<ChatMessage> messageList = new ArrayList<>();
@@ -128,7 +128,7 @@ public class OpenAIConnectorService implements ConnectorService {
                                            .orElseThrow().getMessage().getContent();
 
     if (this.configProperties.keyExists(
-        ConfigProperties.OPENAI_MAX_MESSAGES.getLeft())) {
+        ConfigProperties.OPENAI_MAX_MESSAGES.getKey())) {
       this.messageCounter.setValue(this.messageCounter.getValue() + 1);
     }
 

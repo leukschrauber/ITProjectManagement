@@ -62,7 +62,7 @@ public interface HtibotApi {
          }, tags={  })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = HasOpenConversation200Response.class),
-        @ApiResponse(code = 400, message = "#/components/responses/Error", response = Void.class),
+        @ApiResponse(code = 400, message = "Error.", response = BaseErrorModel.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
         @ApiResponse(code = 500, message = "Error.", response = BaseErrorModel.class) })
     Response hasOpenConversation(@QueryParam("userId") @NotNull  @ApiParam("The user id as determined by the caller")  String userId);

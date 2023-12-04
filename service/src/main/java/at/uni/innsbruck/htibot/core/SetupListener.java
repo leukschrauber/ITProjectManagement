@@ -25,9 +25,9 @@ public class SetupListener implements ServletContextListener {
   public void onStart(@Observes(notifyObserver = Reception.ALWAYS) @Initialized(ApplicationScoped.class) final Object notUsed) {
     this.logger.info("Migrating with flyway ...");
     final Flyway flyway = Flyway.configure()
-                                .dataSource(this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_URL.getLeft()),
-                                            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_USER.getLeft()),
-                                            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_PASSWORD.getLeft()))
+                                .dataSource(this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_URL),
+                                            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_USER),
+                                            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_PASSWORD))
                                 .locations("db/migration").load();
     flyway.migrate();
     this.logger.info("Flyway Migration complete.");
