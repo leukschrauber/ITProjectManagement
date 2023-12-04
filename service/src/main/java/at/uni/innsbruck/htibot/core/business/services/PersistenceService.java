@@ -7,7 +7,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface PersistenceService<T extends IdHolder<V>, V extends Comparable<V>> extends Serializable {
+public interface PersistenceService<T extends IdHolder<V>, V extends Comparable<V>> extends
+    Serializable {
 
   Optional<T> getById(final V id);
 
@@ -21,8 +22,10 @@ public interface PersistenceService<T extends IdHolder<V>, V extends Comparable<
 
   @NotNull <W extends T> W reloadDetached(@NotNull W entity);
 
-  @NotNull <W extends T, C extends Collection<W>> C reload(@NotNull Collection<W> entities, @NotNull C resultCollection);
+  @NotNull <W extends T, C extends Collection<W>> C reload(@NotNull Collection<W> entities,
+      @NotNull C resultCollection);
 
-  @NotNull <W extends T, C extends Collection<W>> C reloadDetached(@NotNull Collection<W> entities, @NotNull C resultCollection);
+  @NotNull <W extends T, C extends Collection<W>> C reloadDetached(@NotNull Collection<W> entities,
+      @NotNull C resultCollection);
 
 }

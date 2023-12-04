@@ -7,27 +7,32 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 public abstract class AbstractBaseNamingStrategy implements PhysicalNamingStrategy {
 
   @Override
-  public Identifier toPhysicalCatalogName(final Identifier name, final JdbcEnvironment jdbcEnvironment) {
+  public Identifier toPhysicalCatalogName(final Identifier name,
+      final JdbcEnvironment jdbcEnvironment) {
     return this._handle(name);
   }
 
   @Override
-  public Identifier toPhysicalSchemaName(final Identifier name, final JdbcEnvironment jdbcEnvironment) {
+  public Identifier toPhysicalSchemaName(final Identifier name,
+      final JdbcEnvironment jdbcEnvironment) {
     return this._handle(name);
   }
 
   @Override
-  public Identifier toPhysicalTableName(final Identifier name, final JdbcEnvironment jdbcEnvironment) {
+  public Identifier toPhysicalTableName(final Identifier name,
+      final JdbcEnvironment jdbcEnvironment) {
     return this._handle(name);
   }
 
   @Override
-  public Identifier toPhysicalSequenceName(final Identifier name, final JdbcEnvironment jdbcEnvironment) {
+  public Identifier toPhysicalSequenceName(final Identifier name,
+      final JdbcEnvironment jdbcEnvironment) {
     return this._handle(name);
   }
 
   @Override
-  public Identifier toPhysicalColumnName(final Identifier name, final JdbcEnvironment jdbcEnvironment) {
+  public Identifier toPhysicalColumnName(final Identifier name,
+      final JdbcEnvironment jdbcEnvironment) {
     return this._handle(name);
   }
 

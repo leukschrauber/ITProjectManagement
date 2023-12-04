@@ -10,8 +10,8 @@ public class LowerCaseNamingStrategy extends AbstractBaseNamingStrategy {
     final String regex = "([a-z])([A-Z])";
     final String replacement = "$1_$2";
     final String newName = identifier.getText()
-                                     .replaceAll(regex, replacement)
-                                     .toLowerCase();
+        .replaceAll(regex, replacement)
+        .toLowerCase();
     return Identifier.toIdentifier(newName);
 
   }

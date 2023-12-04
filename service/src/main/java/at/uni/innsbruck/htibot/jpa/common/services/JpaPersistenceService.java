@@ -44,7 +44,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Throwable.class)
 public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, V extends Comparable<V>> implements
-                                                                                                         PersistenceService<T, V> {
+    PersistenceService<T, V> {
 
   private static final long serialVersionUID = 6605871483494404140L;
 
@@ -74,7 +74,8 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
   protected <X> X _delete(final X entity) throws PersistenceException {
     try {
       this.getEntityManager()
-          .remove(this.getEntityManager().contains(entity) ? entity : this.getEntityManager().merge(entity));
+          .remove(this.getEntityManager().contains(entity) ? entity
+              : this.getEntityManager().merge(entity));
 
       return entity;
     } catch (final Exception e) {
@@ -114,19 +115,22 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
     return this.performBatchOperation(entities, this::_delete);
   }
 
-  protected <X> List<X> performBatchOperation(@NotNull final Collection<X> entities, @NotNull final BatchOperation<X> operation)
+  protected <X> List<X> performBatchOperation(@NotNull final Collection<X> entities,
+      @NotNull final BatchOperation<X> operation)
       throws PersistenceException {
     return this.performBatchOperation(entities, operation, new ArrayList<>(entities.size()));
   }
 
-  protected <X> Set<X> performBatchOperation(@NotNull final Set<X> entities, @NotNull final BatchOperation<X> operation)
+  protected <X> Set<X> performBatchOperation(@NotNull final Set<X> entities,
+      @NotNull final BatchOperation<X> operation)
       throws PersistenceException {
     return this.performBatchOperation(entities, operation, new HashSet<>(entities.size()));
   }
 
-  protected <X, Y extends Collection<X>> Y performBatchOperation(@NotNull final Collection<X> entities,
-                                                                 @NotNull final BatchOperation<X> operation,
-                                                                 @NotNull final Y resultCollection)
+  protected <X, Y extends Collection<X>> Y performBatchOperation(
+      @NotNull final Collection<X> entities,
+      @NotNull final BatchOperation<X> operation,
+      @NotNull final Y resultCollection)
       throws PersistenceException {
 
     if (CollectionUtils.isNotEmpty(entities)) {
@@ -159,63 +163,73 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
     return proxied;
   }
 
-  protected Predicate createIgnoreCaseLikePredicateWithEmptyCheck(final CriteriaBuilder cb, final String like,
-                                                                  final Expression<String> path) {
-    return StringUtils.isEmpty(like) ? cb.conjunction() : this.createIgnoreCaseLikePredicate(cb, like, path);
+  protected Predicate createIgnoreCaseLikePredicateWithEmptyCheck(final CriteriaBuilder cb,
+      final String like,
+      final Expression<String> path) {
+    return StringUtils.isEmpty(like) ? cb.conjunction()
+        : this.createIgnoreCaseLikePredicate(cb, like, path);
   }
 
-  protected Predicate createIgnoreCaseLikePredicate(final CriteriaBuilder cb, final String like, final Expression<String> path) {
+  protected Predicate createIgnoreCaseLikePredicate(final CriteriaBuilder cb, final String like,
+      final Expression<String> path) {
     return cb.like(cb.lower(path), this.likify(like));
   }
 
-  protected Predicate createIgnoreCaseLikePredicate(final CriteriaBuilder cb, final Optional<String> like, final Expression<String> path) {
+  protected Predicate createIgnoreCaseLikePredicate(final CriteriaBuilder cb,
+      final Optional<String> like, final Expression<String> path) {
     return like.map(n -> cb.like(cb.lower(path), this.likify(n))).orElse(null);
   }
 
-  protected <X> Predicate createIgnoreCaseLikePredicate(final CriteriaBuilder cb, final Root<X> root,
-                                                        final String like, final SingularAttribute<? super X, String> attribute) {
+  protected <X> Predicate createIgnoreCaseLikePredicate(final CriteriaBuilder cb,
+      final Root<X> root,
+      final String like, final SingularAttribute<? super X, String> attribute) {
     return this.createIgnoreCaseLikePredicate(cb, like, root.get(attribute));
   }
 
   protected Predicate combineWithNullCheck(final CriteriaBuilder cb,
-                                           final Predicate fallback,
-                                           final TriFunction<CriteriaBuilder, Predicate, Predicate, Predicate> combiner,
-                                           final Predicate... predicates) {
+      final Predicate fallback,
+      final TriFunction<CriteriaBuilder, Predicate, Predicate, Predicate> combiner,
+      final Predicate... predicates) {
     return Arrays.stream(predicates)
-                 .filter(Objects::nonNull)
-                 .reduce((f, s) -> combiner.apply(cb, f, s)).orElse(fallback);
+        .filter(Objects::nonNull)
+        .reduce((f, s) -> combiner.apply(cb, f, s)).orElse(fallback);
   }
 
   protected Predicate combineWithNullCheck(final CriteriaBuilder cb,
-                                           final Predicate fallback,
-                                           final TriFunction<CriteriaBuilder, Predicate, Predicate, Predicate> combiner,
-                                           final List<Predicate> predicates) {
+      final Predicate fallback,
+      final TriFunction<CriteriaBuilder, Predicate, Predicate, Predicate> combiner,
+      final List<Predicate> predicates) {
     return predicates.stream()
-                     .filter(Objects::nonNull)
-                     .reduce((f, s) -> combiner.apply(cb, f, s)).orElse(fallback);
+        .filter(Objects::nonNull)
+        .reduce((f, s) -> combiner.apply(cb, f, s)).orElse(fallback);
   }
 
-  protected Predicate conjunctWithOptionals(@NotNull final CriteriaBuilder cb, final Predicate basePredicate,
-                                            final Optional<Predicate>... optionalPredicates) {
+  protected Predicate conjunctWithOptionals(@NotNull final CriteriaBuilder cb,
+      final Predicate basePredicate,
+      final Optional<Predicate>... optionalPredicates) {
 
     final Stream<Predicate> basePredicateStream = Stream.ofNullable(basePredicate);
     final Stream<Predicate> predicateStream = ArrayUtils.isEmpty(optionalPredicates)
-                                              ? Stream.empty()
-                                              : Stream.of(optionalPredicates).map(p -> p.orElse(null));
+        ? Stream.empty()
+        : Stream.of(optionalPredicates).map(p -> p.orElse(null));
 
-    return this.combineWithNullCheck(cb, cb.conjunction(), CriteriaBuilder::and, Stream.concat(basePredicateStream, predicateStream)
-                                                                                       .toArray(Predicate[]::new));
+    return this.combineWithNullCheck(cb, cb.conjunction(), CriteriaBuilder::and,
+        Stream.concat(basePredicateStream, predicateStream)
+            .toArray(Predicate[]::new));
   }
 
-  protected Predicate conjunctWithNullCheck(final CriteriaBuilder cb, final Predicate... predicates) {
+  protected Predicate conjunctWithNullCheck(final CriteriaBuilder cb,
+      final Predicate... predicates) {
     return this.combineWithNullCheck(cb, cb.conjunction(), CriteriaBuilder::and, predicates);
   }
 
-  protected Predicate conjunctWithNullCheck(final CriteriaBuilder cb, final List<Predicate> predicates) {
+  protected Predicate conjunctWithNullCheck(final CriteriaBuilder cb,
+      final List<Predicate> predicates) {
     return this.combineWithNullCheck(cb, cb.conjunction(), CriteriaBuilder::and, predicates);
   }
 
-  protected Predicate disjunctWithNullCheck(final CriteriaBuilder cb, final Predicate... predicates) {
+  protected Predicate disjunctWithNullCheck(final CriteriaBuilder cb,
+      final Predicate... predicates) {
     return this.combineWithNullCheck(cb, cb.disjunction(), CriteriaBuilder::or, predicates);
   }
 
@@ -231,7 +245,8 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
     }
   }
 
-  private <R> TypedQuery<R> addOffsetAndLimit(final QPCLimitOffsetSort qpcLimitOffsetSort, final TypedQuery<R> typedQuery) {
+  private <R> TypedQuery<R> addOffsetAndLimit(final QPCLimitOffsetSort qpcLimitOffsetSort,
+      final TypedQuery<R> typedQuery) {
 
     if (Objects.isNull(qpcLimitOffsetSort)) {
       return typedQuery;
@@ -245,10 +260,10 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
   }
 
   protected <P, R> Subquery<R> createSubQuery(final CriteriaQuery<?> query,
-                                              final CriteriaBuilder cb,
-                                              final Class<R> returnClass, final Class<P> persistenceClass,
-                                              final ExtendedPredicateProvider<P> predicateProvider,
-                                              final SubquerySelector<R, P> selector, final boolean distinct) {
+      final CriteriaBuilder cb,
+      final Class<R> returnClass, final Class<P> persistenceClass,
+      final ExtendedPredicateProvider<P> predicateProvider,
+      final SubquerySelector<R, P> selector, final boolean distinct) {
 
     final Subquery<R> subquery = query.subquery(returnClass);
     final Root<P> subRoot = subquery.from(persistenceClass);
@@ -266,11 +281,12 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
     return subquery;
   }
 
-  protected <P, R> CriteriaQuery<R> createCriteriaQuery(final Class<R> returnClass, final Class<P> persistenceClass,
-                                                        final EntityManager em,
-                                                        final ExtendedPredicateProvider<P> predicateProvider,
-                                                        final OrderProvider<P> orderProvider,
-                                                        final Selector<R, P> selector, final boolean distinct) {
+  protected <P, R> CriteriaQuery<R> createCriteriaQuery(final Class<R> returnClass,
+      final Class<P> persistenceClass,
+      final EntityManager em,
+      final ExtendedPredicateProvider<P> predicateProvider,
+      final OrderProvider<P> orderProvider,
+      final Selector<R, P> selector, final boolean distinct) {
 
     final CriteriaBuilder cb = em.getCriteriaBuilder();
 
@@ -293,21 +309,25 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
     return query;
   }
 
-  private <R, P> TypedQuery<R> createTypedQuery(final Class<R> returnClass, final Class<P> persistenceClass,
-                                                final EntityManager em, final ExtendedPredicateProvider<P> predicateProvider,
-                                                final OrderProvider<P> orderProvider,
-                                                final Selector<R, P> selector, final boolean distinct) {
-    return em.createQuery(this.createCriteriaQuery(returnClass, persistenceClass, em, predicateProvider,
-                                                   orderProvider, selector, distinct));
+  private <R, P> TypedQuery<R> createTypedQuery(final Class<R> returnClass,
+      final Class<P> persistenceClass,
+      final EntityManager em, final ExtendedPredicateProvider<P> predicateProvider,
+      final OrderProvider<P> orderProvider,
+      final Selector<R, P> selector, final boolean distinct) {
+    return em.createQuery(
+        this.createCriteriaQuery(returnClass, persistenceClass, em, predicateProvider,
+            orderProvider, selector, distinct));
   }
 
-  private <R, P> TypedQuery<R> createTypedQuery(final Class<R> returnClass, final Class<P> persistenceClass,
-                                                final EntityManager em, final ExtendedPredicateProvider<P> predicateProvider,
-                                                final OrderProvider<P> orderProvider,
-                                                final Selector<R, P> selector, final boolean distinct,
-                                                final QPCLimitOffsetSort qpcLimitOffsetSort) {
+  private <R, P> TypedQuery<R> createTypedQuery(final Class<R> returnClass,
+      final Class<P> persistenceClass,
+      final EntityManager em, final ExtendedPredicateProvider<P> predicateProvider,
+      final OrderProvider<P> orderProvider,
+      final Selector<R, P> selector, final boolean distinct,
+      final QPCLimitOffsetSort qpcLimitOffsetSort) {
     return this.addOffsetAndLimit(qpcLimitOffsetSort, this.getEntityManager().createQuery(
-        this.createCriteriaQuery(returnClass, persistenceClass, em, predicateProvider, orderProvider, selector, distinct)));
+        this.createCriteriaQuery(returnClass, persistenceClass, em, predicateProvider,
+            orderProvider, selector, distinct)));
   }
 
   public interface BatchOperation<B> {
@@ -320,41 +340,48 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
   protected abstract Class<T> getInterfaceClass();
 
   protected <P> long executeCountQuery(final Class<P> persistenceClass,
-                                       final ExtendedPredicateProvider<P> predicateProvider, final boolean distinct) {
+      final ExtendedPredicateProvider<P> predicateProvider, final boolean distinct) {
 
-    return this.createTypedQuery(Long.class, persistenceClass, this.getEntityManager(), predicateProvider, null,
-                                 (q, cb, root) -> q.select(distinct ? cb.countDistinct(root) : cb.count(root)), false)
-               .getSingleResult();
+    return this.createTypedQuery(Long.class, persistenceClass, this.getEntityManager(),
+            predicateProvider, null,
+            (q, cb, root) -> q.select(distinct ? cb.countDistinct(root) : cb.count(root)), false)
+        .getSingleResult();
 
   }
 
   protected <P> long executeCountQuery(final Class<P> persistenceClass,
-                                       final ExtendedPredicateProvider<P> predicateProvider,
-                                       final Selector<Long, P> selector) {
-    return this.createTypedQuery(Long.class, persistenceClass, this.getEntityManager(), predicateProvider, null,
-                                 selector, false)
-               .getSingleResult();
+      final ExtendedPredicateProvider<P> predicateProvider,
+      final Selector<Long, P> selector) {
+    return this.createTypedQuery(Long.class, persistenceClass, this.getEntityManager(),
+            predicateProvider, null,
+            selector, false)
+        .getSingleResult();
   }
 
-  protected long executeCountQuery(final ExtendedPredicateProvider<U> predicateProvider, final boolean distinct) {
+  protected long executeCountQuery(final ExtendedPredicateProvider<U> predicateProvider,
+      final boolean distinct) {
 
     return this.executeCountQuery(this.getPersistenceClass(), predicateProvider, distinct);
 
   }
 
-  protected Optional<T> executeSingleResultQuery(final ExtendedPredicateProvider<U> predicateProvider) {
+  protected Optional<T> executeSingleResultQuery(
+      final ExtendedPredicateProvider<U> predicateProvider) {
 
-    return this.executeSingleResultQuery(this.getInterfaceClass(), this.getPersistenceClass(), predicateProvider,
-                                         this.getDefaultSelector());
+    return this.executeSingleResultQuery(this.getInterfaceClass(), this.getPersistenceClass(),
+        predicateProvider,
+        this.getDefaultSelector());
 
   }
 
-  protected <R, P> Optional<R> executeSingleResultQuery(final Class<R> returnClass, final Class<P> persistenceClass,
-                                                        final ExtendedPredicateProvider<P> predicateProvider,
-                                                        final Selector<R, P> selector) {
+  protected <R, P> Optional<R> executeSingleResultQuery(final Class<R> returnClass,
+      final Class<P> persistenceClass,
+      final ExtendedPredicateProvider<P> predicateProvider,
+      final Selector<R, P> selector) {
     try {
-      final R entity = this.createTypedQuery(returnClass, persistenceClass, this.getEntityManager(), predicateProvider,
-                                             null, selector, false).getSingleResult();
+      final R entity = this.createTypedQuery(returnClass, persistenceClass, this.getEntityManager(),
+          predicateProvider,
+          null, selector, false).getSingleResult();
       return Optional.ofNullable(entity);
     } catch (final NoResultException e) {
       return Optional.empty();
@@ -362,42 +389,46 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
   }
 
   protected List<T> executeResultListQuery(final ExtendedPredicateProvider<U> predicateProvider,
-                                           final OrderProvider<U> orderProvider,
-                                           final boolean distinct, final QPCLimitOffsetSort qpcLimitOffsetSort) {
+      final OrderProvider<U> orderProvider,
+      final boolean distinct, final QPCLimitOffsetSort qpcLimitOffsetSort) {
 
     return this.executeResultListQuery(this.getInterfaceClass(), this.getPersistenceClass(),
-                                       predicateProvider,
-                                       orderProvider,
-                                       this.getDefaultSelector(), distinct, qpcLimitOffsetSort);
+        predicateProvider,
+        orderProvider,
+        this.getDefaultSelector(), distinct, qpcLimitOffsetSort);
 
   }
 
-  protected <R, P> List<R> executeResultListQuery(final Class<R> returnClass, final Class<P> persistenceClass,
-                                                  final ExtendedPredicateProvider<P> predicateProvider,
-                                                  final OrderProvider<P> orderProvider, final Selector<R, P> selector,
-                                                  final boolean distinct, final QPCLimitOffsetSort qpcLimitOffsetSort) {
+  protected <R, P> List<R> executeResultListQuery(final Class<R> returnClass,
+      final Class<P> persistenceClass,
+      final ExtendedPredicateProvider<P> predicateProvider,
+      final OrderProvider<P> orderProvider, final Selector<R, P> selector,
+      final boolean distinct, final QPCLimitOffsetSort qpcLimitOffsetSort) {
 
-    return this.createTypedQuery(returnClass, persistenceClass, this.getEntityManager(), predicateProvider, orderProvider,
-                                 selector, distinct, qpcLimitOffsetSort).getResultList();
+    return this.createTypedQuery(returnClass, persistenceClass, this.getEntityManager(),
+        predicateProvider, orderProvider,
+        selector, distinct, qpcLimitOffsetSort).getResultList();
 
   }
 
   protected Stream<T> executeResultStreamQuery(final ExtendedPredicateProvider<U> predicateProvider,
-                                               final OrderProvider<U> orderProvider,
-                                               final boolean distinct) {
+      final OrderProvider<U> orderProvider,
+      final boolean distinct) {
 
     return this.executeResultStreamQuery(this.getInterfaceClass(), this.getPersistenceClass(),
-                                         predicateProvider, orderProvider,
-                                         this.getDefaultSelector(), distinct, null);
+        predicateProvider, orderProvider,
+        this.getDefaultSelector(), distinct, null);
   }
 
-  protected <R, P> Stream<R> executeResultStreamQuery(final Class<R> returnClass, final Class<P> persistenceClass,
-                                                      final ExtendedPredicateProvider<P> predicateProvider,
-                                                      final OrderProvider<P> orderProvider, final Selector<R, P> selector,
-                                                      final boolean distinct, final QPCLimitOffsetSort qpcLimitOffsetSort) {
+  protected <R, P> Stream<R> executeResultStreamQuery(final Class<R> returnClass,
+      final Class<P> persistenceClass,
+      final ExtendedPredicateProvider<P> predicateProvider,
+      final OrderProvider<P> orderProvider, final Selector<R, P> selector,
+      final boolean distinct, final QPCLimitOffsetSort qpcLimitOffsetSort) {
 
-    return this.createTypedQuery(returnClass, persistenceClass, this.getEntityManager(), predicateProvider, orderProvider,
-                                 selector, distinct, qpcLimitOffsetSort).getResultStream();
+    return this.createTypedQuery(returnClass, persistenceClass, this.getEntityManager(),
+        predicateProvider, orderProvider,
+        selector, distinct, qpcLimitOffsetSort).getResultStream();
 
   }
 
@@ -426,31 +457,35 @@ public abstract class JpaPersistenceService<T extends IdHolder<V>, U extends T, 
 
   @Override
   @NotNull
-  public <W extends T, C extends Collection<W>> C reloadDetached(@NotNull final Collection<W> entities,
-                                                                 @NotNull final C resultCollection) {
+  public <W extends T, C extends Collection<W>> C reloadDetached(
+      @NotNull final Collection<W> entities,
+      @NotNull final C resultCollection) {
     return this.executeResultStreamQuery(this.getInterfaceClass(),
-                                         this.getPersistenceClass(),
-                                         (query, cb, root) -> CollectionUtils.isEmpty(entities) ? cb.disjunction() : root.in(entities),
-                                         null,
-                                         this.getDefaultSelector(),
-                                         true, null)
-               .map(e -> (W) e)
-               .peek(this.getEntityManager()::detach)
-               .collect(Collectors.toCollection(() -> resultCollection));
+            this.getPersistenceClass(),
+            (query, cb, root) -> CollectionUtils.isEmpty(entities) ? cb.disjunction()
+                : root.in(entities),
+            null,
+            this.getDefaultSelector(),
+            true, null)
+        .map(e -> (W) e)
+        .peek(this.getEntityManager()::detach)
+        .collect(Collectors.toCollection(() -> resultCollection));
   }
 
 
   @Override
   @NotNull
-  public <W extends T, C extends Collection<W>> C reload(@NotNull final Collection<W> entities, @NotNull final C resultCollection) {
+  public <W extends T, C extends Collection<W>> C reload(@NotNull final Collection<W> entities,
+      @NotNull final C resultCollection) {
     return this.executeResultStreamQuery(this.getInterfaceClass(),
-                                         this.getPersistenceClass(),
-                                         (query, cb, root) -> CollectionUtils.isEmpty(entities) ? cb.disjunction() : root.in(entities),
-                                         null,
-                                         this.getDefaultSelector(),
-                                         true, null)
-               .map(e -> (W) e)
-               .collect(Collectors.toCollection(() -> resultCollection));
+            this.getPersistenceClass(),
+            (query, cb, root) -> CollectionUtils.isEmpty(entities) ? cb.disjunction()
+                : root.in(entities),
+            null,
+            this.getDefaultSelector(),
+            true, null)
+        .map(e -> (W) e)
+        .collect(Collectors.toCollection(() -> resultCollection));
   }
 
   private Selector<T, U> getDefaultSelector() {

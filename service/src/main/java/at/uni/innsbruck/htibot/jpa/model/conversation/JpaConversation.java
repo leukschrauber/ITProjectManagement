@@ -44,23 +44,23 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   private String userId;
 
   @OneToOne(targetEntity = JpaIncidentReport.class,
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
-            orphanRemoval = true)
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+      orphanRemoval = true)
   @JoinColumn(name = "incident_report_id")
   private IncidentReport incidentReport;
 
   @OneToMany(targetEntity = JpaMessage.class,
-             fetch = FetchType.LAZY,
-             cascade = CascadeType.ALL,
-             orphanRemoval = true,
-             mappedBy = JpaMessage_.CONVERSATION)
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      mappedBy = JpaMessage_.CONVERSATION)
   private Set<Message> messages;
 
   @OneToOne(targetEntity = JpaKnowledge.class,
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
-            orphanRemoval = true)
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+      orphanRemoval = true)
   @JoinColumn(name = "knowledge_id")
   private Knowledge knowledge;
 
@@ -70,7 +70,7 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   }
 
   public JpaConversation(@NotNull final ConversationLanguage language,
-                         @NotBlank final String userId) {
+      @NotBlank final String userId) {
     this.language = language;
     this.userId = userId;
     this.messages = new HashSet<>();

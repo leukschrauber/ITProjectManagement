@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Interceptor
 @ApiKeyRestricted
 public class ApiKeyRestrictedInterceptor extends
-                                         AbstractPermissionRestrictedParameterInterceptor<ApiKeyRestricted> {
+    AbstractPermissionRestrictedParameterInterceptor<ApiKeyRestricted> {
 
   @Inject
   private ConfigProperties configProperties;
@@ -26,8 +26,10 @@ public class ApiKeyRestrictedInterceptor extends
   }
 
   @Override
-  protected boolean hasPermission(final InvocationContext ctx, final ApiKeyRestricted annotation) throws PermissionDeniedException {
-    return this.configProperties.getProperty(ConfigProperties.HTBOT_API_KEY) == null || this.configProperties.getProperty(
+  protected boolean hasPermission(final InvocationContext ctx, final ApiKeyRestricted annotation)
+      throws PermissionDeniedException {
+    return this.configProperties.getProperty(ConfigProperties.HTBOT_API_KEY) == null
+        || this.configProperties.getProperty(
         ConfigProperties.HTBOT_API_KEY).equals(this.request.getHeader("X-API-Key"));
   }
 

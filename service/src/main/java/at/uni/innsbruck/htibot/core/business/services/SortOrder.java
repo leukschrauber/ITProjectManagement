@@ -9,8 +9,8 @@ public enum SortOrder {
   public static SortOrder orDefault(final SortOrder sortOrder, final SortOrder defaultValue) {
 
     return Objects.isNull(sortOrder)
-           ? defaultValue
-           : sortOrder;
+        ? defaultValue
+        : sortOrder;
 
 
   }

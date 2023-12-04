@@ -28,7 +28,8 @@ import java.util.Set;
 
 @ApplicationScoped
 @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Throwable.class)
-public class JpaConversationService extends JpaPersistenceService<Conversation, JpaConversation, Long> implements ConversationService {
+public class JpaConversationService extends
+    JpaPersistenceService<Conversation, JpaConversation, Long> implements ConversationService {
 
   @Serial
   private static final long serialVersionUID = -3507242399388356601L;
@@ -38,9 +39,11 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
 
   @Override
   @NotNull
-  public Conversation createAndSave(final Boolean closed, @NotNull final ConversationLanguage language, final Boolean rating,
-                                    @NotBlank final String userId, final IncidentReport incidentReport, @NotNull final Set<Message> messages,
-                                    final Knowledge knowledge)
+  public Conversation createAndSave(final Boolean closed,
+      @NotNull final ConversationLanguage language, final Boolean rating,
+      @NotBlank final String userId, final IncidentReport incidentReport,
+      @NotNull final Set<Message> messages,
+      final Knowledge knowledge)
       throws PersistenceException {
     final Conversation conversation = new JpaConversation(language, userId);
 
@@ -56,9 +59,10 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
   @Override
   @NotNull
   public Conversation update(@NotNull final Conversation conversation, final Boolean closed,
-                             @NotNull final ConversationLanguage language,
-                             final Boolean rating,
-                             @NotBlank final String userId, final IncidentReport incidentReport, @NotNull final Set<Message> messages, final Knowledge knowledge)
+      @NotNull final ConversationLanguage language,
+      final Boolean rating,
+      @NotBlank final String userId, final IncidentReport incidentReport,
+      @NotNull final Set<Message> messages, final Knowledge knowledge)
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException {
 
     if (conversation.getClosed().orElse(Boolean.FALSE)) {
@@ -69,7 +73,8 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
       throw new LanguageFinalException("Language of a Conversation can not be changed once set.");
     }
 
-    if (rating != null && conversation.getRating().isPresent() && conversation.getRating().equals(rating)) {
+    if (rating != null && conversation.getRating().isPresent() && conversation.getRating()
+        .equals(rating)) {
       throw new RatingFinalException("Rating of a Conversation can not be changed once set.");
     }
 
@@ -86,10 +91,12 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
 
   @Override
   @NotNull
-  public Conversation addMessage(final @NotNull Conversation conversation, final @NotBlank String message,
-                                 final @NotNull UserType createdBy)
+  public Conversation addMessage(final @NotNull Conversation conversation,
+      final @NotBlank String message,
+      final @NotNull UserType createdBy)
       throws PersistenceException {
-    final Message messageObject = this.messageService.createAndSave(conversation, message, createdBy);
+    final Message messageObject = this.messageService.createAndSave(conversation, message,
+        createdBy);
     conversation.getMessages().add(messageObject);
     return this._update(conversation);
   }
@@ -97,11 +104,14 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
 
   @NotNull
   @Override
-  public Conversation continueConversation(@NotBlank final String userId) throws ConversationNotFoundException {
+  public Conversation continueConversation(@NotBlank final String userId)
+      throws ConversationNotFoundException {
     final Conversation conversation = this.executeSingleResultQuery(
-                                        (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId), cb.isFalse(root.get(JpaConversation_.CLOSED))))
-                                          .orElseThrow(
-                                        () -> new ConversationNotFoundException(String.format("User %s has no conversation yet.", userId)));
+            (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
+                cb.isFalse(root.get(JpaConversation_.CLOSED))))
+        .orElseThrow(
+            () -> new ConversationNotFoundException(
+                String.format("User %s has no conversation yet.", userId)));
 
     conversation.setClosed(Boolean.FALSE);
 
@@ -110,7 +120,8 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
 
   @Override
   @NotNull
-  public Conversation rateConversation(@NotNull final Conversation conversation, final boolean rating)
+  public Conversation rateConversation(@NotNull final Conversation conversation,
+      final boolean rating)
       throws PersistenceException {
     conversation.setClosed(true);
     conversation.setRating(rating);
@@ -120,14 +131,16 @@ public class JpaConversationService extends JpaPersistenceService<Conversation, 
   @Override
   public Optional<Conversation> getByUserId(final String userId) {
     return this.executeSingleResultQuery(
-        (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId), cb.isFalse(root.get(JpaConversation_.CLOSED))));
+        (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
+            cb.isFalse(root.get(JpaConversation_.CLOSED))));
   }
 
   @Override
   @ApiKeyRestricted
   public boolean hasOpenConversation(final @NotBlank String userId) {
     return this.executeCountQuery(
-        ((query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId), cb.isFalse(root.get(JpaConversation_.CLOSED)))),
+        ((query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
+            cb.isFalse(root.get(JpaConversation_.CLOSED)))),
         true) > 0;
   }
 

@@ -22,18 +22,21 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
 
   @NotNull
   Conversation createAndSave(Boolean closed, @NotNull ConversationLanguage language, Boolean rating,
-                             @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages, Knowledge knowledge)
+      @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages,
+      Knowledge knowledge)
       throws PersistenceException;
 
   @NotNull
   Conversation update(@NotNull Conversation conversation, Boolean closed,
-                      @NotNull ConversationLanguage language,
-                      Boolean rating,
-                      @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages, Knowledge knowledge)
+      @NotNull ConversationLanguage language,
+      Boolean rating,
+      @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages,
+      Knowledge knowledge)
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException;
 
   @NotNull
-  Conversation addMessage(@NotNull Conversation conversation, @NotBlank String message, @NotNull UserType createdBy)
+  Conversation addMessage(@NotNull Conversation conversation, @NotBlank String message,
+      @NotNull UserType createdBy)
       throws PersistenceException;
 
   @ApiKeyRestricted

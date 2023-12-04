@@ -12,9 +12,11 @@ public interface ConnectorService {
 
   @NotBlank
   String getAnswer(final @NotBlank String prompt, final @NotNull Optional<Knowledge> knowledge,
-                   @NotNull final Optional<Conversation> conversation, final @NotNull LanguageEnum language, boolean close)
+      @NotNull final Optional<Conversation> conversation, final @NotNull LanguageEnum language,
+      boolean close)
       throws MaxMessagesExceededException;
 
   @NotBlank
-  String translate(final @NotBlank String prompt, final @NotNull LanguageEnum from, final @NotNull LanguageEnum to);
+  String translate(final @NotBlank String prompt, final @NotNull LanguageEnum from,
+      final @NotNull LanguageEnum to);
 }

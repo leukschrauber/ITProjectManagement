@@ -37,7 +37,8 @@ public class JpaKnowledgeResource extends JpaIdentityIdHolder implements Knowled
     //needed for JPA
   }
 
-  public JpaKnowledgeResource(@NotBlank final String resourcePath, @NotNull final UserType createdBy) {
+  public JpaKnowledgeResource(@NotBlank final String resourcePath,
+      @NotNull final UserType createdBy) {
     this.resourcePath = resourcePath;
     this.createdBy = createdBy;
   }

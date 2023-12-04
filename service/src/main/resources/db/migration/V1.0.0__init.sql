@@ -28,13 +28,13 @@ CREATE TABLE jpa_knowledge_resource
 -- Create the jpa_conversation table
 CREATE TABLE jpa_conversation
 (
-    id              bigint       not null auto_increment,
-    created_at      datetime(6),
-    updated_at      datetime(6),
-    closed          BOOLEAN,
-    language        varchar(255) not null,
-    rating          BOOLEAN,
-    user_id         varchar(255) not null,
+    id         bigint       not null auto_increment,
+    created_at datetime(6),
+    updated_at datetime(6),
+    closed     BOOLEAN,
+    language   varchar(255) not null,
+    rating     BOOLEAN,
+    user_id    varchar(255) not null,
     knowledge_id       bigint,
     incident_report_id bigint,
     PRIMARY KEY (id)
@@ -55,8 +55,8 @@ CREATE TABLE jpa_message
 -- Create the jpa_incident_report table
 CREATE TABLE jpa_incident_report
 (
-    id              bigint not null auto_increment,
-    text            varchar(255),
+    id   bigint not null auto_increment,
+    text varchar(255),
     created_at datetime(6),
     updated_at datetime(6),
     PRIMARY KEY (id)

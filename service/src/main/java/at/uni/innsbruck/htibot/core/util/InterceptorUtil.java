@@ -9,7 +9,8 @@ public final class InterceptorUtil {
     // static
   }
 
-  public static <V> Optional<V> getFirstParameterMatching(final Class<V> clazz, final InvocationContext ctx) {
+  public static <V> Optional<V> getFirstParameterMatching(final Class<V> clazz,
+      final InvocationContext ctx) {
 
     final Object[] parameters = ctx.getParameters();
 

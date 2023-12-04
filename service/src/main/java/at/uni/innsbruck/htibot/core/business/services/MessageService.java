@@ -10,7 +10,8 @@ import jakarta.validation.constraints.NotNull;
 public interface MessageService extends PersistenceService<Message, Long> {
 
   @NotNull
-  Message createAndSave(@NotNull Conversation conversation, @NotBlank String message, @NotNull UserType userType)
+  Message createAndSave(@NotNull Conversation conversation, @NotBlank String message,
+      @NotNull UserType userType)
       throws PersistenceException;
 
 }

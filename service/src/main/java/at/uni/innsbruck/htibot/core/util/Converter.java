@@ -20,11 +20,14 @@ public final class Converter {
   }
 
   public static <T, V> T convert(final V base, final Function<V, T> converter) {
-    return Optional.ofNullable(base).flatMap(s -> Optional.ofNullable(converter.apply(s))).orElse(null);
+    return Optional.ofNullable(base).flatMap(s -> Optional.ofNullable(converter.apply(s)))
+        .orElse(null);
   }
 
-  private static <T, V> T convert(final V base, final Function<V, T> converter, final T defaultValue) {
-    return Optional.ofNullable(base).flatMap(s -> Optional.ofNullable(converter.apply(s))).orElse(defaultValue);
+  private static <T, V> T convert(final V base, final Function<V, T> converter,
+      final T defaultValue) {
+    return Optional.ofNullable(base).flatMap(s -> Optional.ofNullable(converter.apply(s)))
+        .orElse(defaultValue);
   }
 
   public static Boolean toBoolean(final String base, final Boolean defaultValue) {

@@ -21,7 +21,8 @@ public class RestUtil {
         return ConversationLanguage.ITALIAN;
       }
     }
-    throw new IllegalArgumentException(String.format("LanguageEnum %s not supported.", languageEnum));
+    throw new IllegalArgumentException(
+        String.format("LanguageEnum %s not supported.", languageEnum));
   }
 
 }

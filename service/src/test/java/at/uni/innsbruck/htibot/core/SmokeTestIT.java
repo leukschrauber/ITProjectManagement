@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(ArquillianExtension.class)
-public class SmokeTestIT  {
+public class SmokeTestIT {
 
   @Test
   public void smoketest() throws Exception {

@@ -15,7 +15,8 @@ import java.io.Serial;
 
 @ApplicationScoped
 @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Throwable.class)
-public class JpaMessageService extends JpaPersistenceService<Message, JpaMessage, Long> implements MessageService {
+public class JpaMessageService extends JpaPersistenceService<Message, JpaMessage, Long> implements
+    MessageService {
 
   @Serial
   private static final long serialVersionUID = -3507242399388356601L;
@@ -52,7 +53,8 @@ public class JpaMessageService extends JpaPersistenceService<Message, JpaMessage
   }
 
   @Override
-  public Message createAndSave(@NotNull final Conversation conversation, @NotBlank final String message, @NotNull final UserType userType)
+  public Message createAndSave(@NotNull final Conversation conversation,
+      @NotBlank final String message, @NotNull final UserType userType)
       throws PersistenceException {
     return this.save(new JpaMessage(conversation, message, userType));
   }

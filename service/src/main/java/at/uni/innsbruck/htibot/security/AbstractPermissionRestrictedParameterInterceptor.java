@@ -6,7 +6,7 @@ import jakarta.interceptor.InvocationContext;
 import java.lang.annotation.Annotation;
 
 public abstract class AbstractPermissionRestrictedParameterInterceptor<T extends Annotation> extends
-                                                                                             AbstractPermissionRestrictedInterceptor<T> {
+    AbstractPermissionRestrictedInterceptor<T> {
 
   @Override
   @AroundInvoke

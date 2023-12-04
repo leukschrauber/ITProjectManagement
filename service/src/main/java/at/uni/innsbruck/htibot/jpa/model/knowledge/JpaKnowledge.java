@@ -41,10 +41,10 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
   private UserType createdBy;
 
   @OneToMany(targetEntity = JpaKnowledgeResource.class,
-             fetch = FetchType.LAZY,
-             cascade = CascadeType.ALL,
-             orphanRemoval = true,
-             mappedBy = JpaKnowledgeResource_.KNOWLEDGE)
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      mappedBy = JpaKnowledgeResource_.KNOWLEDGE)
   private Set<KnowledgeResource> knowledgeResources;
 
   @Deprecated
@@ -52,8 +52,9 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
     //needed for JPA
   }
 
-  public JpaKnowledge(@NotBlank final String questionVector, @NotBlank final String question, @NotBlank final String answer,
-                      @NotNull final UserType createdBy) {
+  public JpaKnowledge(@NotBlank final String questionVector, @NotBlank final String question,
+      @NotBlank final String answer,
+      @NotNull final UserType createdBy) {
     this.questionVector = questionVector;
     this.question = question;
     this.answer = answer;

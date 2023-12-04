@@ -22,13 +22,14 @@ public class SetupListener implements ServletContextListener {
   @Inject
   private ConfigProperties configProperties;
 
-  public void onStart(@Observes(notifyObserver = Reception.ALWAYS) @Initialized(ApplicationScoped.class) final Object notUsed) {
+  public void onStart(
+      @Observes(notifyObserver = Reception.ALWAYS) @Initialized(ApplicationScoped.class) final Object notUsed) {
     this.logger.info("Migrating with flyway ...");
     final Flyway flyway = Flyway.configure()
-                                .dataSource(this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_URL),
-                                            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_USER),
-                                            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_PASSWORD))
-                                .locations("db/migration").load();
+        .dataSource(this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_URL),
+            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_USER),
+            this.configProperties.getProperty(ConfigProperties.HTBOT_DATABASE_PASSWORD))
+        .locations("db/migration").load();
     flyway.migrate();
     this.logger.info("Flyway Migration complete.");
   }

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://jboss.org/schema/arquillian"
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://jboss.org/schema/arquillian"
   xsi:schemaLocation=" http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
   <!-- overwritten in specific container config -->
@@ -26,7 +27,8 @@
       <property name="jbossHome">/opt/wildfly</property>
       <property name="allowConnectingToRunningServer">true</property>
       <property name="startupTimeoutInSeconds">240</property>
-      <property name="javaVmArguments">-Xms512M -Xmx4096M -XX:MetaspaceSize=2048M -XX:MaxMetaspaceSize=4096m
+      <property name="javaVmArguments">-Xms512M -Xmx4096M -XX:MetaspaceSize=2048M
+        -XX:MaxMetaspaceSize=4096m
       </property>
     </configuration>
   </container>

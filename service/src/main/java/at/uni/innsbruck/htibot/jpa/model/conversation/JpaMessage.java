@@ -38,7 +38,8 @@ public class JpaMessage extends JpaIdentityIdHolder implements Message {
     //needed for JPA
   }
 
-  public JpaMessage(@NotNull final Conversation conversation, @NotBlank final String message, @NotNull final UserType createdBy) {
+  public JpaMessage(@NotNull final Conversation conversation, @NotBlank final String message,
+      @NotNull final UserType createdBy) {
     this.message = message;
     this.createdBy = createdBy;
     this.conversation = conversation;

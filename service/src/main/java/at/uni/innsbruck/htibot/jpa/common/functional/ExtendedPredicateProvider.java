@@ -18,19 +18,21 @@ public interface ExtendedPredicateProvider<W> {
    * Left precedence: e.g. x.or(y).and(z) = (x.or(y)).and(z)
    */
   default ExtendedPredicateProvider<W> and(@NotNull final ExtendedPredicateProvider<W> other) {
-    return (query, cb, root) -> this.combine(cb::and, cb.conjunction(), other).getPredicate(query, cb, root);
+    return (query, cb, root) -> this.combine(cb::and, cb.conjunction(), other)
+        .getPredicate(query, cb, root);
   }
 
   /**
    * Left precedence: e.g. x.or(y).and(z) = (x.or(y)).and(z)
    */
   default ExtendedPredicateProvider<W> or(@NotNull final ExtendedPredicateProvider<W> other) {
-    return (query, cb, root) -> this.combine(cb::or, cb.disjunction(), other).getPredicate(query, cb, root);
+    return (query, cb, root) -> this.combine(cb::or, cb.disjunction(), other)
+        .getPredicate(query, cb, root);
   }
 
   private ExtendedPredicateProvider<W> combine(@NotNull final BinaryOperator<Predicate> combiner,
-                                               @NotNull final Predicate fallback,
-                                               @NotNull final ExtendedPredicateProvider<W> other) {
+      @NotNull final Predicate fallback,
+      @NotNull final ExtendedPredicateProvider<W> other) {
     return (query, cb, root) -> {
       final Predicate thisPredicate = this.getPredicate(query, cb, root);
 

@@ -15,7 +15,8 @@ import java.util.Optional;
 
 @ApplicationScoped
 @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Throwable.class)
-public class JpaKnowledgeService extends JpaPersistenceService<Knowledge, JpaKnowledge, Long> implements KnowledgeService {
+public class JpaKnowledgeService extends
+    JpaPersistenceService<Knowledge, JpaKnowledge, Long> implements KnowledgeService {
 
   @Serial
   private static final long serialVersionUID = -3507242399388356601L;
@@ -54,9 +55,10 @@ public class JpaKnowledgeService extends JpaPersistenceService<Knowledge, JpaKno
   @Override
   @NotNull
   public Optional<Knowledge> retrieveKnowledge(@NotBlank final String questionVector) {
-    return Optional.ofNullable(new JpaKnowledge(questionVector, "SAP - No typing memory", "Close SAP\n"
-        + "Delete the file SAPHistoryUSERLOGON.db in the folder : C:\\Users\\USERLOGON\\AppData\\Roaming\\SAP\\SAP GUI\\History\n"
-        + "Open SAP again and do a first search in a field to create a history and then see if it keeps the input in memory.\n",
-                                                UserType.SYSTEM));
+    return Optional.ofNullable(
+        new JpaKnowledge(questionVector, "SAP - No typing memory", "Close SAP\n"
+            + "Delete the file SAPHistoryUSERLOGON.db in the folder : C:\\Users\\USERLOGON\\AppData\\Roaming\\SAP\\SAP GUI\\History\n"
+            + "Open SAP again and do a first search in a field to create a history and then see if it keeps the input in memory.\n",
+            UserType.SYSTEM));
   }
 }
