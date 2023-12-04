@@ -138,8 +138,9 @@ public class ConfigProperties {
     } else if (returnType == Boolean.class) {
       returnValue = (T) (Boolean) Boolean.parseBoolean(
           this.properties.getProperty(configProperty.getKey()));
+    } else {
+      returnValue = (T) this.properties.getProperty(configProperty.getKey());
     }
-    returnValue = (T) this.properties.getProperty(configProperty.getKey());
 
     if (returnValue == null) {
       return (T) configProperty.getDefaultValue();

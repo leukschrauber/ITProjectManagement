@@ -13,9 +13,6 @@ import com.azure.ai.openai.models.ChatCompletionsOptions;
 import com.azure.ai.openai.models.ChatMessage;
 import com.azure.ai.openai.models.ChatRole;
 import com.azure.core.credential.AzureKeyCredential;
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -26,7 +23,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-@ApplicationScoped
 public class OpenAIConnectorService implements ConnectorService {
 
   private static final int MAX_TOKENS = 400;
@@ -61,11 +57,11 @@ public class OpenAIConnectorService implements ConnectorService {
 
   private Pair<LocalDate, Integer> messageCounter;
 
-  @Inject
-  private ConfigProperties configProperties;
+  private final ConfigProperties configProperties;
 
-  @PostConstruct
-  public void init() {
+  public OpenAIConnectorService(final ConfigProperties configProperties) {
+    this.configProperties = configProperties;
+
     if (Boolean.FALSE.equals(
         this.configProperties.getProperty(ConfigProperties.MOCK_OPENAI))) {
       final String azureOpenaiKey = this.configProperties.getProperty(
@@ -87,11 +83,6 @@ public class OpenAIConnectorService implements ConnectorService {
       @NotNull final Optional<Conversation> conversation,
       @NotNull final LanguageEnum language, final boolean close)
       throws MaxMessagesExceededException {
-
-    if (Boolean.TRUE.equals(
-        this.configProperties.getProperty(ConfigProperties.MOCK_OPENAI))) {
-      return this.mockAnswer(prompt, knowledge, conversation, language, close);
-    }
 
     if ((this.messageCounter == null || !this.messageCounter.getLeft().equals(LocalDate.now()))
         && this.configProperties.keyExists(
@@ -149,43 +140,5 @@ public class OpenAIConnectorService implements ConnectorService {
   public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from,
       @NotNull final LanguageEnum to) {
     return null;
-  }
-
-  private String mockAnswer(@NotBlank final String prompt,
-      final @NotNull Optional<Knowledge> knowledge,
-      @NotNull final Optional<Conversation> conversation,
-      @NotNull final LanguageEnum language, final boolean close) {
-
-    final StringBuilder sb = new StringBuilder();
-    sb.append("This is an answer from a mocked OpenAI-Service.").append("\n\n");
-
-    sb.append("You have asked me: ").append(prompt).append(".\n\n");
-
-    if (knowledge.isPresent()) {
-      sb.append("I will use this answer to reply: ").append(knowledge.orElseThrow().getAnswer())
-          .append("\n\n");
-    } else {
-      sb.append("I have not found any FAQ I could use to answer. ").append("\n\n");
-    }
-
-    if (conversation.isPresent()) {
-      sb.append(
-              String.format("This is part of a conversation in which there were %s messages.",
-                  conversation.orElseThrow().getMessages().size()))
-          .append("\n");
-    } else {
-      sb.append("This is the beginning of a conversation.").append("\n\n");
-    }
-
-    sb.append(String.format(
-            "Your language is %s. However, this is mock mode and everything is in English.",
-            language.name()))
-        .append("\n\n");
-
-    if (close) {
-      sb.append("I have been asked to close this conversation").append("\n\n");
-    }
-
-    return sb.toString();
   }
 }
