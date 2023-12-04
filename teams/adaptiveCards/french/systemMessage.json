@@ -1,0 +1,34 @@
+{
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "${answer}",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "${rating}",
+      "wrap": true
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Execute",
+      "title": "Continuer la conversation",
+      "verb": "continueConversation"
+    },
+    {
+      "type": "Action.Execute",
+      "title": "Tu n'as pas aidé. 👎",
+      "verb": "negativeRating"
+    },
+    {
+      "type": "Action.Execute",
+      "title": "Bien joué, HT-Bot! 👍",
+      "verb": "positiveRating"
+    }
+  ],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.4"
+}

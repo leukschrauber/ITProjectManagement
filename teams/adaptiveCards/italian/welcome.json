@@ -1,0 +1,23 @@
+{
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": "Welcome to HT-Bot!"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Hello there! 👋 Sono HTBot e sono qui per rendere la tua esperienza con il servizio di assistenza tecnica fluida e senza problemi. Hai bisogno di assistenza per problemi tecnici? Sono qui per te!",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Cominciamo a trovare le risposte di cui hai bisogno! Basta digitare e iniziamo la conversazione. 🚀",
+      "wrap": true
+    }
+  ],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.4"
+}
