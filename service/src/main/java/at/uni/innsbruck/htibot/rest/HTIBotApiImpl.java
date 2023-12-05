@@ -157,7 +157,10 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   @Override
   @NotNull
   public Response rateConversation(final @NotNull String userId, final @NotNull Boolean rating) {
-    return null;
+    return this.runWithinTryCatch("rateConversation", () -> {
+      this.conversationService.rateConversation(userId, rating);
+      return Response.ok(new BaseSuccessModel().resultCode(Status.OK.getStatusCode())).build();
+    });
   }
 
   @Override

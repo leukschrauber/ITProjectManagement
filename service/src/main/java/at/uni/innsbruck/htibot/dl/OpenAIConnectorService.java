@@ -7,6 +7,7 @@ import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
+import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import com.azure.ai.openai.OpenAIClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.ai.openai.models.ChatCompletionsOptions;
@@ -78,6 +79,7 @@ public class OpenAIConnectorService implements ConnectorService {
 
   @Override
   @NotBlank
+  @ApiKeyRestricted
   public String getAnswer(@NotBlank final String prompt,
       final @NotNull Optional<Knowledge> knowledge,
       @NotNull final Optional<Conversation> conversation,
@@ -137,6 +139,7 @@ public class OpenAIConnectorService implements ConnectorService {
 
   @Override
   @NotBlank
+  @ApiKeyRestricted
   public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from,
       @NotNull final LanguageEnum to) {
     return null;

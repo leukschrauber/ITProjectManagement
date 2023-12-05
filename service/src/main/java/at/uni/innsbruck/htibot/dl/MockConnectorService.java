@@ -6,6 +6,7 @@ import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
+import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ public class MockConnectorService implements ConnectorService {
 
   @Override
   @NotBlank
+  @ApiKeyRestricted
   public String getAnswer(@NotBlank final String prompt,
       final @NotNull Optional<Knowledge> knowledge,
       @NotNull final Optional<Conversation> conversation,
@@ -87,6 +89,7 @@ public class MockConnectorService implements ConnectorService {
 
   @Override
   @NotBlank
+  @ApiKeyRestricted
   public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from,
       @NotNull final LanguageEnum to) {
     return null;

@@ -21,12 +21,14 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
 
 
   @NotNull
+  @ApiKeyRestricted
   Conversation createAndSave(Boolean closed, @NotNull ConversationLanguage language, Boolean rating,
       @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages,
       Knowledge knowledge)
       throws PersistenceException;
 
   @NotNull
+  @ApiKeyRestricted
   Conversation update(@NotNull Conversation conversation, Boolean closed,
       @NotNull ConversationLanguage language,
       Boolean rating,
@@ -35,6 +37,7 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException;
 
   @NotNull
+  @ApiKeyRestricted
   Conversation addMessage(@NotNull Conversation conversation, @NotBlank String message,
       @NotNull UserType createdBy)
       throws PersistenceException;
@@ -43,12 +46,20 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
   boolean hasOpenConversation(@NotBlank String userId);
 
   @NotNull
+  @ApiKeyRestricted
   Conversation continueConversation(@NotBlank String userId) throws ConversationNotFoundException;
 
   @NotNull
+  @ApiKeyRestricted
+  Conversation rateConversation(@NotNull String userId, boolean rating)
+      throws PersistenceException, ConversationNotFoundException;
+
+  @NotNull
+  @ApiKeyRestricted
   Conversation rateConversation(@NotNull Conversation conversation, boolean rating)
       throws PersistenceException;
 
+  @ApiKeyRestricted
   Optional<Conversation> getByUserId(@NotBlank String userId);
 
 }

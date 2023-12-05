@@ -7,6 +7,7 @@ import at.uni.innsbruck.htibot.core.model.conversation.Message;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
 import at.uni.innsbruck.htibot.jpa.model.conversation.JpaMessage;
+import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
@@ -24,18 +25,21 @@ public class JpaMessageService extends JpaPersistenceService<Message, JpaMessage
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Message> W save(final @NotNull W entity) throws PersistenceException {
     return this._save(entity);
   }
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Message> W update(final @NotNull W entity) throws PersistenceException {
     return this._update(entity);
   }
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Message> W delete(final @NotNull W entity) throws PersistenceException {
     return this._delete(entity);
   }
@@ -53,6 +57,7 @@ public class JpaMessageService extends JpaPersistenceService<Message, JpaMessage
   }
 
   @Override
+  @ApiKeyRestricted
   public Message createAndSave(@NotNull final Conversation conversation,
       @NotBlank final String message, @NotNull final UserType userType)
       throws PersistenceException {

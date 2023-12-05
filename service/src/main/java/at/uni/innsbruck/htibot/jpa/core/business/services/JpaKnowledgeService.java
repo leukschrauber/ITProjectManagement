@@ -6,6 +6,7 @@ import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
 import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge;
+import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
@@ -24,18 +25,21 @@ public class JpaKnowledgeService extends
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Knowledge> W save(final @NotNull W entity) throws PersistenceException {
     return this._save(entity);
   }
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Knowledge> W update(final @NotNull W entity) throws PersistenceException {
     return this._update(entity);
   }
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Knowledge> W delete(final @NotNull W entity) throws PersistenceException {
     return this._delete(entity);
   }
@@ -54,6 +58,7 @@ public class JpaKnowledgeService extends
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public Optional<Knowledge> retrieveKnowledge(@NotBlank final String questionVector) {
     return Optional.ofNullable(
         new JpaKnowledge(questionVector, "SAP - No typing memory", "Close SAP\n"

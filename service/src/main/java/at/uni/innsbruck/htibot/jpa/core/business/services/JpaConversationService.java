@@ -39,6 +39,7 @@ public class JpaConversationService extends
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public Conversation createAndSave(final Boolean closed,
       @NotNull final ConversationLanguage language, final Boolean rating,
       @NotBlank final String userId, final IncidentReport incidentReport,
@@ -58,6 +59,7 @@ public class JpaConversationService extends
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public Conversation update(@NotNull final Conversation conversation, final Boolean closed,
       @NotNull final ConversationLanguage language,
       final Boolean rating,
@@ -91,6 +93,7 @@ public class JpaConversationService extends
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public Conversation addMessage(final @NotNull Conversation conversation,
       final @NotBlank String message,
       final @NotNull UserType createdBy)
@@ -104,6 +107,7 @@ public class JpaConversationService extends
 
   @NotNull
   @Override
+  @ApiKeyRestricted
   public Conversation continueConversation(@NotBlank final String userId)
       throws ConversationNotFoundException {
     final Conversation conversation = this.executeSingleResultQuery(
@@ -120,6 +124,26 @@ public class JpaConversationService extends
 
   @Override
   @NotNull
+  @ApiKeyRestricted
+  public Conversation rateConversation(@NotNull final String userId,
+      final boolean rating)
+      throws PersistenceException, ConversationNotFoundException {
+
+    final Conversation conversation = this.executeSingleResultQuery(
+            (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
+                cb.isFalse(root.get(JpaConversation_.CLOSED))))
+        .orElseThrow(
+            () -> new ConversationNotFoundException(
+                String.format("User %s has no conversation yet.", userId)));
+
+    conversation.setClosed(true);
+    conversation.setRating(rating);
+    return this._update(conversation);
+  }
+
+  @Override
+  @NotNull
+  @ApiKeyRestricted
   public Conversation rateConversation(@NotNull final Conversation conversation,
       final boolean rating)
       throws PersistenceException {
@@ -129,6 +153,7 @@ public class JpaConversationService extends
   }
 
   @Override
+  @ApiKeyRestricted
   public Optional<Conversation> getByUserId(final String userId) {
     return this.executeSingleResultQuery(
         (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
@@ -146,18 +171,21 @@ public class JpaConversationService extends
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Conversation> W save(final @NotNull W entity) throws PersistenceException {
     return this._save(entity);
   }
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Conversation> W update(final @NotNull W entity) throws PersistenceException {
     return this._update(entity);
   }
 
   @Override
   @NotNull
+  @ApiKeyRestricted
   public <W extends Conversation> W delete(final @NotNull W entity) throws PersistenceException {
     return this._delete(entity);
   }
