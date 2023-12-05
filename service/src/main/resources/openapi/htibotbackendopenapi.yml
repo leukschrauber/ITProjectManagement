@@ -70,16 +70,7 @@ paths:
                   description: Whether to delete old entries after succesful upload of new entries.
       responses:
         '200':
-          description: "OK"
-          content:
-            'application/json':
-              schema:
-                properties:
-                  resultCode:
-                    description: The result code
-                    type: integer
-                    format: int32
-                    example: 200
+          $ref: "#/components/responses/Success"
         '401':
           description: Unauthorized
         '500':
@@ -107,16 +98,7 @@ paths:
             type: boolean
       responses:
         '200':
-          description: "OK"
-          content:
-            'application/json':
-              schema:
-                properties:
-                  resultCode:
-                    description: The result code
-                    type: integer
-                    format: int32
-                    example: 200
+          $ref: "#/components/responses/Success"
         '401':
           description: Unauthorized
         '404':
@@ -142,16 +124,7 @@ paths:
             example: 123abc
       responses:
         '200':
-          description: "OK"
-          content:
-            'application/json':
-              schema:
-                properties:
-                  resultCode:
-                    description: The result code
-                    type: integer
-                    format: int32
-                    example: 200
+          $ref: "#/components/responses/Success"
         '401':
           description: Unauthorized
         '404':
@@ -235,6 +208,14 @@ components:
           type: string
           example: "PersistenceException"
           description: Error Message
+    BaseSuccessModel:
+      type: object
+      properties:
+        resultCode:
+          type: integer
+          format: int32
+          example: 404
+          description: HTTP Status Code
   responses:
     Error:
       description: "Error."
@@ -242,6 +223,12 @@ components:
         'application/json':
           schema:
             $ref: "#/components/schemas/BaseErrorModel"
+    Success:
+      description: "OK"
+      content:
+        'application/json':
+          schema:
+            $ref: "#/components/schemas/BaseSuccessModel"
   securitySchemes:
     apiKeyAuth:
       type: apiKey

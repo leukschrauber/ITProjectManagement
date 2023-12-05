@@ -1,11 +1,11 @@
 package at.uni.innsbruck.htibot.rest.generated.api;
 
 import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
+import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
 import java.io.File;
 import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
-import at.uni.innsbruck.htibot.rest.generated.model.UpdateKnowledgeDB200Response;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -31,7 +31,7 @@ public interface HtibotApi {
         @Authorization(value = "apiKeyAuth")
          }, tags={  })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = UpdateKnowledgeDB200Response.class),
+        @ApiResponse(code = 200, message = "OK", response = BaseSuccessModel.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
         @ApiResponse(code = 404, message = "Error.", response = BaseErrorModel.class),
         @ApiResponse(code = 400, message = "Error.", response = BaseErrorModel.class),
@@ -75,7 +75,7 @@ public interface HtibotApi {
         @Authorization(value = "apiKeyAuth")
          }, tags={  })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = UpdateKnowledgeDB200Response.class),
+        @ApiResponse(code = 200, message = "OK", response = BaseSuccessModel.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
         @ApiResponse(code = 404, message = "Error.", response = BaseErrorModel.class),
         @ApiResponse(code = 409, message = "Error.", response = BaseErrorModel.class),
@@ -91,7 +91,7 @@ public interface HtibotApi {
         @Authorization(value = "apiKeyAuth")
          }, tags={  })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = UpdateKnowledgeDB200Response.class),
+        @ApiResponse(code = 200, message = "OK", response = BaseSuccessModel.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
         @ApiResponse(code = 500, message = "Error.", response = BaseErrorModel.class) })
     Response updateKnowledgeDB( @FormParam(value = "zipFile") InputStream zipFileInputStream,@FormParam(value = "cleanUp")  Boolean cleanUp);

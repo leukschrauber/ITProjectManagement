@@ -16,6 +16,7 @@ import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.rest.generated.RestResourceRoot;
 import at.uni.innsbruck.htibot.rest.generated.api.HtibotApi;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
+import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
 import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
@@ -60,7 +61,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   public Response continueConversation(@NotNull final String userId) {
     return this.runWithinTryCatch("continueConversation", () -> {
       this.conversationService.continueConversation(userId);
-      return Response.ok().build();
+      return Response.ok(new BaseSuccessModel().resultCode(Status.OK.getStatusCode())).build();
     });
   }
 
