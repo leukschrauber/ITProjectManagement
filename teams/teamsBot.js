@@ -9,6 +9,11 @@ const frenchSystemMessageCard = require("./adaptiveCards/french/systemMessage.js
 const italianSystemMessageCard = require("./adaptiveCards/italian/systemMessage.json");
 const cardTools = require("@microsoft/adaptivecards-tools");
 const ApiClient =  require("./apiclient");
+const config = require('./config/config.json');
+const englishConfig = require('./config/english.json');
+const germanConfig = require('./config/german.json');
+const frenchConfig = require('./config/french.json');
+const italianConfig = require('./config/italian.json');
 
 class TeamsBot extends TeamsActivityHandler {
   
@@ -105,6 +110,26 @@ class TeamsBot extends TeamsActivityHandler {
     return systemMessageCard;
   }
 
+  retrieveLanguageConfig(userLocale) {
+    if(!userLocale) {
+      return englishConfig;
+    }
+
+    var languageConfig;
+
+    if(userLocale.startsWith("en-")) {
+      languageConfig = englishConfig;
+    } else if(userLocale.startsWith("de-")) {
+      languageConfig = germanConfig;
+    } else if(userLocale.startsWith("it-")) {
+      languageConfig = italianConfig;
+    } else if(userLocale.startsWith("fr-")) {
+      languageConfig = frenchConfig;
+    }
+
+    return languageConfig;
+  }
+
 mapToLanguageEnum(userLocale) {
     if(!userLocale) {
       return "English";
@@ -128,13 +153,11 @@ mapToLanguageEnum(userLocale) {
   constructor() {
     super();
 
-    var client = new ApiClient.ApiClient("http://localhost:9191/hti-bot-backend-1.0.0-SNAPSHOT/hti-bot-backend-1.0.0/rest/v1.0");
+    var client = new ApiClient.ApiClient(config.apiUrl);
     client.defaultHeaders = {
-        'X-API-Key': '9562015e-95c8-44bc-a5c3-d8f8c132b429'
+        'X-API-Key': config.apiKey
     }
     this.htBotApi = new ApiClient.DefaultApi(client);
-
-    //TODO: Move these methods out of the constructor
 
     this.onMembersAdded(async (context, next) => {
       const membersAdded = context.activity.membersAdded;
@@ -152,7 +175,6 @@ mapToLanguageEnum(userLocale) {
 
 
     this.onMessage(async (context, next) => {
-
       var userId = context.activity.from.id;
       var language = context.activity.locale;
       var prompt = context.activity.text.trim();
@@ -170,8 +192,7 @@ mapToLanguageEnum(userLocale) {
 
       try {
         if (await this.hasOpenConversation(userId)) {
-          //TODO: Translation
-          context.sendActivity("It seems as there would be an open conversation for you. If you'd like to continue in this conversation, let us know by clicking the button. Otherwise, rate the conversation to close it.");
+          context.sendActivity(this.retrieveLanguageConfig(language).openConversation);
         } else {
           var botAnswer = await this.getAnswer(prompt, userId, this.mapToLanguageEnum(language));
           var answerobj = {answer: botAnswer};
@@ -183,35 +204,6 @@ mapToLanguageEnum(userLocale) {
       } catch (error) {
         console.error(error);
       }
-      /*
-      Some pseudo code to show, what we will be doing here:
-
-      onMembersAdded():
-      translate(hard-coded welcome message, context.activity.text)
-      Define welcome message card in adaptiveCards
-
-      onMessage():
-
-        if(userHasUnfinishedConversation(context.activity.from.id)):
-          send message: translate(please rate our conversation or choose to continue the conversation, context.activity.locale)
-
-        else:
-          var answer = conversate(message, context.activity.from.id, context.activity.locale)
-          var pictures = answer.pictures
-          var text = answer.text
-          await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card, pictures, text)] });
-          
-      onAdaptiveCardInvoke():
-        if invoke.value.verb === "user-like":
-           finishConversation(succesful: true, context.activity.from.id);
-           send translate(hard-coded thank you note, context.activity.locale)
-        if invoke.value.verb === "user-dislike":
-          var incidentReport = finishConversation(succesful: false, context.activity.from.id)
-          await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card, incidentReport)] });
-        if invoke.value.verb === "continue-conversation":
-          continueConversation(context.activitity.from.id)
-          send translate(hard-coded message: please continue)
-      */
       await next();
     });
   }
@@ -220,7 +212,6 @@ mapToLanguageEnum(userLocale) {
   // method handles that event.
   //TODO: Make this work
   async onAdaptiveCardInvoke(context, invokeValue) {
-    // The verb "userlike" is sent from the Adaptive Card defined in adaptiveCards/learn.json
     if (invokeValue.action.verb === "continueConversation") {
     var reply = await this.continueConversation(context.activity.from.id);
     var systemMessageCard = this.retrieveSystemMessageCard(context.activity.locale);
@@ -267,7 +258,6 @@ mapToLanguageEnum(userLocale) {
         });
         return { statusCode: 200 };
     }
-    await next();
   }
 }
 
