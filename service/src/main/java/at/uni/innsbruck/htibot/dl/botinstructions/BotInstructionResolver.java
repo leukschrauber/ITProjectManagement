@@ -1,6 +1,6 @@
 package at.uni.innsbruck.htibot.dl.botinstructions;
 
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import com.azure.ai.openai.models.ChatMessage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.constraints.NotNull;
@@ -14,33 +14,35 @@ public class BotInstructionResolver {
 
   @NotNull
   public ChatMessage getKnowledgeableBotMessage(@NotNull final String knowledge,
-      @NotNull final LanguageEnum language) {
+      @NotNull final ConversationLanguage language) {
     return this.retrieveBotInstructions(language).getKnowledgeableBotMessage(knowledge);
   }
 
   @NotNull
-  public ChatMessage getNoClueBotMessage(@NotNull final LanguageEnum language) {
+  public ChatMessage getNoClueBotMessage(@NotNull final ConversationLanguage language) {
     return this.retrieveBotInstructions(language).getNoClueBotMessage();
   }
 
   @NotNull
-  public ChatMessage getClosingBotMessage(@NotNull final LanguageEnum language) {
+  public ChatMessage getClosingBotMessage(@NotNull final ConversationLanguage language) {
     return this.retrieveBotInstructions(language).getClosingBotMessage();
   }
 
   @NotNull
-  public ChatMessage getIncidentReportCreatingBotMessage(@NotNull final LanguageEnum language) {
+  public ChatMessage getIncidentReportCreatingBotMessage(
+      @NotNull final ConversationLanguage language) {
     return this.retrieveBotInstructions(language).getIncidentReportCreatingBotMessage();
   }
 
   @NotNull
   public ChatMessage getTranslatingBotMessage(
-      @NotNull final LanguageEnum translateFrom, @NotNull final LanguageEnum translateTo) {
+      @NotNull final ConversationLanguage translateFrom,
+      @NotNull final ConversationLanguage translateTo) {
     return this.retrieveBotInstructions(translateFrom)
         .getTranslatingBotMessage(translateTo);
   }
 
-  private BotInstructions retrieveBotInstructions(final LanguageEnum language) {
+  private BotInstructions retrieveBotInstructions(final ConversationLanguage language) {
     return this.botInstructions.stream()
         .filter(botinstruction -> botinstruction.getLanguage().equals(language)).findFirst()
         .orElseThrow();

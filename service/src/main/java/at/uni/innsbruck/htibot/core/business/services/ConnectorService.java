@@ -1,8 +1,8 @@
 package at.uni.innsbruck.htibot.core.business.services;
 
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,14 +13,15 @@ public interface ConnectorService {
   @NotBlank
   @ApiKeyRestricted
   String getAnswer(final @NotBlank String prompt, final @NotNull Optional<Knowledge> knowledge,
-      @NotNull final Optional<Conversation> conversation, final @NotNull LanguageEnum language,
+      @NotNull final Optional<Conversation> conversation,
+      final @NotNull ConversationLanguage language,
       boolean close)
       throws Exception;
 
   @NotBlank
   @ApiKeyRestricted
-  String translate(final @NotBlank String prompt, final @NotNull LanguageEnum from,
-      final @NotNull LanguageEnum to) throws Exception;
+  String translate(final @NotBlank String prompt, final @NotNull ConversationLanguage from,
+      final @NotNull ConversationLanguage to) throws Exception;
 
   @NotBlank
   @ApiKeyRestricted

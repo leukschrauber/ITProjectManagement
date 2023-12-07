@@ -1,12 +1,12 @@
 package at.uni.innsbruck.htibot.dl.botinstructions;
 
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import com.azure.ai.openai.models.ChatMessage;
 import jakarta.validation.constraints.NotNull;
 
 public interface BotInstructions {
 
-  @NotNull LanguageEnum getLanguage();
+  @NotNull ConversationLanguage getLanguage();
 
   @NotNull ChatMessage getKnowledgeableBotMessage(String knowledge);
 
@@ -21,5 +21,5 @@ public interface BotInstructions {
 
   @NotNull
   ChatMessage getTranslatingBotMessage(
-      @NotNull LanguageEnum translateTo);
+      @NotNull ConversationLanguage translateTo);
 }

@@ -3,12 +3,12 @@ package at.uni.innsbruck.htibot.dl;
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.exceptions.MaxMessagesExceededException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.ExceptionalSupplier;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.dl.botinstructions.BotInstructionResolver;
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import com.azure.ai.openai.OpenAIClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
@@ -66,7 +66,7 @@ public class OpenAIConnectorService implements ConnectorService {
   public String getAnswer(@NotBlank final String prompt,
       final @NotNull Optional<Knowledge> knowledge,
       @NotNull final Optional<Conversation> conversation,
-      @NotNull final LanguageEnum language, final boolean close)
+      @NotNull final ConversationLanguage language, final boolean close)
       throws Exception {
     return this.handleMessageCount(() -> {
       final List<ChatMessage> messageList = new ArrayList<>();
@@ -103,8 +103,8 @@ public class OpenAIConnectorService implements ConnectorService {
   @Override
   @NotBlank
   @ApiKeyRestricted
-  public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from,
-      @NotNull final LanguageEnum to) throws Exception {
+  public String translate(@NotBlank final String prompt, @NotNull final ConversationLanguage from,
+      @NotNull final ConversationLanguage to) throws Exception {
     return this.handleMessageCount(() -> {
       final List<ChatMessage> messageList = new ArrayList<>();
       messageList.add(
@@ -129,10 +129,9 @@ public class OpenAIConnectorService implements ConnectorService {
     return this.handleMessageCount(() -> {
       final List<ChatMessage> messageList = new ArrayList<>();
 
-      //TODO: Refactor everything to ConversationLanguage
       messageList.add(
           this.botInstructionResolver.getIncidentReportCreatingBotMessage(
-              LanguageEnum.ENGLISH));
+              conversation.getLanguage()));
 
       messageList.addAll(conversation.getMessages().stream().map(
               message -> new ChatMessage(

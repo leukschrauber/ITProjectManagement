@@ -4,9 +4,9 @@ import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.exceptions.MaxMessagesExceededException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +31,7 @@ public class MockConnectorService implements ConnectorService {
   public String getAnswer(@NotBlank final String prompt,
       final @NotNull Optional<Knowledge> knowledge,
       @NotNull final Optional<Conversation> conversation,
-      @NotNull final LanguageEnum language, final boolean close)
+      @NotNull final ConversationLanguage language, final boolean close)
       throws MaxMessagesExceededException {
 
     if ((this.messageCounter == null || !this.messageCounter.getLeft().equals(LocalDate.now()))
@@ -91,8 +91,8 @@ public class MockConnectorService implements ConnectorService {
   @Override
   @NotBlank
   @ApiKeyRestricted
-  public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from,
-      @NotNull final LanguageEnum to) {
+  public String translate(@NotBlank final String prompt, @NotNull final ConversationLanguage from,
+      @NotNull final ConversationLanguage to) {
     return prompt;
   }
 

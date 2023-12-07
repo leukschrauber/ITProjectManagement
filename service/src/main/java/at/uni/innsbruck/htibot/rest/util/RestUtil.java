@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotNull;
 
 public class RestUtil {
 
-  public static ConversationLanguage fromLanguageEnum(@NotNull final LanguageEnum languageEnum) {
+  public static ConversationLanguage fromConversationLanguage(
+      @NotNull final LanguageEnum languageEnum) {
     switch (languageEnum) {
       case FRENCH -> {
         return ConversationLanguage.FRENCH;
@@ -22,7 +23,7 @@ public class RestUtil {
       }
     }
     throw new IllegalArgumentException(
-        String.format("LanguageEnum %s not supported.", languageEnum));
+        String.format("ConversationLanguage %s not supported.", languageEnum));
   }
 
 }

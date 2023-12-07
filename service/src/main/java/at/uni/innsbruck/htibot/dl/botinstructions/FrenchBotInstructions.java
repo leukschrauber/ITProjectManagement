@@ -1,6 +1,6 @@
 package at.uni.innsbruck.htibot.dl.botinstructions;
 
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import com.azure.ai.openai.models.ChatMessage;
 import com.azure.ai.openai.models.ChatRole;
 import jakarta.validation.constraints.NotNull;
@@ -29,8 +29,8 @@ public class FrenchBotInstructions implements BotInstructions {
 
 
   @Override
-  public LanguageEnum getLanguage() {
-    return LanguageEnum.FRENCH;
+  public ConversationLanguage getLanguage() {
+    return ConversationLanguage.FRENCH;
   }
 
   @Override
@@ -60,7 +60,7 @@ public class FrenchBotInstructions implements BotInstructions {
   @Override
   @NotNull
   public ChatMessage getTranslatingBotMessage(
-      @NotNull final LanguageEnum translateTo) {
+      @NotNull final ConversationLanguage translateTo) {
     return null;
   }
 }

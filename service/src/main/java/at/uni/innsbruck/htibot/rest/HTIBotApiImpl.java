@@ -9,6 +9,7 @@ import at.uni.innsbruck.htibot.core.exceptions.ConversationNotClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.ExceptionalSupplier;
@@ -76,13 +77,15 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
         throw new ConversationNotClosedException(
             "User can not conversate in Conversation that has not been closed or been requested for further conversation.");
       }
+
+      final ConversationLanguage conversationLanguage = RestUtil.fromConversationLanguage(language);
       final Optional<Conversation> conversationOptional = this.conversationService.getOpenConversationByUserId(
           userId);
 
       Optional<Knowledge> knowledgeOptional = Optional.empty();
       if (conversationOptional.isEmpty() || conversationOptional.orElseThrow().getKnowledge()
           .isEmpty()) {
-        knowledgeOptional = this.findKnowledge(prompt, language);
+        knowledgeOptional = this.findKnowledge(prompt, conversationLanguage);
       } else if (conversationOptional.orElseThrow().getKnowledge().isPresent()) {
         knowledgeOptional = conversationOptional.get().getKnowledge();
       }
@@ -90,12 +93,12 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       final boolean closeConversation = this.isCloseConversation(conversationOptional, knowledgeOptional);
       final String answer = this.connectorService.getAnswer(prompt, knowledgeOptional,
           conversationOptional,
-          language, closeConversation);
+          conversationLanguage, closeConversation);
 
       Conversation conversation = null;
       if (conversationOptional.isEmpty()) {
         conversation = this.conversationService.createAndSave(closeConversation,
-            RestUtil.fromLanguageEnum(language), null, userId,
+            conversationLanguage, null, userId,
             null,
             new HashSet<>(), knowledgeOptional.orElse(null));
       } else {
@@ -217,10 +220,12 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
                     .isEmpty())));
   }
 
-  private Optional<Knowledge> findKnowledge(final String prompt, final LanguageEnum language) {
+  private Optional<Knowledge> findKnowledge(final String prompt,
+      final ConversationLanguage language) throws Exception {
     String englishPrompt = null;
-    if (!LanguageEnum.ENGLISH.equals(language)) {
-      englishPrompt = this.connectorService.translate(prompt, language, LanguageEnum.ENGLISH);
+    if (!ConversationLanguage.ENGLISH.equals(language)) {
+      englishPrompt = this.connectorService.translate(prompt, language,
+          ConversationLanguage.ENGLISH);
     } else {
       englishPrompt = prompt;
     }
