@@ -20,6 +20,7 @@ import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
 import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
+import at.uni.innsbruck.htibot.rest.generated.model.RateConversation200Response;
 import at.uni.innsbruck.htibot.rest.util.RestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,11 +33,12 @@ import jakarta.ws.rs.core.Response.Status;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 
 @ApplicationPath(RestResourceRoot.APPLICATION_PATH)
 @ApplicationScoped
 public class HTIBotApiImpl extends Application implements HtibotApi {
+
+  private static final String OPERATION_FAILED = "Operation %s failed with %s";
 
   @Inject
   private ConnectorService connectorService;
@@ -70,45 +72,27 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   public Response getAnswer(@NotNull final String prompt, final @NotNull String userId,
       final @NotNull LanguageEnum language) {
     return this.runWithinTryCatch("getAnswer", () -> {
-      if (StringUtils.isBlank(prompt)) {
-        throw new IllegalArgumentException("prompt must not be blank");
-      }
       if (this.conversationService.hasOpenConversation(userId)) {
         throw new ConversationNotClosedException(
             "User can not conversate in Conversation that has not been closed or been requested for further conversation.");
       }
-      final Optional<Conversation> conversationOptional = this.conversationService.getByUserId(
+      final Optional<Conversation> conversationOptional = this.conversationService.getOpenConversationByUserId(
           userId);
-      Optional<Knowledge> knowledgeOptional = Optional.empty();
 
+      Optional<Knowledge> knowledgeOptional = Optional.empty();
       if (conversationOptional.isEmpty() || conversationOptional.orElseThrow().getKnowledge()
           .isEmpty()) {
         knowledgeOptional = this.findKnowledge(prompt, language);
+      } else if (conversationOptional.orElseThrow().getKnowledge().isPresent()) {
+        knowledgeOptional = conversationOptional.get().getKnowledge();
       }
 
-      String answer = null;
-      final boolean closeConversation =
-          conversationOptional.isPresent() && (
-              conversationOptional.orElseThrow().getMessages().size() >
-                  this.configProperties.getProperty(
-                      ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE) || (
-                  conversationOptional.orElseThrow().getMessages().size() >
-                      this.configProperties.getProperty(
-                          ConfigProperties.HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE) && (
-                      knowledgeOptional.isEmpty()
-                          && conversationOptional.orElseThrow()
-                          .getKnowledge()
-                          .isEmpty())));
-      if (closeConversation) {
-        answer = this.connectorService.getAnswer(prompt, knowledgeOptional, conversationOptional,
-            language, true);
-      } else {
-        answer = this.connectorService.getAnswer(prompt, knowledgeOptional, conversationOptional,
-            language, false);
-      }
+      final boolean closeConversation = this.isCloseConversation(conversationOptional, knowledgeOptional);
+      final String answer = this.connectorService.getAnswer(prompt, knowledgeOptional,
+          conversationOptional,
+          language, closeConversation);
 
       Conversation conversation = null;
-
       if (conversationOptional.isEmpty()) {
         conversation = this.conversationService.createAndSave(closeConversation,
             RestUtil.fromLanguageEnum(language), null, userId,
@@ -121,25 +105,18 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       this.conversationService.addMessage(conversation, prompt, UserType.USER);
       this.conversationService.addMessage(conversation, answer, UserType.SYSTEM);
 
+      Optional<String> incidentReport = Optional.empty();
       if (closeConversation) {
         this.conversationService.rateConversation(conversation, false);
+        incidentReport = Optional.of(this.connectorService.generateIncidentReport(
+            conversation));
       }
 
       return Response.ok(
-          new GetAnswer200Response().answer(answer).resultCode(Status.OK.getStatusCode())).build();
+          new GetAnswer200Response().answer(answer).resultCode(Status.OK.getStatusCode())
+              .autoClosedConversation(closeConversation)
+              .incidentReport(incidentReport.orElse(null))).build();
     });
-  }
-
-  private Optional<Knowledge> findKnowledge(final String prompt, final LanguageEnum language) {
-    String englishPrompt = "";
-    if (!LanguageEnum.ENGLISH.equals(language)) {
-      englishPrompt = this.connectorService.translate(prompt, language, LanguageEnum.ENGLISH);
-    } else {
-      englishPrompt = prompt;
-    }
-
-    final String questionVector = this.inputClassifierService.retrieveQuestionVector(englishPrompt);
-    return this.knowledgeService.retrieveKnowledge(questionVector);
   }
 
   @Override
@@ -158,8 +135,20 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   @NotNull
   public Response rateConversation(final @NotNull String userId, final @NotNull Boolean rating) {
     return this.runWithinTryCatch("rateConversation", () -> {
+      Optional<String> incidentReport = Optional.empty();
+
+      if (Boolean.FALSE.equals(rating)) {
+        incidentReport = Optional.of(this.connectorService.generateIncidentReport(
+            this.conversationService.getOpenConversationByUserId(userId)
+                .orElseThrow(ConversationNotFoundException::new)));
+      }
+
       this.conversationService.rateConversation(userId, rating);
-      return Response.ok(new BaseSuccessModel().resultCode(Status.OK.getStatusCode())).build();
+
+      return Response.ok(
+              new RateConversation200Response().resultCode(Status.OK.getStatusCode())
+                  .incidentReport(incidentReport.orElse(null)))
+          .build();
     });
   }
 
@@ -179,29 +168,29 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       return supplier.get();
     } catch (final PermissionDeniedException e) {
       this.logger.warn(
-          String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+          String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.UNAUTHORIZED).build();
     } catch (final ConstraintViolationException | IllegalArgumentException e) {
       this.logger.info(
-          String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+          String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.BAD_REQUEST)
           .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode())
               .message(e.getMessage())).build();
     } catch (final ConversationNotClosedException e) {
       this.logger.info(
-          String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+          String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.CONFLICT)
           .entity(new BaseErrorModel().resultCode(Status.CONFLICT.getStatusCode())
               .message(e.getMessage())).build();
     } catch (final ConversationNotFoundException e) {
       this.logger.info(
-          String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+          String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.NOT_FOUND)
           .entity(new BaseErrorModel().resultCode(Status.NOT_FOUND.getStatusCode())
               .message(e.getMessage())).build();
     } catch (final Exception e) {
       this.logger.warn(
-          String.format("Operation %s failed with %s", operationId, e.getClass().getName()), e);
+          String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.INTERNAL_SERVER_ERROR)
           .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
               .message(e.getMessage())).build();
@@ -211,5 +200,32 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
           String.format("%s completed in %s ms", operationId,
               System.currentTimeMillis() - startTime));
     }
+  }
+
+  private boolean isCloseConversation(final Optional<Conversation> conversationOptional,
+      final Optional<Knowledge> knowledgeOptional) {
+    return conversationOptional.isPresent() && (
+        conversationOptional.orElseThrow().getMessages().size() >
+            this.configProperties.getProperty(
+                ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE) || (
+            conversationOptional.orElseThrow().getMessages().size() >
+                this.configProperties.getProperty(
+                    ConfigProperties.HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE) && (
+                knowledgeOptional.isEmpty()
+                    && conversationOptional.orElseThrow()
+                    .getKnowledge()
+                    .isEmpty())));
+  }
+
+  private Optional<Knowledge> findKnowledge(final String prompt, final LanguageEnum language) {
+    String englishPrompt = null;
+    if (!LanguageEnum.ENGLISH.equals(language)) {
+      englishPrompt = this.connectorService.translate(prompt, language, LanguageEnum.ENGLISH);
+    } else {
+      englishPrompt = prompt;
+    }
+
+    final String questionVector = this.inputClassifierService.retrieveQuestionVector(englishPrompt);
+    return this.knowledgeService.retrieveKnowledge(questionVector);
   }
 }

@@ -98,7 +98,19 @@ paths:
             type: boolean
       responses:
         '200':
-          $ref: "#/components/responses/Success"
+          description: "OK"
+          content:
+            'application/json':
+              schema:
+                properties:
+                  resultCode:
+                    description: The result code
+                    type: integer
+                    format: int32
+                    example: 200
+                  incidentReport:
+                    type: string
+                    description: If the user has closed the conversation, an incident report on the conversation is generated.
         '401':
           description: Unauthorized
         '404':
@@ -177,6 +189,12 @@ paths:
                     type: string
                     example: Tomorrow it is gonna be 36 degrees and it gets even hotter.
                     description: The answer to the users prompt.
+                  autoClosedConversation:
+                    type: boolean
+                    description: Whether the system decided to close the conversation automatically
+                  incidentReport:
+                    type: string
+                    description: If the system has closed the conversation, an incident report on the conversation is generated.
         '400':
           $ref: "#/components/responses/Error"
         '401':

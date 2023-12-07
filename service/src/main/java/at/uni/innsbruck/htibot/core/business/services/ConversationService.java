@@ -52,7 +52,7 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
   @NotNull
   @ApiKeyRestricted
   Conversation rateConversation(@NotNull String userId, boolean rating)
-      throws PersistenceException, ConversationNotFoundException;
+      throws PersistenceException, ConversationNotFoundException, ConversationClosedException;
 
   @NotNull
   @ApiKeyRestricted
@@ -60,6 +60,6 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
       throws PersistenceException;
 
   @ApiKeyRestricted
-  Optional<Conversation> getByUserId(@NotBlank String userId);
+  Optional<Conversation> getOpenConversationByUserId(@NotBlank String userId);
 
 }

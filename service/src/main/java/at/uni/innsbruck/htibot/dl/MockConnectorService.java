@@ -3,6 +3,7 @@ package at.uni.innsbruck.htibot.dl;
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.exceptions.MaxMessagesExceededException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.conversation.Message;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
@@ -92,7 +93,22 @@ public class MockConnectorService implements ConnectorService {
   @ApiKeyRestricted
   public String translate(@NotBlank final String prompt, @NotNull final LanguageEnum from,
       @NotNull final LanguageEnum to) {
-    return null;
+    return prompt;
+  }
+
+  @Override
+  @NotBlank
+  @ApiKeyRestricted
+  public String generateIncidentReport(final @NotNull Conversation conversation) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(String.format("Mocked Incident Report for Conversation with id %s%n%n",
+        conversation.getId()));
+
+    for (final Message message : conversation.getMessages()) {
+      sb.append(String.format("Messagy by %s ", message.getCreatedBy().name()))
+          .append(message.getMessage()).append("\n\n");
+    }
+    return sb.toString();
   }
 
 }

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 public class GetAnswer200Response   {
   private @Valid Integer resultCode;
   private @Valid String answer;
+  private @Valid Boolean autoClosedConversation;
+  private @Valid String incidentReport;
 
   /**
    * The result code
@@ -61,6 +63,46 @@ public class GetAnswer200Response   {
     this.answer = answer;
   }
 
+  /**
+   * Whether the system decided to close the conversation automatically
+   **/
+  public GetAnswer200Response autoClosedConversation(Boolean autoClosedConversation) {
+    this.autoClosedConversation = autoClosedConversation;
+    return this;
+  }
+
+  
+  @ApiModelProperty(value = "Whether the system decided to close the conversation automatically")
+  @JsonProperty("autoClosedConversation")
+  public Boolean getAutoClosedConversation() {
+    return autoClosedConversation;
+  }
+
+  @JsonProperty("autoClosedConversation")
+  public void setAutoClosedConversation(Boolean autoClosedConversation) {
+    this.autoClosedConversation = autoClosedConversation;
+  }
+
+  /**
+   * If the system has closed the conversation, an incident report on the conversation is generated.
+   **/
+  public GetAnswer200Response incidentReport(String incidentReport) {
+    this.incidentReport = incidentReport;
+    return this;
+  }
+
+  
+  @ApiModelProperty(value = "If the system has closed the conversation, an incident report on the conversation is generated.")
+  @JsonProperty("incidentReport")
+  public String getIncidentReport() {
+    return incidentReport;
+  }
+
+  @JsonProperty("incidentReport")
+  public void setIncidentReport(String incidentReport) {
+    this.incidentReport = incidentReport;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -72,12 +114,14 @@ public class GetAnswer200Response   {
     }
     GetAnswer200Response getAnswer200Response = (GetAnswer200Response) o;
     return Objects.equals(this.resultCode, getAnswer200Response.resultCode) &&
-        Objects.equals(this.answer, getAnswer200Response.answer);
+        Objects.equals(this.answer, getAnswer200Response.answer) &&
+        Objects.equals(this.autoClosedConversation, getAnswer200Response.autoClosedConversation) &&
+        Objects.equals(this.incidentReport, getAnswer200Response.incidentReport);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(resultCode, answer);
+    return Objects.hash(resultCode, answer, autoClosedConversation, incidentReport);
   }
 
   @Override
@@ -87,6 +131,8 @@ public class GetAnswer200Response   {
     
     sb.append("    resultCode: ").append(toIndentedString(resultCode)).append("\n");
     sb.append("    answer: ").append(toIndentedString(answer)).append("\n");
+    sb.append("    autoClosedConversation: ").append(toIndentedString(autoClosedConversation)).append("\n");
+    sb.append("    incidentReport: ").append(toIndentedString(incidentReport)).append("\n");
     sb.append("}");
     return sb.toString();
   }

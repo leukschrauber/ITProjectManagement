@@ -127,7 +127,7 @@ public class JpaConversationService extends
   @ApiKeyRestricted
   public Conversation rateConversation(@NotNull final String userId,
       final boolean rating)
-      throws PersistenceException, ConversationNotFoundException {
+      throws PersistenceException, ConversationNotFoundException, ConversationClosedException {
 
     final Conversation conversation = this.executeSingleResultQuery(
             (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
@@ -135,6 +135,10 @@ public class JpaConversationService extends
         .orElseThrow(
             () -> new ConversationNotFoundException(
                 String.format("User %s has no conversation yet.", userId)));
+
+    if (conversation.getRating().isPresent() || conversation.getClosed().isPresent()) {
+      throw new ConversationClosedException("Conversation is already rated or closed");
+    }
 
     conversation.setClosed(true);
     conversation.setRating(rating);
@@ -154,7 +158,7 @@ public class JpaConversationService extends
 
   @Override
   @ApiKeyRestricted
-  public Optional<Conversation> getByUserId(final String userId) {
+  public Optional<Conversation> getOpenConversationByUserId(final String userId) {
     return this.executeSingleResultQuery(
         (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
             cb.isFalse(root.get(JpaConversation_.CLOSED))));
