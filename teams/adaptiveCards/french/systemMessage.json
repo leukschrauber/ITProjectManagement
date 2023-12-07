@@ -8,25 +8,46 @@
     },
     {
       "type": "TextBlock",
-      "text": "${rating}",
-      "wrap": true
+      "text": "You have rated this conversation as positive.",
+      "wrap": true,
+      "isVisible": "${positiveRatingVisible}"
+    },
+    {
+      "type": "TextBlock",
+      "text": "You have rated this conversation as negative.",
+      "isVisible": "${negativeRatingVisible}"
+    },
+    {
+      "type": "TextBlock",
+      "text": "You have requested to continue this conversation.",
+      "wrap": true,
+      "isVisible": "${continueConversationTextVisible}"
+    },
+    {
+      "type": "TextBlock",
+      "text": "${incidentReport}",
+      "wrap": true,
+      "isVisible": "${incidentReportVisible}"
     }
   ],
   "actions": [
     {
       "type": "Action.Execute",
       "title": "Continuer la conversation",
-      "verb": "continueConversation"
+      "verb": "continueConversation",
+      "isVisible": "${buttonsVisible}"
     },
     {
       "type": "Action.Execute",
       "title": "Tu n'as pas aidé. 👎",
-      "verb": "negativeRating"
+      "verb": "negativeRating",
+      "isVisible": "${buttonsVisible}"
     },
     {
       "type": "Action.Execute",
       "title": "Bien joué, HT-Bot! 👍",
-      "verb": "positiveRating"
+      "verb": "positiveRating",
+      "isVisible": "${buttonsVisible}"
     }
   ],
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",

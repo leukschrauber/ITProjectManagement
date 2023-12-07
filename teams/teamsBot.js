@@ -14,6 +14,7 @@ const englishConfig = require('./config/english.json');
 const germanConfig = require('./config/german.json');
 const frenchConfig = require('./config/french.json');
 const italianConfig = require('./config/italian.json');
+const defaultSystemMessageProperties = require('./adaptiveCards/defaultSystemMessageProperties.json');
 
 class TeamsBot extends TeamsActivityHandler {
   
@@ -88,6 +89,10 @@ class TeamsBot extends TeamsActivityHandler {
     }
 
     return welcomeCard;
+  }
+
+  copyJSONObject(jsonObject) {
+    return JSON.parse(JSON.stringify(jsonObject));
   }
 
   retrieveSystemMessageCard(userLocale) {
@@ -181,7 +186,6 @@ mapToLanguageEnum(userLocale) {
 
       switch (prompt) {
         case "welcome": {
-
           var welcomeCard = this.retrieveWelcomeCard(language);
           const card = cardTools.AdaptiveCards.declareWithoutData(welcomeCard).render();
           await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
@@ -195,7 +199,8 @@ mapToLanguageEnum(userLocale) {
           context.sendActivity(this.retrieveLanguageConfig(language).openConversation);
         } else {
           var botAnswer = await this.getAnswer(prompt, userId, this.mapToLanguageEnum(language));
-          var answerobj = {answer: botAnswer};
+          var answerobj = this.copyJSONObject(defaultSystemMessageProperties);
+          answerobj.answer = botAnswer;
           var systemMessageCard = this.retrieveSystemMessageCard(language);
           const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(answerobj);
           await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
@@ -210,54 +215,52 @@ mapToLanguageEnum(userLocale) {
 
   // Invoked when an action is taken on an Adaptive Card. The Adaptive Card sends an event to the Bot and this
   // method handles that event.
-  //TODO: Make this work
   async onAdaptiveCardInvoke(context, invokeValue) {
-    if (invokeValue.action.verb === "continueConversation") {
-    var reply = await this.continueConversation(context.activity.from.id);
-    var systemMessageCard = this.retrieveSystemMessageCard(context.activity.locale);
-    
-    //TODO: Translate
-    //TODO: Retrieve actual answer
-    var adaptiveCardObject = {answer: "blabla", rating: "You have continued the conversation"};
 
-      const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(adaptiveCardObject);
-      await context.updateActivity({
-        type: "message",
-        id: context.activity.replyToId,
-        attachments: [CardFactory.adaptiveCard(card)],
-      });
-      return { statusCode: 200 };
+    var locale = context.activity.locale;
+    var userId = context.activity.from.id;
+    var systemMessageCard = this.retrieveSystemMessageCard(locale);
+    var answerObj = this.copyJSONObject(defaultSystemMessageProperties);
+    var message = null;
+
+    if (invokeValue.action.verb === "continueConversation") {
+    var reply = await this.continueConversation(userId);
+
+    answerObj.answer = invokeValue.action.id;
+    answerObj.continueConversationTextVisible = true;
+    answerObj.buttonVisible = false;
+
+    message = this.retrieveLanguageConfig(context.activity.locale).continueConversation;
+
     } else if (invokeValue.action.verb === "negativeRating") {
-      this.rateConversation(context.activity.from.id, false);
-      var systemMessageCard = this.retrieveSystemMessageCard(context.activity.locale);
-      
-      //TODO: Translate
-      //TODO: Retrieve actual answer
-      var adaptiveCardObject = {rating: "You rated the conversation as negative"};
-  
-        const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(adaptiveCardObject);
-        await context.updateActivity({
-          type: "message",
-          id: context.activity.replyToId,
-          attachments: [CardFactory.adaptiveCard(card)],
-        });
-        return { statusCode: 200 };
+      var reply = await this.rateConversation(context.activity.from.id, false);
+      systemMessageCard = this.retrieveSystemMessageCard(context.activity.locale);
+
+      answerObj.answer = invokeValue.action.id;
+      answerObj.incidentReportVisible = true;
+      answerObj.incidentReport = "to be implemented";
+      answerObj.negativeRatingVisible = true;
+      answerObj.buttonVisible = false;
+
+      message = this.retrieveLanguageConfig(context.activity.locale).negativeRating;
     } else if (invokeValue.action.verb === "positiveRating") {
-      this.rateConversation(context.activity.from.id, false);
-      var systemMessageCard = this.retrieveSystemMessageCard(context.activity.locale);
-      
-      //TODO: Translate
-      //TODO: Retrieve actual answer
-      var adaptiveCardObject = {answer: "blabla", rating: "You rated the conversation as positive"};
-  
-        const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(adaptiveCardObject);
-        await context.updateActivity({
-          type: "message",
-          id: context.activity.replyToId,
-          attachments: [CardFactory.adaptiveCard(card)],
-        });
-        return { statusCode: 200 };
+      var reply = await this.rateConversation(context.activity.from.id, false);
+
+      answerObj.answer = invokeValue.action.id;
+      answerObj.positiveRatingVisible = true;
+      answerObj.buttonVisible = false;
+
+      message = this.retrieveLanguageConfig(context.activity.locale).positiveRating;
     }
+
+    const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(answerObj);
+    await context.updateActivity({
+      type: "message",
+      id: context.activity.replyToId,
+      attachments: [CardFactory.adaptiveCard(card)],
+    });
+    context.sendActivity(message);
+    return { statusCode: 200 };
   }
 }
 
