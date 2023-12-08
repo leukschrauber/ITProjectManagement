@@ -17,9 +17,6 @@ public interface BotInstructions {
   ChatMessage getClosingBotMessage();
 
   @NotNull
-  ChatMessage getIncidentReportCreatingBotMessage();
-
-  @NotNull
   ChatMessage getTranslatingBotMessage(
       @NotNull ConversationLanguage translateTo);
 }

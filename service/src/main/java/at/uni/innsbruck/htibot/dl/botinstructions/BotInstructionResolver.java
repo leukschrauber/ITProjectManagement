@@ -29,12 +29,6 @@ public class BotInstructionResolver {
   }
 
   @NotNull
-  public ChatMessage getIncidentReportCreatingBotMessage(
-      @NotNull final ConversationLanguage language) {
-    return this.retrieveBotInstructions(language).getIncidentReportCreatingBotMessage();
-  }
-
-  @NotNull
   public ChatMessage getTranslatingBotMessage(
       @NotNull final ConversationLanguage translateFrom,
       @NotNull final ConversationLanguage translateTo) {

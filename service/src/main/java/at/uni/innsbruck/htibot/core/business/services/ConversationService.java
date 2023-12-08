@@ -14,8 +14,8 @@ import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface ConversationService extends PersistenceService<Conversation, Long> {
 
@@ -23,7 +23,7 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
   @NotNull
   @ApiKeyRestricted
   Conversation createAndSave(Boolean closed, @NotNull ConversationLanguage language, Boolean rating,
-      @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages,
+      @NotBlank String userId, IncidentReport incidentReport, @NotNull List<Message> messages,
       Knowledge knowledge)
       throws PersistenceException;
 
@@ -32,7 +32,7 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
   Conversation update(@NotNull Conversation conversation, Boolean closed,
       @NotNull ConversationLanguage language,
       Boolean rating,
-      @NotBlank String userId, IncidentReport incidentReport, @NotNull Set<Message> messages,
+      @NotBlank String userId, IncidentReport incidentReport, @NotNull List<Message> messages,
       Knowledge knowledge)
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException;
 

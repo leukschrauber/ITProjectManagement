@@ -27,6 +27,8 @@ public class EnglishBotInstructions implements BotInstructions {
           + "I always remember that my goal is to create a positive and helpful customer experience. If I encounter a situation beyond my capabilities, I escalate it appropriately."
           + "However, I do not know the solution to this problem yet and ask to user to provide more details about the problem at hand.");
 
+  private static final String TRANSLATING_BOT_MESSAGE = "You are a language translator specializing in %s to %s translations. Provide accurate and natural translations for the given input.";
+
 
   @Override
   public ConversationLanguage getLanguage() {
@@ -53,14 +55,9 @@ public class EnglishBotInstructions implements BotInstructions {
 
   @Override
   @NotNull
-  public ChatMessage getIncidentReportCreatingBotMessage() {
-    return null;
-  }
-
-  @Override
-  @NotNull
   public ChatMessage getTranslatingBotMessage(
       @NotNull final ConversationLanguage translateTo) {
-    return null;
+    return new ChatMessage(ChatRole.SYSTEM,
+        String.format(TRANSLATING_BOT_MESSAGE, this.getLanguage(), translateTo));
   }
 }

@@ -23,8 +23,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @ApplicationScoped
 @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Throwable.class)
@@ -43,7 +43,7 @@ public class JpaConversationService extends
   public Conversation createAndSave(final Boolean closed,
       @NotNull final ConversationLanguage language, final Boolean rating,
       @NotBlank final String userId, final IncidentReport incidentReport,
-      @NotNull final Set<Message> messages,
+      @NotNull final List<Message> messages,
       final Knowledge knowledge)
       throws PersistenceException {
     final Conversation conversation = new JpaConversation(language, userId);
@@ -64,7 +64,7 @@ public class JpaConversationService extends
       @NotNull final ConversationLanguage language,
       final Boolean rating,
       @NotBlank final String userId, final IncidentReport incidentReport,
-      @NotNull final Set<Message> messages, final Knowledge knowledge)
+      @NotNull final List<Message> messages, final Knowledge knowledge)
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException {
 
     if (conversation.getClosed().orElse(Boolean.FALSE)) {

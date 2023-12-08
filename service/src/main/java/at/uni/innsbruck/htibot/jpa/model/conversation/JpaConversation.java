@@ -6,6 +6,7 @@ import at.uni.innsbruck.htibot.core.model.conversation.Message;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.jpa.model.JpaIdentityIdHolder;
+import at.uni.innsbruck.htibot.jpa.model.JpaUpdateCreateHolder_;
 import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,12 +17,13 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Entity
 public class JpaConversation extends JpaIdentityIdHolder implements Conversation {
@@ -55,7 +57,8 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       mappedBy = JpaMessage_.CONVERSATION)
-  private Set<Message> messages;
+  @OrderBy(value = JpaUpdateCreateHolder_.CREATED_AT + " DESC")
+  private List<Message> messages;
 
   @OneToOne(targetEntity = JpaKnowledge.class,
       fetch = FetchType.LAZY,
@@ -73,7 +76,7 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
       @NotBlank final String userId) {
     this.language = language;
     this.userId = userId;
-    this.messages = new HashSet<>();
+    this.messages = new ArrayList<>();
   }
 
   @Override
@@ -129,12 +132,12 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   }
 
   @Override
-  public Set<Message> getMessages() {
+  public List<Message> getMessages() {
     return this.messages;
   }
 
   @Override
-  public void setMessages(final @NotNull Set<Message> messages) {
+  public void setMessages(final @NotNull List<Message> messages) {
     this.messages = messages;
   }
 

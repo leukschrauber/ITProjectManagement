@@ -32,7 +32,7 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.io.InputStream;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @ApplicationPath(RestResourceRoot.APPLICATION_PATH)
@@ -100,7 +100,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
         conversation = this.conversationService.createAndSave(closeConversation,
             conversationLanguage, null, userId,
             null,
-            new HashSet<>(), knowledgeOptional.orElse(null));
+            new ArrayList<>(), knowledgeOptional.orElse(null));
       } else {
         conversation = conversationOptional.orElseThrow();
       }
@@ -111,8 +111,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       Optional<String> incidentReport = Optional.empty();
       if (closeConversation) {
         this.conversationService.rateConversation(conversation, false);
-        incidentReport = Optional.of(this.connectorService.generateIncidentReport(
-            conversation));
+        incidentReport = Optional.of(answer);
       }
 
       return Response.ok(

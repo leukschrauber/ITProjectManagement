@@ -84,7 +84,8 @@ public class OpenAIConnectorService implements ConnectorService {
       if (conversation.isPresent()) {
         messageList.addAll(conversation.orElseThrow().getMessages().stream().map(
                 message -> new ChatMessage(
-                    UserType.USER.equals(message.getCreatedBy()) ? ChatRole.USER : ChatRole.SYSTEM,
+                    UserType.USER.equals(message.getCreatedBy()) ? ChatRole.USER
+                        : ChatRole.ASSISTANT,
                     message.getMessage()))
             .toList());
       }
@@ -130,12 +131,12 @@ public class OpenAIConnectorService implements ConnectorService {
       final List<ChatMessage> messageList = new ArrayList<>();
 
       messageList.add(
-          this.botInstructionResolver.getIncidentReportCreatingBotMessage(
+          this.botInstructionResolver.getClosingBotMessage(
               conversation.getLanguage()));
 
       messageList.addAll(conversation.getMessages().stream().map(
               message -> new ChatMessage(
-                  UserType.USER.equals(message.getCreatedBy()) ? ChatRole.USER : ChatRole.SYSTEM,
+                  UserType.USER.equals(message.getCreatedBy()) ? ChatRole.USER : ChatRole.ASSISTANT,
                   message.getMessage()))
           .toList());
 

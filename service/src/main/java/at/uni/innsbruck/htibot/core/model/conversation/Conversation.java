@@ -5,8 +5,8 @@ import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface Conversation extends IdentityIdHolder {
 
@@ -33,9 +33,9 @@ public interface Conversation extends IdentityIdHolder {
   void setIncidentReport(@NotNull IncidentReport incidentReport);
 
   @NotNull
-  Set<Message> getMessages();
+  List<Message> getMessages();
 
-  void setMessages(@NotNull Set<Message> messages);
+  void setMessages(@NotNull List<Message> messages);
 
   Optional<Knowledge> getKnowledge();
 
