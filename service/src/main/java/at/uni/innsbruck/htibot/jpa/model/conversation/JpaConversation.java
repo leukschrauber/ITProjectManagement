@@ -57,7 +57,7 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       mappedBy = JpaMessage_.CONVERSATION)
-  @OrderBy(value = JpaUpdateCreateHolder_.CREATED_AT + " DESC")
+  @OrderBy(value = JpaUpdateCreateHolder_.CREATED_AT + " ASC")
   private List<Message> messages;
 
   @OneToOne(targetEntity = JpaKnowledge.class,

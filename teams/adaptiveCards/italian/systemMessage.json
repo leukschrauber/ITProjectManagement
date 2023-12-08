@@ -24,31 +24,29 @@
       "isVisible": "${continueConversationTextVisible}"
     },
     {
-      "type": "TextBlock",
-      "text": "${incidentReport}",
-      "wrap": true,
-      "isVisible": "${incidentReportVisible}"
-    }
-  ],
-  "actions": [
-    {
-      "type": "Action.Execute",
-      "title": "Continua la conversazione",
-      "verb": "continueConversation",
-      "isVisible": "${buttonsVisible}"
-    },
-    {
-      "type": "Action.Execute",
-      "title": "Non hai aiutato. 👎",
-      "verb": "negativeRating",
-      "isVisible": "${buttonsVisible}"
-    },
-    {
-      "type": "Action.Execute",
-      "title": "Ben fatto, HT-Bot! 👍",
-      "verb": "positiveRating",
-      "isVisible": "${buttonsVisible}"
-    }
+      "type": "ActionSet",
+      "isVisible": "${buttonsVisible}",
+      "actions": [
+        {
+          "type": "Action.Execute",
+          "id": "${answer}",
+          "title": "Continua la conversazione",
+          "verb": "continueConversation"
+        },
+        {
+          "type": "Action.Execute",
+          "id": "${answer}",
+          "title": "Non hai aiutato. 👎",
+          "verb": "negativeRating"
+        },
+        {
+          "type": "Action.Execute",
+          "id": "${answer}",
+          "title": "Ben fatto, HT-Bot! 👍",
+          "verb": "positiveRating"
+        }
+      ]
+  }
   ],
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "version": "1.4"

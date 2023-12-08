@@ -90,6 +90,8 @@ public class OpenAIConnectorService implements ConnectorService {
             .toList());
       }
 
+      messageList.add(new ChatMessage(ChatRole.USER, prompt));
+
       return this.openAIClient.getChatCompletions(this.deploymentId,
               new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
                   .setTemperature(TEMPERATURE)

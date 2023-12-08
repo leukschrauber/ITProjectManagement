@@ -136,7 +136,8 @@ public class JpaConversationService extends
             () -> new ConversationNotFoundException(
                 String.format("User %s has no conversation yet.", userId)));
 
-    if (conversation.getRating().isPresent() || conversation.getClosed().isPresent()) {
+    if (conversation.getRating().isPresent() || Boolean.TRUE.equals(
+        conversation.getClosed().orElse(Boolean.FALSE))) {
       throw new ConversationClosedException("Conversation is already rated or closed");
     }
 
@@ -161,7 +162,8 @@ public class JpaConversationService extends
   public Optional<Conversation> getOpenConversationByUserId(final String userId) {
     return this.executeSingleResultQuery(
         (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
-            cb.isFalse(root.get(JpaConversation_.CLOSED))));
+            cb.or(cb.isNull(root.get(JpaConversation_.CLOSED)),
+                cb.isFalse(root.get(JpaConversation_.CLOSED)))));
   }
 
   @Override
@@ -169,7 +171,7 @@ public class JpaConversationService extends
   public boolean hasOpenConversation(final @NotBlank String userId) {
     return this.executeCountQuery(
         ((query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
-            cb.isFalse(root.get(JpaConversation_.CLOSED)))),
+            cb.isNull(root.get(JpaConversation_.CLOSED)))),
         true) > 0;
   }
 

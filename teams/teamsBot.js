@@ -58,7 +58,20 @@ class TeamsBot extends TeamsActivityHandler {
     });
   }
 
-  async rateConversation(userId, positive) {
+  async rateConversationNegative(userId) {
+    return new Promise((resolve, reject) => {
+      var callback = function (error, data, response) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(data.incidentReport);
+        }
+      };
+      this.htBotApi.rateConversation(userId, false, callback);
+    });
+  }
+
+  async rateConversationPositive(userId) {
     return new Promise((resolve, reject) => {
       var callback = function (error, data, response) {
         if (error) {
@@ -67,7 +80,7 @@ class TeamsBot extends TeamsActivityHandler {
           resolve(data.resultCode);
         }
       };
-      this.htBotApi.rateConversation(userId, positive, callback);
+      this.htBotApi.rateConversation(userId, true, callback);
     });
   }
 
@@ -196,7 +209,7 @@ mapToLanguageEnum(userLocale) {
 
       try {
         if (await this.hasOpenConversation(userId)) {
-          context.sendActivity(this.retrieveLanguageConfig(language).openConversation);
+          await context.sendActivity(this.retrieveLanguageConfig(language).openConversation);
         } else {
           var botAnswer = await this.getAnswer(prompt, userId, this.mapToLanguageEnum(language));
           var answerobj = this.copyJSONObject(defaultSystemMessageProperties);
@@ -228,27 +241,25 @@ mapToLanguageEnum(userLocale) {
 
     answerObj.answer = invokeValue.action.id;
     answerObj.continueConversationTextVisible = true;
-    answerObj.buttonVisible = false;
+    answerObj.buttonsVisible = false;
 
     message = this.retrieveLanguageConfig(context.activity.locale).continueConversation;
 
     } else if (invokeValue.action.verb === "negativeRating") {
-      var reply = await this.rateConversation(context.activity.from.id, false);
+      var incidentReport = await this.rateConversationNegative(context.activity.from.id, false);
       systemMessageCard = this.retrieveSystemMessageCard(context.activity.locale);
 
       answerObj.answer = invokeValue.action.id;
-      answerObj.incidentReportVisible = true;
-      answerObj.incidentReport = "to be implemented";
       answerObj.negativeRatingVisible = true;
-      answerObj.buttonVisible = false;
+      answerObj.buttonsVisible = false;
 
-      message = this.retrieveLanguageConfig(context.activity.locale).negativeRating;
+      message = this.retrieveLanguageConfig(context.activity.locale).negativeRating + incidentReport;
     } else if (invokeValue.action.verb === "positiveRating") {
-      var reply = await this.rateConversation(context.activity.from.id, false);
+      var reply = await this.rateConversationPositive(context.activity.from.id, true);
 
       answerObj.answer = invokeValue.action.id;
       answerObj.positiveRatingVisible = true;
-      answerObj.buttonVisible = false;
+      answerObj.buttonsVisible = false;
 
       message = this.retrieveLanguageConfig(context.activity.locale).positiveRating;
     }
@@ -259,7 +270,7 @@ mapToLanguageEnum(userLocale) {
       id: context.activity.replyToId,
       attachments: [CardFactory.adaptiveCard(card)],
     });
-    context.sendActivity(message);
+    await context.sendActivity(message);
     return { statusCode: 200 };
   }
 }

@@ -5,6 +5,7 @@ import at.uni.innsbruck.htibot.core.business.services.ConversationService;
 import at.uni.innsbruck.htibot.core.business.services.InputClassifierService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
+import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
@@ -178,7 +179,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       return Response.status(Status.BAD_REQUEST)
           .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode())
               .message(e.getMessage())).build();
-    } catch (final ConversationNotClosedException e) {
+    } catch (final ConversationNotClosedException | ConversationClosedException e) {
       this.logger.info(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.CONFLICT)
