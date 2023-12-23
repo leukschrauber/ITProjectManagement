@@ -1,4 +1,4 @@
-package com.mpulso.srp.suite;
+package at.uni.innsbruck.htibot.suite;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,16 +27,16 @@ public final class TestDeployer {
 
     final File[] dependencies = Maven.resolver()
         .loadPomFromFile("./pom.xml")
-        .importDependencies(ScopeType.COMPILE, ScopeType.TEST)
+        .importDependencies(ScopeType.COMPILE, ScopeType.TEST, ScopeType.PROVIDED)
         .resolve()
         .withTransitivity()
         .asFile();
 
     final WebArchive webArchive = ShrinkWrap.create(WebArchive.class, "arquillian-it.war")
-        .addAsResource(new File("target/classes/com"), "com/")
-        .addAsResource(new File("target/classes/org"), "org/")
-        .addAsResource(new File("target/test-classes/com"), "com/")
+        .addAsResource(new File("target/classes/at"), "at/")
+        .addAsResource(new File("target/test-classes/at"), "at/")
         .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
+        .addAsResource("config.properties", "at/uni/innsbruck/htibot/config.properties")
         .addAsLibraries(dependencies)
         .addManifest();
 

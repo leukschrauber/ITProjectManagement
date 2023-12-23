@@ -25,7 +25,7 @@ public class ConfigProperties {
       "at.uni.innsbruck.htibot.openai.connector.deploymentid", String.class, null);
   public static final ConfigProperty<Integer> OPENAI_MAX_MESSAGES = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.openai.maxMessagesPerDay",
-      Integer.class, null);
+      Integer.class, 10000);
   public static final ConfigProperty<String> HTBOT_API_KEY = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.apiKey", String.class, null);
   public static final ConfigProperty<String> HTBOT_DATABASE_URL = new ConfigProperty<>(

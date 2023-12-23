@@ -44,11 +44,11 @@
     <version.maven-enforcer-plugin>3.4.1</version.maven-enforcer-plugin>
     <version.annotations>24.0.1</version.annotations>
     <version.mockito-core>5.7.0</version.mockito-core>
-    <version.arquillian-junit-container>1.7.1.Final</version.arquillian-junit-container>
+    <version.arquillian-junit-container>1.8.0.Final</version.arquillian-junit-container>
     <version.arquillian-persistence>1.5.0.0</version.arquillian-persistence>
     <version.arquillian-suite-extension>1.2.2</version.arquillian-suite-extension>
-    <version.arquillian-protocol-servlet>1.7.1.Final</version.arquillian-protocol-servlet>
-    <version.arquillian-bom>1.7.1.Final</version.arquillian-bom>
+    <version.arquillian-protocol-servlet>1.8.0.Final</version.arquillian-protocol-servlet>
+    <version.arquillian-bom>1.8.0.Final</version.arquillian-bom>
     <version.arquillian-drone-bom>2.5.6</version.arquillian-drone-bom>
     <version.mysql-connector>8.0.33</version.mysql-connector>
     <version.flyway>10.0.0</version.flyway>
@@ -57,6 +57,8 @@
     <commons-fileupload.version>1.5</commons-fileupload.version>
     <jackson-databind.version>2.15.2</jackson-databind.version>
     <swagger-annotations.version>1.6.11</swagger-annotations.version>
+    <version.wildfly-arquillian-container-remote>5.0.1.Final
+    </version.wildfly-arquillian-container-remote>
   </properties>
 
   <dependencyManagement>
@@ -170,13 +172,6 @@
       <artifactId>arquillian-junit5-container</artifactId>
       <version>${version.arquillian-bom}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.arquillian.universe</groupId>
-      <artifactId>arquillian-persistence</artifactId>
-      <scope>test</scope>
-      <type>pom</type>
-      <version>${version.arquillian-persistence}</version>
     </dependency>
     <dependency>
       <groupId>org.eu.ingwar.tools</groupId>
