@@ -12,6 +12,8 @@
     "license": "MIT",
     "main": "index.js",
     "scripts": {
+        "postinstall": "npm run build-client",
+        "build-client": "cd ./apiclient && npm install && cd ..",
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "dev": "nodemon --inspect=9239 --signal SIGINT ./index.js",
         "start": "node ./index.js",

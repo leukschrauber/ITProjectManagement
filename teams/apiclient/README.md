@@ -108,7 +108,7 @@ apiKeyAuth.apiKey = "YOUR API KEY"
 //apiKeyAuth.apiKeyPrefix['X-API-Key'] = "Token"
 
 var api = new HtiBotApi.DefaultApi()
-var userId = 1; // {Number} The user id as determined by the caller
+var userId = 123abc; // {String} The user id as determined by the caller
 var callback = function(error, data, response) {
   if (error) {
     console.error(error);
@@ -122,7 +122,7 @@ api.continueConversation(userId, callback);
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://localhost:9191/rest/v1.0*
+All URIs are relative to *http://localhost:9191/hti-bot-backend-1.0.0/rest/v1.0*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
@@ -136,10 +136,11 @@ Class | Method | HTTP request | Description
 ## Documentation for Models
 
  - [HtiBotApi.BaseErrorModel](docs/BaseErrorModel.md)
+ - [HtiBotApi.BaseSuccessModel](docs/BaseSuccessModel.md)
  - [HtiBotApi.GetAnswer200Response](docs/GetAnswer200Response.md)
  - [HtiBotApi.HasOpenConversation200Response](docs/HasOpenConversation200Response.md)
  - [HtiBotApi.LanguageEnum](docs/LanguageEnum.md)
- - [HtiBotApi.UpdateKnowledgeDB200Response](docs/UpdateKnowledgeDB200Response.md)
+ - [HtiBotApi.RateConversation200Response](docs/RateConversation200Response.md)
 
 
 ## Documentation for Authorization

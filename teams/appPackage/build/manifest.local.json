@@ -5,8 +5,8 @@
     "id": "9a181a42-5dd9-4943-ae72-078b9ed8c91e",
     "packageName": "com.microsoft.teams.extension",
     "developer": {
-        "name": "Teams App, Inc.",
-        "websiteUrl": "https://www.example.com",
+        "name": "University of Innsbruck",
+        "websiteUrl": "https://www.uibk.ac.at/de/",
         "privacyUrl": "https://www.example.com/termofuse",
         "termsOfUseUrl": "https://www.example.com/privacy"
     },
@@ -16,29 +16,25 @@
     },
     "name": {
         "short": "HT-Bot-local",
-        "full": "full name for HT-Bot"
+        "full": "HT-Bot"
     },
     "description": {
-        "short": "short description for HT-Bot",
-        "full": "full description for HT-Bot"
+        "short": "HT-Bot is a customer service chatbot, using available FAQ data of HTI.",
+        "full": "Interact with the bot, discuss technical problems, generate incident reports and rate conversations."
     },
     "accentColor": "#FFFFFF",
     "bots": [
         {
             "botId": "b233c293-79a6-4b0c-8c75-ba4cbf525ba3",
             "scopes": [
-                "personal",
-                "team",
-                "groupchat"
+                "personal"
             ],
             "supportsFiles": false,
             "isNotificationOnly": false,
             "commandLists": [
                 {
                     "scopes": [
-                        "personal",
-                        "team",
-                        "groupchat"
+                        "personal"
                     ],
                     "commands": [
                         {

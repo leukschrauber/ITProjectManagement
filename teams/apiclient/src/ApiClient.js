@@ -33,11 +33,11 @@ class ApiClient {
      * Overrides the default value set in spec file if present
      * @param {String} basePath
      */
-    constructor(basePath = 'http://localhost:9191/hti-bot-backend-1.0.0-SNAPSHOT/rest/v1.0') {
+    constructor(basePath = 'http://localhost:9191/hti-bot-backend-1.0.0/rest/v1.0') {
         /**
          * The base URL against which to resolve every API call's (relative) path.
          * @type {String}
-         * @default http://localhost:9191/rest/v1.0
+         * @default http://localhost:9191/hti-bot-backend-1.0.0/rest/v1.0
          */
         this.basePath = basePath.replace(/\/+$/, '');
 
@@ -593,7 +593,7 @@ class ApiClient {
     hostSettings() {
         return [
             {
-              'url': "http://localhost:9191/rest/v1.0",
+              'url': "http://localhost:9191/hti-bot-backend-1.0.0/rest/v1.0",
               'description': "No description provided",
             }
       ];

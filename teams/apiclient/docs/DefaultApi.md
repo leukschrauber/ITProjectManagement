@@ -1,6 +1,6 @@
 # HtiBotApi.DefaultApi
 
-All URIs are relative to *http://localhost:9191/rest/v1.0*
+All URIs are relative to *http://localhost:9191/hti-bot-backend-1.0.0/rest/v1.0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -14,7 +14,7 @@ Method | HTTP request | Description
 
 ## continueConversation
 
-> UpdateKnowledgeDB200Response continueConversation(userId)
+> BaseSuccessModel continueConversation(userId)
 
 Requests further conversation in the ongoing conversation
 
@@ -32,7 +32,7 @@ apiKeyAuth.apiKey = 'YOUR API KEY';
 //apiKeyAuth.apiKeyPrefix = 'Token';
 
 let apiInstance = new HtiBotApi.DefaultApi();
-let userId = 1; // Number | The user id as determined by the caller
+let userId = 123abc; // String | The user id as determined by the caller
 apiInstance.continueConversation(userId, (error, data, response) => {
   if (error) {
     console.error(error);
@@ -47,11 +47,11 @@ apiInstance.continueConversation(userId, (error, data, response) => {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **userId** | **Number**| The user id as determined by the caller | 
+ **userId** | **String**| The user id as determined by the caller | 
 
 ### Return type
 
-[**UpdateKnowledgeDB200Response**](UpdateKnowledgeDB200Response.md)
+[**BaseSuccessModel**](BaseSuccessModel.md)
 
 ### Authorization
 
@@ -84,7 +84,7 @@ apiKeyAuth.apiKey = 'YOUR API KEY';
 
 let apiInstance = new HtiBotApi.DefaultApi();
 let prompt = Tell me what the weather is like tomorrow; // String | The prompt of the user
-let userId = 1; // Number | The user id as determined by the caller
+let userId = 123abc; // String | The user id as determined by the caller
 let language = new HtiBotApi.LanguageEnum(); // LanguageEnum | The language for the operation.
 apiInstance.getAnswer(prompt, userId, language, (error, data, response) => {
   if (error) {
@@ -101,7 +101,7 @@ apiInstance.getAnswer(prompt, userId, language, (error, data, response) => {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **prompt** | **String**| The prompt of the user | 
- **userId** | **Number**| The user id as determined by the caller | 
+ **userId** | **String**| The user id as determined by the caller | 
  **language** | [**LanguageEnum**](.md)| The language for the operation. | 
 
 ### Return type
@@ -138,7 +138,7 @@ apiKeyAuth.apiKey = 'YOUR API KEY';
 //apiKeyAuth.apiKeyPrefix = 'Token';
 
 let apiInstance = new HtiBotApi.DefaultApi();
-let userId = 1; // Number | The user id as determined by the caller
+let userId = 123abc; // String | The user id as determined by the caller
 apiInstance.hasOpenConversation(userId, (error, data, response) => {
   if (error) {
     console.error(error);
@@ -153,7 +153,7 @@ apiInstance.hasOpenConversation(userId, (error, data, response) => {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **userId** | **Number**| The user id as determined by the caller | 
+ **userId** | **String**| The user id as determined by the caller | 
 
 ### Return type
 
@@ -171,7 +171,7 @@ Name | Type | Description  | Notes
 
 ## rateConversation
 
-> UpdateKnowledgeDB200Response rateConversation(userId, rating)
+> RateConversation200Response rateConversation(userId, rating)
 
 Rates the currently open conversation as positive or negative.
 
@@ -189,7 +189,7 @@ apiKeyAuth.apiKey = 'YOUR API KEY';
 //apiKeyAuth.apiKeyPrefix = 'Token';
 
 let apiInstance = new HtiBotApi.DefaultApi();
-let userId = 1; // Number | The user id as determined by the caller
+let userId = 1; // String | The user id as determined by the caller
 let rating = true; // Boolean | The rating of the conversation
 apiInstance.rateConversation(userId, rating, (error, data, response) => {
   if (error) {
@@ -205,12 +205,12 @@ apiInstance.rateConversation(userId, rating, (error, data, response) => {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **userId** | **Number**| The user id as determined by the caller | 
+ **userId** | **String**| The user id as determined by the caller | 
  **rating** | **Boolean**| The rating of the conversation | 
 
 ### Return type
 
-[**UpdateKnowledgeDB200Response**](UpdateKnowledgeDB200Response.md)
+[**RateConversation200Response**](RateConversation200Response.md)
 
 ### Authorization
 
@@ -224,7 +224,7 @@ Name | Type | Description  | Notes
 
 ## updateKnowledgeDB
 
-> UpdateKnowledgeDB200Response updateKnowledgeDB(zipFile, opts)
+> BaseSuccessModel updateKnowledgeDB(zipFile, opts)
 
 Updates the vector database with the uploaded zipfile.
 
@@ -265,7 +265,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**UpdateKnowledgeDB200Response**](UpdateKnowledgeDB200Response.md)
+[**BaseSuccessModel**](BaseSuccessModel.md)
 
 ### Authorization
 

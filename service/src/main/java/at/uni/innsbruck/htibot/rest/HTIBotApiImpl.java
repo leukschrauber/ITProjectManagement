@@ -98,7 +98,8 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
       Conversation conversation = null;
       if (conversationOptional.isEmpty()) {
-        conversation = this.conversationService.createAndSave(closeConversation,
+        conversation = this.conversationService.createAndSave(
+            closeConversation ? Boolean.TRUE : null,
             conversationLanguage, null, userId,
             null,
             new ArrayList<>(), knowledgeOptional.orElse(null));

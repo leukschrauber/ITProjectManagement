@@ -112,7 +112,8 @@ public class JpaConversationService extends
       throws ConversationNotFoundException {
     final Conversation conversation = this.executeSingleResultQuery(
             (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
-                cb.isFalse(root.get(JpaConversation_.CLOSED))))
+                cb.or(cb.isNull(root.get(JpaConversation_.CLOSED)),
+                    cb.isFalse(root.get(JpaConversation_.CLOSED)))))
         .orElseThrow(
             () -> new ConversationNotFoundException(
                 String.format("User %s has no conversation yet.", userId)));
@@ -131,7 +132,8 @@ public class JpaConversationService extends
 
     final Conversation conversation = this.executeSingleResultQuery(
             (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
-                cb.isFalse(root.get(JpaConversation_.CLOSED))))
+                cb.or(cb.isNull(root.get(JpaConversation_.CLOSED)),
+                    cb.isFalse(root.get(JpaConversation_.CLOSED)))))
         .orElseThrow(
             () -> new ConversationNotFoundException(
                 String.format("User %s has no conversation yet.", userId)));

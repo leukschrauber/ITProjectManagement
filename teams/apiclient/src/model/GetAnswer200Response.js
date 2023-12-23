@@ -53,6 +53,12 @@ class GetAnswer200Response {
             if (data.hasOwnProperty('answer')) {
                 obj['answer'] = ApiClient.convertToType(data['answer'], 'String');
             }
+            if (data.hasOwnProperty('autoClosedConversation')) {
+                obj['autoClosedConversation'] = ApiClient.convertToType(data['autoClosedConversation'], 'Boolean');
+            }
+            if (data.hasOwnProperty('incidentReport')) {
+                obj['incidentReport'] = ApiClient.convertToType(data['incidentReport'], 'String');
+            }
         }
         return obj;
     }
@@ -66,6 +72,10 @@ class GetAnswer200Response {
         // ensure the json data is a string
         if (data['answer'] && !(typeof data['answer'] === 'string' || data['answer'] instanceof String)) {
             throw new Error("Expected the field `answer` to be a primitive type in the JSON string but got " + data['answer']);
+        }
+        // ensure the json data is a string
+        if (data['incidentReport'] && !(typeof data['incidentReport'] === 'string' || data['incidentReport'] instanceof String)) {
+            throw new Error("Expected the field `incidentReport` to be a primitive type in the JSON string but got " + data['incidentReport']);
         }
 
         return true;
@@ -87,6 +97,18 @@ GetAnswer200Response.prototype['resultCode'] = undefined;
  * @member {String} answer
  */
 GetAnswer200Response.prototype['answer'] = undefined;
+
+/**
+ * Whether the system decided to close the conversation automatically
+ * @member {Boolean} autoClosedConversation
+ */
+GetAnswer200Response.prototype['autoClosedConversation'] = undefined;
+
+/**
+ * If the system has closed the conversation, an incident report on the conversation is generated.
+ * @member {String} incidentReport
+ */
+GetAnswer200Response.prototype['incidentReport'] = undefined;
 
 
 

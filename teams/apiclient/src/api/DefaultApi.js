@@ -14,10 +14,11 @@
 
 import ApiClient from "../ApiClient";
 import BaseErrorModel from '../model/BaseErrorModel';
+import BaseSuccessModel from '../model/BaseSuccessModel';
 import GetAnswer200Response from '../model/GetAnswer200Response';
 import HasOpenConversation200Response from '../model/HasOpenConversation200Response';
 import LanguageEnum from '../model/LanguageEnum';
-import UpdateKnowledgeDB200Response from '../model/UpdateKnowledgeDB200Response';
+import RateConversation200Response from '../model/RateConversation200Response';
 
 /**
 * Default service.
@@ -42,16 +43,16 @@ export default class DefaultApi {
      * Callback function to receive the result of the continueConversation operation.
      * @callback module:api/DefaultApi~continueConversationCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/UpdateKnowledgeDB200Response} data The data returned by the service call.
+     * @param {module:model/BaseSuccessModel} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * Requests further conversation in the ongoing conversation
      * Requests further conversation in the ongoing conversation enabling to follow-up on messages.
-     * @param {Number} userId The user id as determined by the caller
+     * @param {String} userId The user id as determined by the caller
      * @param {module:api/DefaultApi~continueConversationCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/UpdateKnowledgeDB200Response}
+     * data is of type: {@link module:model/BaseSuccessModel}
      */
     continueConversation(userId, callback) {
       let postBody = null;
@@ -73,7 +74,7 @@ export default class DefaultApi {
       let authNames = ['apiKeyAuth'];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = UpdateKnowledgeDB200Response;
+      let returnType = BaseSuccessModel;
       return this.apiClient.callApi(
         '/htibot/continueConversation', 'PUT',
         pathParams, queryParams, headerParams, formParams, postBody,
@@ -93,7 +94,7 @@ export default class DefaultApi {
      * Retrieves an answer to a user prompt.
      * Retrieves relevant internal documentation and generates an answer using a Large Language Model.
      * @param {String} prompt The prompt of the user
-     * @param {Number} userId The user id as determined by the caller
+     * @param {String} userId The user id as determined by the caller
      * @param {module:model/LanguageEnum} language The language for the operation.
      * @param {module:api/DefaultApi~getAnswerCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/GetAnswer200Response}
@@ -147,7 +148,7 @@ export default class DefaultApi {
     /**
      * Checks whether user currently has any open conversation with the Bot Backend.
      * A user that has not closed his conversation yet and that has not requested to continue the current conversation has an open conversation.
-     * @param {Number} userId The user id as determined by the caller
+     * @param {String} userId The user id as determined by the caller
      * @param {module:api/DefaultApi~hasOpenConversationCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/HasOpenConversation200Response}
      */
@@ -183,17 +184,17 @@ export default class DefaultApi {
      * Callback function to receive the result of the rateConversation operation.
      * @callback module:api/DefaultApi~rateConversationCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/UpdateKnowledgeDB200Response} data The data returned by the service call.
+     * @param {module:model/RateConversation200Response} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
     /**
      * Rates the currently open conversation as positive or negative.
      * Rates the currently open conversation as positive or negative.
-     * @param {Number} userId The user id as determined by the caller
+     * @param {String} userId The user id as determined by the caller
      * @param {Boolean} rating The rating of the conversation
      * @param {module:api/DefaultApi~rateConversationCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/UpdateKnowledgeDB200Response}
+     * data is of type: {@link module:model/RateConversation200Response}
      */
     rateConversation(userId, rating, callback) {
       let postBody = null;
@@ -220,7 +221,7 @@ export default class DefaultApi {
       let authNames = ['apiKeyAuth'];
       let contentTypes = [];
       let accepts = ['application/json'];
-      let returnType = UpdateKnowledgeDB200Response;
+      let returnType = RateConversation200Response;
       return this.apiClient.callApi(
         '/htibot/rateConversation', 'PUT',
         pathParams, queryParams, headerParams, formParams, postBody,
@@ -232,7 +233,7 @@ export default class DefaultApi {
      * Callback function to receive the result of the updateKnowledgeDB operation.
      * @callback module:api/DefaultApi~updateKnowledgeDBCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/UpdateKnowledgeDB200Response} data The data returned by the service call.
+     * @param {module:model/BaseSuccessModel} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -243,7 +244,7 @@ export default class DefaultApi {
      * @param {Object} opts Optional parameters
      * @param {Boolean} [cleanUp = false)] Whether to delete old entries after succesful upload of new entries.
      * @param {module:api/DefaultApi~updateKnowledgeDBCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/UpdateKnowledgeDB200Response}
+     * data is of type: {@link module:model/BaseSuccessModel}
      */
     updateKnowledgeDB(zipFile, opts, callback) {
       opts = opts || {};
@@ -267,7 +268,7 @@ export default class DefaultApi {
       let authNames = ['apiKeyAuth'];
       let contentTypes = ['multipart/form-data'];
       let accepts = ['application/json'];
-      let returnType = UpdateKnowledgeDB200Response;
+      let returnType = BaseSuccessModel;
       return this.apiClient.callApi(
         '/htibot/updateKnowledgeDB', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,

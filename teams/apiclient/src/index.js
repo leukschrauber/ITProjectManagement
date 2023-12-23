@@ -14,10 +14,11 @@
 
 import ApiClient from './ApiClient';
 import BaseErrorModel from './model/BaseErrorModel';
+import BaseSuccessModel from './model/BaseSuccessModel';
 import GetAnswer200Response from './model/GetAnswer200Response';
 import HasOpenConversation200Response from './model/HasOpenConversation200Response';
 import LanguageEnum from './model/LanguageEnum';
-import UpdateKnowledgeDB200Response from './model/UpdateKnowledgeDB200Response';
+import RateConversation200Response from './model/RateConversation200Response';
 import DefaultApi from './api/DefaultApi';
 
 
@@ -66,6 +67,12 @@ export {
     BaseErrorModel,
 
     /**
+     * The BaseSuccessModel model constructor.
+     * @property {module:model/BaseSuccessModel}
+     */
+    BaseSuccessModel,
+
+    /**
      * The GetAnswer200Response model constructor.
      * @property {module:model/GetAnswer200Response}
      */
@@ -84,10 +91,10 @@ export {
     LanguageEnum,
 
     /**
-     * The UpdateKnowledgeDB200Response model constructor.
-     * @property {module:model/UpdateKnowledgeDB200Response}
+     * The RateConversation200Response model constructor.
+     * @property {module:model/RateConversation200Response}
      */
-    UpdateKnowledgeDB200Response,
+    RateConversation200Response,
 
     /**
     * The DefaultApi service constructor.

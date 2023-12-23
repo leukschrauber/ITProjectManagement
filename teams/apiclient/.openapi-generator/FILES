@@ -3,11 +3,12 @@
 .travis.yml
 README.md
 docs/BaseErrorModel.md
+docs/BaseSuccessModel.md
 docs/DefaultApi.md
 docs/GetAnswer200Response.md
 docs/HasOpenConversation200Response.md
 docs/LanguageEnum.md
-docs/UpdateKnowledgeDB200Response.md
+docs/RateConversation200Response.md
 git_push.sh
 mocha.opts
 package.json
@@ -15,7 +16,10 @@ src/ApiClient.js
 src/api/DefaultApi.js
 src/index.js
 src/model/BaseErrorModel.js
+src/model/BaseSuccessModel.js
 src/model/GetAnswer200Response.js
 src/model/HasOpenConversation200Response.js
 src/model/LanguageEnum.js
-src/model/UpdateKnowledgeDB200Response.js
+src/model/RateConversation200Response.js
+test/model/BaseSuccessModel.spec.js
+test/model/RateConversation200Response.spec.js
