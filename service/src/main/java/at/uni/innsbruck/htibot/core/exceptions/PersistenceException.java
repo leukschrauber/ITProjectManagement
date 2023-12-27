@@ -1,8 +1,11 @@
 package at.uni.innsbruck.htibot.core.exceptions;
 
+import java.io.Serial;
+
 public class PersistenceException extends Exception {
 
-  private static final long serialVersionUID = -2850579037829406463L;
+  @Serial
+  private static final long serialVersionUID = -1965837547421677702L;
 
   public PersistenceException() {
     super();

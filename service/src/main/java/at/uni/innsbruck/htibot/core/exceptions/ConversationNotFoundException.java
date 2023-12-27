@@ -1,8 +1,11 @@
 package at.uni.innsbruck.htibot.core.exceptions;
 
+import java.io.Serial;
+
 public class ConversationNotFoundException extends Exception {
 
-  private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1883951669351993324L;
 
   public ConversationNotFoundException() {
     super();

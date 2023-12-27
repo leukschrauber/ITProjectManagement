@@ -8,7 +8,9 @@ import at.uni.innsbruck.htibot.core.business.util.Logger;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotClosedException;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
+import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
+import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
@@ -147,7 +149,15 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
                 .orElseThrow(ConversationNotFoundException::new)));
       }
 
-      this.conversationService.rateConversation(userId, rating);
+      final Optional<Conversation> conversationOptional = this.conversationService.getOpenConversationByUserId(
+          userId);
+
+      if (conversationOptional.isEmpty()) {
+        throw new ConversationNotFoundException(
+            String.format("Could not find open conversation for user with id %s", userId));
+      }
+
+      this.conversationService.rateConversation(conversationOptional.orElseThrow(), rating);
 
       return Response.ok(
               new RateConversation200Response().resultCode(Status.OK.getStatusCode())
@@ -174,7 +184,8 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       this.logger.warn(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.UNAUTHORIZED).build();
-    } catch (final ConstraintViolationException | IllegalArgumentException e) {
+    } catch (final ConstraintViolationException | IllegalArgumentException | UserIdFinalException |
+                   LanguageFinalException e) {
       this.logger.info(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
       return Response.status(Status.BAD_REQUEST)

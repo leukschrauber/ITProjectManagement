@@ -1,8 +1,11 @@
 package at.uni.innsbruck.htibot.core.exceptions;
 
+import java.io.Serial;
+
 public class MaxMessagesExceededException extends Exception {
 
-  private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = -7343600908523358070L;
 
   public MaxMessagesExceededException() {
     super();

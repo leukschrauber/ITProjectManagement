@@ -7,6 +7,7 @@ import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.exceptions.RatingFinalException;
+import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
@@ -65,9 +66,9 @@ public class JpaConversationService extends
       final Boolean rating,
       @NotBlank final String userId, final IncidentReport incidentReport,
       @NotNull final List<Message> messages, final Knowledge knowledge)
-      throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException {
+      throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException, UserIdFinalException {
 
-    if (conversation.getClosed().orElse(Boolean.FALSE)) {
+    if (conversation.getClosed().orElse(Boolean.FALSE) || conversation.getRating().isPresent()) {
       throw new ConversationClosedException("Closed conversation can not be changed.");
     }
 
@@ -75,7 +76,12 @@ public class JpaConversationService extends
       throw new LanguageFinalException("Language of a Conversation can not be changed once set.");
     }
 
+    if (!conversation.getUserId().equals(userId)) {
+      throw new UserIdFinalException("User Id of a Conversation can not be changed once set.");
+    }
+
     if (rating != null && conversation.getRating().isPresent() && conversation.getRating()
+        .orElseThrow()
         .equals(rating)) {
       throw new RatingFinalException("Rating of a Conversation can not be changed once set.");
     }
@@ -97,10 +103,16 @@ public class JpaConversationService extends
   public Conversation addMessage(final @NotNull Conversation conversation,
       final @NotBlank String message,
       final @NotNull UserType createdBy)
-      throws PersistenceException {
+      throws PersistenceException, ConversationClosedException {
+
+    if (conversation.getClosed().orElse(Boolean.FALSE) || conversation.getRating().isPresent()) {
+      throw new ConversationClosedException("Closed conversation can not be changed.");
+    }
+
     final Message messageObject = this.messageService.createAndSave(conversation, message,
         createdBy);
     conversation.getMessages().add(messageObject);
+    conversation.setClosed(null);
     return this._update(conversation);
   }
 
@@ -123,37 +135,17 @@ public class JpaConversationService extends
     return conversation;
   }
 
-  @Override
-  @NotNull
-  @ApiKeyRestricted
-  public Conversation rateConversation(@NotNull final String userId,
-      final boolean rating)
-      throws PersistenceException, ConversationNotFoundException, ConversationClosedException {
-
-    final Conversation conversation = this.executeSingleResultQuery(
-            (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
-                cb.or(cb.isNull(root.get(JpaConversation_.CLOSED)),
-                    cb.isFalse(root.get(JpaConversation_.CLOSED)))))
-        .orElseThrow(
-            () -> new ConversationNotFoundException(
-                String.format("User %s has no conversation yet.", userId)));
-
-    if (conversation.getRating().isPresent() || Boolean.TRUE.equals(
-        conversation.getClosed().orElse(Boolean.FALSE))) {
-      throw new ConversationClosedException("Conversation is already rated or closed");
-    }
-
-    conversation.setClosed(true);
-    conversation.setRating(rating);
-    return this._update(conversation);
-  }
 
   @Override
   @NotNull
   @ApiKeyRestricted
   public Conversation rateConversation(@NotNull final Conversation conversation,
       final boolean rating)
-      throws PersistenceException {
+      throws PersistenceException, ConversationClosedException {
+    if (conversation.getRating().isPresent() || Boolean.TRUE.equals(
+        conversation.getClosed().orElse(Boolean.FALSE))) {
+      throw new ConversationClosedException("Conversation is already rated or closed");
+    }
     conversation.setClosed(true);
     conversation.setRating(rating);
     return this._update(conversation);

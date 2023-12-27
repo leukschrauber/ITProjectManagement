@@ -1,8 +1,11 @@
 package at.uni.innsbruck.htibot.core.exceptions;
 
+import java.io.Serial;
+
 public class RatingFinalException extends Exception {
 
-  private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = -4326068724466805487L;
 
   public RatingFinalException() {
     super();

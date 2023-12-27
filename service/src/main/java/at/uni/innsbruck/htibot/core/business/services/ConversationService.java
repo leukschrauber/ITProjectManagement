@@ -5,6 +5,7 @@ import at.uni.innsbruck.htibot.core.exceptions.ConversationNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.exceptions.RatingFinalException;
+import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
@@ -34,13 +35,13 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
       Boolean rating,
       @NotBlank String userId, IncidentReport incidentReport, @NotNull List<Message> messages,
       Knowledge knowledge)
-      throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException;
+      throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException, UserIdFinalException;
 
   @NotNull
   @ApiKeyRestricted
   Conversation addMessage(@NotNull Conversation conversation, @NotBlank String message,
       @NotNull UserType createdBy)
-      throws PersistenceException;
+      throws PersistenceException, ConversationClosedException;
 
   @ApiKeyRestricted
   boolean hasOpenConversation(@NotBlank String userId);
@@ -51,13 +52,8 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
 
   @NotNull
   @ApiKeyRestricted
-  Conversation rateConversation(@NotNull String userId, boolean rating)
-      throws PersistenceException, ConversationNotFoundException, ConversationClosedException;
-
-  @NotNull
-  @ApiKeyRestricted
   Conversation rateConversation(@NotNull Conversation conversation, boolean rating)
-      throws PersistenceException;
+      throws PersistenceException, ConversationClosedException;
 
   @ApiKeyRestricted
   Optional<Conversation> getOpenConversationByUserId(@NotBlank String userId);

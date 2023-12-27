@@ -1,8 +1,11 @@
 package at.uni.innsbruck.htibot.core.exceptions;
 
+import java.io.Serial;
+
 public class PermissionDeniedException extends RuntimeException {
 
-  private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 5774645327725839412L;
 
   public PermissionDeniedException() {
     super();

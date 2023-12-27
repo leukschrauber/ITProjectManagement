@@ -7,13 +7,18 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.Serial;
+import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 
 @Priority(Interceptor.Priority.APPLICATION)
 @Interceptor
 @ApiKeyRestricted
 public class ApiKeyRestrictedInterceptor extends
-    AbstractPermissionRestrictedParameterInterceptor<ApiKeyRestricted> {
+    AbstractPermissionRestrictedParameterInterceptor<ApiKeyRestricted> implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Inject
   private ConfigProperties configProperties;
