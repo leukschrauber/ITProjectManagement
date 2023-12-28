@@ -209,7 +209,6 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       return Response.status(Status.INTERNAL_SERVER_ERROR)
           .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
               .message(e.getMessage())).build();
-
     } finally {
       this.logger.info(
           String.format("%s completed in %s ms", operationId,

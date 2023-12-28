@@ -45,6 +45,7 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       mappedBy = JpaKnowledgeResource_.KNOWLEDGE)
+  @NotNull
   private Set<KnowledgeResource> knowledgeResources;
 
   @Deprecated

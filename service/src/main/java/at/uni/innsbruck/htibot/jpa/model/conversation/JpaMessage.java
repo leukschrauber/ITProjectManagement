@@ -22,7 +22,7 @@ public class JpaMessage extends JpaIdentityIdHolder implements Message {
   private static final long serialVersionUID = -6783963507806025652L;
 
   @NotBlank
-  @Column
+  @Column(columnDefinition = "TEXT NOT NULL")
   private String message;
 
   @Enumerated(EnumType.STRING)

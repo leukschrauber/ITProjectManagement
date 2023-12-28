@@ -18,7 +18,7 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import org.jboss.arquillian.junit5.ArquillianExtension;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -32,8 +32,8 @@ class ConversationIT {
 
   private static final String USER_ID = "Eintracht Trier 05";
 
-  @BeforeEach
-  void cleanUp() throws Exception {
+  @AfterEach
+  void cleanUp() {
     CONVERSATION_CACHE.forEach(conversation -> {
       try {
         this.conversationService.delete(this.conversationService.reload(conversation));
