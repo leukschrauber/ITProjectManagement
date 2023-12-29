@@ -21,8 +21,10 @@ public class ConfigProperties {
   public static final ConfigProperty<String> OPENAI_HOST = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.openai.connector.host",
       String.class, null);
-  public static final ConfigProperty<String> OPENAI_DEPLOYMENT = new ConfigProperty<>(
-      "at.uni.innsbruck.htibot.openai.connector.deploymentid", String.class, null);
+  public static final ConfigProperty<String> OPENAI_GPT_DEPLOYMENT = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.openai.connector.gpt.deploymentid", String.class, null);
+  public static final ConfigProperty<String> OPENAI_ADA_DEPLOYMENT = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.openai.connector.ada.deploymentid", String.class, null);
   public static final ConfigProperty<String> HTBOT_API_KEY = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.apiKey", String.class, null);
   public static final ConfigProperty<String> HTBOT_DATABASE_URL = new ConfigProperty<>(
@@ -83,8 +85,10 @@ public class ConfigProperties {
   }
 
   private void validateMandatoryProperties() {
-    final List<String> mandatoryProperties = Stream.of(OPENAI_HOST, OPENAI_DEPLOYMENT, OPENAI_TOKEN,
-            HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD, KNOWLEDGE_FAQ_PATH)
+    final List<String> mandatoryProperties = Stream.of(OPENAI_HOST, OPENAI_GPT_DEPLOYMENT,
+            OPENAI_TOKEN,
+            HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD, KNOWLEDGE_FAQ_PATH,
+            OPENAI_ADA_DEPLOYMENT)
         .map(ConfigProperty::getKey)
         .toList();
 

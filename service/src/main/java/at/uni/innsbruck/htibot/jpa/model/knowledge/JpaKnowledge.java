@@ -3,6 +3,7 @@ package at.uni.innsbruck.htibot.jpa.model.knowledge;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.model.knowledge.KnowledgeResource;
+import at.uni.innsbruck.htibot.core.util.EmbeddingConverter;
 import at.uni.innsbruck.htibot.jpa.model.JpaIdentityIdHolder;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,6 +16,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,18 +28,18 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
   private static final long serialVersionUID = -6783963507806025652L;
 
   @NotBlank
-  @Column
+  @Column(columnDefinition = "TEXT NOT NULL")
   private String questionVector;
 
   @NotBlank
-  @Column
+  @Column(columnDefinition = "TEXT NOT NULL")
   private String question;
 
   @Column
   private String filename;
 
   @NotBlank
-  @Column
+  @Column(columnDefinition = "TEXT NOT NULL")
   private String answer;
 
   @Column
@@ -73,13 +75,24 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
 
   @Override
   @NotBlank
-  public String getQuestionVector() {
+  public String getQuestionVectorString() {
     return this.questionVector;
   }
 
   @Override
-  public void setQuestionVector(@NotBlank final String questionVector) {
+  public void setQuestionVectorString(@NotBlank final String questionVector) {
     this.questionVector = questionVector;
+  }
+
+  @Override
+  @NotNull
+  public List<Double> getQuestionVector() {
+    return EmbeddingConverter.getAsEmbedding(this.questionVector);
+  }
+
+  @Override
+  public void setQuestionVector(@NotNull final List<Double> embedding) {
+    this.questionVector = EmbeddingConverter.getAsString(embedding);
   }
 
   @Override

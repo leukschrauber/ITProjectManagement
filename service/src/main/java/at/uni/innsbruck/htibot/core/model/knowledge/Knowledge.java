@@ -4,15 +4,21 @@ import at.uni.innsbruck.htibot.core.model.IdentityIdHolder;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public interface Knowledge extends IdentityIdHolder {
 
   @NotBlank
-  String getQuestionVector();
+  String getQuestionVectorString();
 
-  void setQuestionVector(@NotBlank String questionVector);
+  void setQuestionVectorString(@NotBlank String questionVectorString);
+
+  void setQuestionVector(@NotNull List<Double> questionVector);
+
+  @NotNull
+  List<Double> getQuestionVector();
 
   @NotBlank
   String getQuestion();

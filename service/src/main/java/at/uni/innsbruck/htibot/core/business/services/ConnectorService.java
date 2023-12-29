@@ -6,6 +6,7 @@ import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 
 public interface ConnectorService {
@@ -28,4 +29,7 @@ public interface ConnectorService {
   @NotBlank
   @ApiKeyRestricted
   String generateIncidentReport(final @NotNull Conversation conversation);
+
+  @NotNull
+  List<Double> getEmbedding(final @NotBlank String prompt);
 }

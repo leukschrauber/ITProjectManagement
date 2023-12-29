@@ -8,6 +8,7 @@ import at.uni.innsbruck.htibot.core.exceptions.KnowledgeNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
+import at.uni.innsbruck.htibot.core.util.EmbeddingConverter;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -125,8 +126,9 @@ public class SetupListener implements ServletContextListener {
         continue;
       }
 
-      final String vectorplaceholder = "fewughiusdfhsdf";
-      final Knowledge knowledge = this.knowledgeService.createAndSave(vectorplaceholder,
+      final String questionVector = EmbeddingConverter.getAsString(
+          this.connectorService.getEmbedding(questionText));
+      final Knowledge knowledge = this.knowledgeService.createAndSave(questionVector,
           this.connectorService.translateToEnglish(questionText),
           this.connectorService.translateToEnglish(answerText),
           UserType.SYSTEM, new HashSet<>(), Boolean.FALSE, faq.getFileName().toString());

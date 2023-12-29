@@ -6,7 +6,7 @@ CREATE TABLE jpa_knowledge
     id              bigint       not null auto_increment,
     created_at      datetime(6),
     updated_at      datetime(6),
-    question_vector varchar(255) not null,
+    question_vector TEXT not null,
     question TEXT not null,
     answer   TEXT not null,
     created_by      varchar(255) not null,

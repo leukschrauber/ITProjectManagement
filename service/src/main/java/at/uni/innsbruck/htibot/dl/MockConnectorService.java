@@ -8,6 +8,7 @@ import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 
 public class MockConnectorService implements ConnectorService {
@@ -80,6 +81,12 @@ public class MockConnectorService implements ConnectorService {
           .append(message.getMessage()).append("\n\n");
     }
     return sb.toString();
+  }
+
+  @NotNull
+  @Override
+  public List<Double> getEmbedding(final @NotBlank String prompt) {
+    return List.of(1.2, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9);
   }
 
 }

@@ -13,6 +13,7 @@ import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.ai.openai.models.ChatCompletionsOptions;
 import com.azure.ai.openai.models.ChatMessage;
 import com.azure.ai.openai.models.ChatRole;
+import com.azure.ai.openai.models.EmbeddingsOptions;
 import com.azure.core.credential.AzureKeyCredential;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,8 +31,8 @@ public class OpenAIConnectorService implements ConnectorService {
   private static final double PRESENCE_PENALTY = 0;
 
   private final OpenAIClient openAIClient;
-
-  private final String deploymentId;
+  private final String gptDeploymentId;
+  private final String adaDeploymentId;
 
   private final ConfigProperties configProperties;
 
@@ -45,7 +46,10 @@ public class OpenAIConnectorService implements ConnectorService {
       final String azureOpenaiKey = this.configProperties.getProperty(
           ConfigProperties.OPENAI_TOKEN);
       final String endpoint = this.configProperties.getProperty(ConfigProperties.OPENAI_HOST);
-    this.deploymentId = this.configProperties.getProperty(ConfigProperties.OPENAI_DEPLOYMENT);
+    this.gptDeploymentId = this.configProperties.getProperty(
+        ConfigProperties.OPENAI_GPT_DEPLOYMENT);
+    this.adaDeploymentId = this.configProperties.getProperty(
+        ConfigProperties.OPENAI_ADA_DEPLOYMENT);
 
       this.openAIClient = new OpenAIClientBuilder()
           .endpoint(endpoint)
@@ -83,7 +87,7 @@ public class OpenAIConnectorService implements ConnectorService {
 
       messageList.add(new ChatMessage(ChatRole.USER, prompt));
 
-      return this.openAIClient.getChatCompletions(this.deploymentId,
+    return this.openAIClient.getChatCompletions(this.gptDeploymentId,
               new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
                   .setTemperature(TEMPERATURE)
                   .setTopP(TOP_P)
@@ -103,7 +107,7 @@ public class OpenAIConnectorService implements ConnectorService {
           this.botInstructionResolver.getTranslatingBotMessage(from, to));
       messageList.add(new ChatMessage(ChatRole.USER, prompt));
 
-      return this.openAIClient.getChatCompletions(this.deploymentId,
+    return this.openAIClient.getChatCompletions(this.gptDeploymentId,
               new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
                   .setTemperature(TEMPERATURE)
                   .setTopP(TOP_P)
@@ -121,7 +125,7 @@ public class OpenAIConnectorService implements ConnectorService {
         this.botInstructionResolver.getLanguageTranslatingBotMessage(ConversationLanguage.ENGLISH));
     messageList.add(new ChatMessage(ChatRole.USER, prompt));
 
-    return this.openAIClient.getChatCompletions(this.deploymentId,
+    return this.openAIClient.getChatCompletions(this.gptDeploymentId,
             new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
                 .setTemperature(TEMPERATURE)
                 .setTopP(TOP_P)
@@ -147,7 +151,7 @@ public class OpenAIConnectorService implements ConnectorService {
                   message.getMessage()))
           .toList());
 
-      return this.openAIClient.getChatCompletions(this.deploymentId,
+    return this.openAIClient.getChatCompletions(this.gptDeploymentId,
               new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
                   .setTemperature(TEMPERATURE)
                   .setTopP(TOP_P)
@@ -155,5 +159,13 @@ public class OpenAIConnectorService implements ConnectorService {
                       FREQUENCY_PENALTY).setPresencePenalty(
                       PRESENCE_PENALTY).setStop(Collections.emptyList())).getChoices().stream().findFirst()
           .orElseThrow().getMessage().getContent();
+  }
+
+  @NotNull
+  @Override
+  public List<Double> getEmbedding(final @NotBlank String prompt) {
+    return this.openAIClient.getEmbeddings(this.adaDeploymentId,
+            new EmbeddingsOptions(Collections.singletonList(prompt)).setModel("text-embedding-ada-002"))
+        .getData().stream().findFirst().orElseThrow().getEmbedding();
   }
 }
