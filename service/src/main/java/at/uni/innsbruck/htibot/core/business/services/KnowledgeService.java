@@ -15,7 +15,7 @@ import java.util.Set;
 public interface KnowledgeService extends PersistenceService<Knowledge, Long> {
 
   @ApiKeyRestricted
-  Optional<Knowledge> retrieveKnowledge(@NotBlank String questionVector);
+  Optional<Knowledge> retrieveKnowledge(@NotNull List<Double> questionVector);
 
   @NotNull
   Knowledge createAndSave(@NotBlank String questionVector, @NotBlank String question,

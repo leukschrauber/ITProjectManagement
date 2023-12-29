@@ -3,7 +3,7 @@ package at.uni.innsbruck.htibot.jpa.model.knowledge;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.model.knowledge.KnowledgeResource;
-import at.uni.innsbruck.htibot.core.util.EmbeddingConverter;
+import at.uni.innsbruck.htibot.core.util.EmbeddingUtil;
 import at.uni.innsbruck.htibot.jpa.model.JpaIdentityIdHolder;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -87,12 +87,12 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
   @Override
   @NotNull
   public List<Double> getQuestionVector() {
-    return EmbeddingConverter.getAsEmbedding(this.questionVector);
+    return EmbeddingUtil.getAsEmbedding(this.questionVector);
   }
 
   @Override
   public void setQuestionVector(@NotNull final List<Double> embedding) {
-    this.questionVector = EmbeddingConverter.getAsString(embedding);
+    this.questionVector = EmbeddingUtil.getAsString(embedding);
   }
 
   @Override

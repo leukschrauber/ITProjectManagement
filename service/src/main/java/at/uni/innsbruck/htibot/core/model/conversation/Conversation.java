@@ -30,7 +30,7 @@ public interface Conversation extends IdentityIdHolder {
 
   Optional<IncidentReport> getIncidentReport();
 
-  void setIncidentReport(@NotNull IncidentReport incidentReport);
+  void setIncidentReport(IncidentReport incidentReport);
 
   @NotNull
   List<Message> getMessages();
@@ -39,6 +39,6 @@ public interface Conversation extends IdentityIdHolder {
 
   Optional<Knowledge> getKnowledge();
 
-  void setKnowledge(@NotNull Knowledge knowledge);
+  void setKnowledge(Knowledge knowledge);
 
 }

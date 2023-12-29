@@ -62,7 +62,7 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
 
   @OneToOne(targetEntity = JpaKnowledge.class,
       fetch = FetchType.LAZY,
-      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+      cascade = {CascadeType.REMOVE},
       orphanRemoval = true)
   @JoinColumn(name = "knowledge_id")
   private Knowledge knowledge;
@@ -127,7 +127,7 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   }
 
   @Override
-  public void setIncidentReport(final @NotNull IncidentReport incidentReport) {
+  public void setIncidentReport(final IncidentReport incidentReport) {
     this.incidentReport = incidentReport;
   }
 
@@ -147,7 +147,7 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   }
 
   @Override
-  public void setKnowledge(@NotNull final Knowledge knowledge) {
+  public void setKnowledge(final Knowledge knowledge) {
     this.knowledge = knowledge;
   }
 

@@ -7,6 +7,7 @@ import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.model.knowledge.KnowledgeResource;
+import at.uni.innsbruck.htibot.core.util.EmbeddingUtil;
 import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
 import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge;
 import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge_;
@@ -17,9 +18,11 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Throwable.class)
@@ -66,12 +69,25 @@ public class JpaKnowledgeService extends
   @Override
   @NotNull
   @ApiKeyRestricted
-  public Optional<Knowledge> retrieveKnowledge(@NotBlank final String questionVector) {
-    return Optional.ofNullable(
-        new JpaKnowledge(questionVector, "SAP - No typing memory", "Close SAP\n"
-            + "Delete the file SAPHistoryUSERLOGON.db in the folder : C:\\Users\\USERLOGON\\AppData\\Roaming\\SAP\\SAP GUI\\History\n"
-            + "Open SAP again and do a first search in a field to create a history and then see if it keeps the input in memory.\n",
-            UserType.SYSTEM, Boolean.FALSE));
+  public Optional<Knowledge> retrieveKnowledge(@NotNull final List<Double> questionVector) {
+    final Pair<JpaKnowledge, Double> knowledgeAndSimilarity = this.executeResultListQuery(
+            Tuple.class,
+            JpaKnowledge.class,
+            (query, cb, root) ->
+                cb.isFalse(root.get(JpaKnowledge_.ARCHIVED)), null,
+            (query, cb, root) -> query.multiselect(root, root.get(JpaKnowledge_.QUESTION_VECTOR)), true,
+            QPCLimitOffsetSort.create()).stream()
+        .map(tuple -> Pair.of(tuple.get(0, JpaKnowledge.class),
+            EmbeddingUtil.computeCosineSimilarity(
+                EmbeddingUtil.getAsEmbedding(tuple.get(1, String.class)), questionVector))).max(
+            Comparator.comparing(Pair::getRight)).orElseThrow();
+
+    if (knowledgeAndSimilarity.getRight() > 0.5) {
+      return Optional.of(knowledgeAndSimilarity.getLeft());
+    } else {
+      return Optional.empty();
+    }
+
   }
 
   @NotNull

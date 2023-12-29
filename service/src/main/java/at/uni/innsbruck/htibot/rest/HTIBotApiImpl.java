@@ -2,7 +2,6 @@ package at.uni.innsbruck.htibot.rest;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
-import at.uni.innsbruck.htibot.core.business.services.InputClassifierService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
@@ -48,9 +47,6 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
   @Inject
   private ConversationService conversationService;
-
-  @Inject
-  private InputClassifierService inputClassifierService;
 
   @Inject
   private KnowledgeService knowledgeService;
@@ -103,7 +99,10 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
             closeConversation ? Boolean.TRUE : null,
             conversationLanguage, null, userId,
             null,
-            new ArrayList<>(), knowledgeOptional.orElse(null));
+            new ArrayList<>(),
+            knowledgeOptional.map(
+                    knowledge -> this.knowledgeService.getById(knowledge.getId()).orElseThrow())
+                .orElse(null));
       } else {
         conversation = conversationOptional.orElseThrow();
       }
@@ -222,7 +221,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   }
 
   private Optional<Knowledge> findKnowledge(final String prompt,
-      final ConversationLanguage language) throws Exception {
+      final ConversationLanguage language) {
     String englishPrompt = null;
     if (!ConversationLanguage.ENGLISH.equals(language)) {
       englishPrompt = this.connectorService.translate(prompt, language,
@@ -231,7 +230,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       englishPrompt = prompt;
     }
 
-    final String questionVector = this.inputClassifierService.retrieveQuestionVector(englishPrompt);
-    return this.knowledgeService.retrieveKnowledge(questionVector);
+    return this.knowledgeService.retrieveKnowledge(
+        this.connectorService.getEmbedding(englishPrompt));
   }
 }
