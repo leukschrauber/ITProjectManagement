@@ -2,6 +2,7 @@ package at.uni.innsbruck.htibot.rest;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
+import at.uni.innsbruck.htibot.core.business.services.IncidentReportService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
@@ -56,6 +57,9 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
   @Inject
   private ConfigProperties configProperties;
+
+  @Inject
+  private IncidentReportService incidentReportService;
 
   @Override
   @NotNull
@@ -113,6 +117,8 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       Optional<String> incidentReport = Optional.empty();
       if (closeConversation) {
         this.conversationService.rateConversation(conversation, false);
+        this.conversationService.addIncidentReport(conversation,
+            this.incidentReportService.createAndSave(answer));
         incidentReport = Optional.of(answer);
       }
 

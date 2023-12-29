@@ -58,7 +58,7 @@ CREATE TABLE jpa_message
 CREATE TABLE jpa_incident_report
 (
     id   bigint not null auto_increment,
-    text varchar(255),
+    text TEXT,
     created_at datetime(6),
     updated_at datetime(6),
     PRIMARY KEY (id)

@@ -58,4 +58,8 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
   @ApiKeyRestricted
   Optional<Conversation> getOpenConversationByUserId(@NotBlank String userId);
 
+  @ApiKeyRestricted
+  @NotNull
+  Conversation addIncidentReport(@NotNull Conversation conversation,
+      @NotNull IncidentReport incidentReport) throws PersistenceException;
 }

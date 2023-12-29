@@ -162,6 +162,16 @@ public class JpaConversationService extends
 
   @Override
   @ApiKeyRestricted
+  @NotNull
+  public Conversation addIncidentReport(@NotNull final Conversation conversation,
+      @NotNull final IncidentReport incidentReport)
+      throws PersistenceException {
+    conversation.setIncidentReport(incidentReport);
+    return this._update(conversation);
+  }
+
+  @Override
+  @ApiKeyRestricted
   public boolean hasOpenConversation(final @NotBlank String userId) {
     return this.executeCountQuery(
         ((query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),

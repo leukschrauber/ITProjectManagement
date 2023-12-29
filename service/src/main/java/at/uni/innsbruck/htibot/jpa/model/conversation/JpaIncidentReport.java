@@ -15,7 +15,7 @@ public class JpaIncidentReport extends JpaIdentityIdHolder implements IncidentRe
   private static final long serialVersionUID = -6783963507806025652L;
 
   @NotBlank
-  @Column
+  @Column(columnDefinition = "TEXT NULL")
   private String text;
 
   public JpaIncidentReport(@NotBlank final String text) {
