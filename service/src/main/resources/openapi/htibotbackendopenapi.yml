@@ -42,39 +42,6 @@ paths:
           description: Unauthorized
         '500':
           $ref: "#/components/responses/Error"
-  /htibot/updateKnowledgeDB:
-    post:
-      security:
-        - apiKeyAuth: [ ]
-      summary: Updates the vector database with the uploaded zipfile.
-      operationId: updateKnowledgeDB
-      description: Updates the vector database with the uploaded zipfile.
-        Zipfile consists of FAQ in html format and enclosed resources folder with pictures.
-        CleanUp=True will result in the old entries being wiped from the database after succesful upload.
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - zipFile
-              properties:
-                zipFile:
-                  type: string
-                  format: binary
-                  description: The FAQ Zip File with HTML FAQs and enclosed resources folder
-                cleanUp:
-                  type: boolean
-                  default: false
-                  description: Whether to delete old entries after succesful upload of new entries.
-      responses:
-        '200':
-          $ref: "#/components/responses/Success"
-        '401':
-          description: Unauthorized
-        '500':
-          $ref: "#/components/responses/Error"
   /htibot/rateConversation:
     put:
       security:

@@ -42,6 +42,10 @@ public class ConfigProperties {
   public static final ConfigProperty<Integer> HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithKnowledge", Integer.class, 20);
 
+  public static final ConfigProperty<String> KNOWLEDGE_FAQ_PATH = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.FAQ.path",
+      String.class, null);
+
   private static final String DEFAULT_PROPERTY_PATH = "at/uni/innsbruck/htibot/config.properties";
 
   private static final String CONFIGURED_PROPERTY_PATH_VARIABLE = "at.uni.innsbruck.htibot.config.custom";
@@ -80,7 +84,7 @@ public class ConfigProperties {
 
   private void validateMandatoryProperties() {
     final List<String> mandatoryProperties = Stream.of(OPENAI_HOST, OPENAI_DEPLOYMENT, OPENAI_TOKEN,
-            HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD)
+            HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD, KNOWLEDGE_FAQ_PATH)
         .map(ConfigProperty::getKey)
         .toList();
 
