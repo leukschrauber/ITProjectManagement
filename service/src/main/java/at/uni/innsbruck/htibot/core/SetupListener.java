@@ -70,14 +70,22 @@ public class SetupListener implements ServletContextListener {
             String.format("Adding knowledge from file %s", faq.getFileName().toString()));
         final Document faqHTMLDocument = Jsoup.parse(new File(faq.toString()), "UTF-8");
 
-        final String questionText = this.connectorService.translateToEnglish(
-            this.getQuestionFromHTMLDocument(faqHTMLDocument));
-        final String answerText = this.connectorService.translateToEnglish(
-            this.getAnswerFromHTMLDocument(faqHTMLDocument));
+        final String questionText =
+            this.getQuestionFromHTMLDocument(faqHTMLDocument);
+        final String answerText =
+            this.getAnswerFromHTMLDocument(faqHTMLDocument);
+
+        if (StringUtils.isBlank(questionText) || StringUtils.isBlank(answerText)) {
+          this.logger.warn(String.format(
+              "FAQ file %s does not hold a question or an answer and is thus not considered.",
+              faq.getFileName().toString()));
+          continue;
+        }
+
         final String vectorplaceholder = "fewughiusdfhsdf";
         final Knowledge knowledge = this.knowledgeService.createAndSave(vectorplaceholder,
-            questionText,
-            answerText,
+            this.connectorService.translateToEnglish(questionText),
+            this.connectorService.translateToEnglish(answerText),
             UserType.SYSTEM, new HashSet<>(), Boolean.FALSE, faq.getFileName().toString());
 
         for (final String resourcePath : this.getResourcesFromHTMLDocument(faqPath,
@@ -95,17 +103,16 @@ public class SetupListener implements ServletContextListener {
 
   @NotNull
   private String getAnswerFromHTMLDocument(final Document faqHTMLDocument) {
-    return StringUtils.defaultString(StringUtils.trimToNull(StringUtils.defaultString(
+    return StringUtils.trimToNull(StringUtils.defaultString(
         extractText(faqHTMLDocument, "Problem") + " " + StringUtils.defaultString(
-            extractText(faqHTMLDocument, "Solution")))), "No Solution available.");
+            extractText(faqHTMLDocument, "Solution"))));
   }
 
   @NotNull
   private String getQuestionFromHTMLDocument(final Document faqHTMLDocument) {
-    return StringUtils.defaultString(StringUtils.trimToNull(
+    return StringUtils.trimToNull(
             StringUtils.defaultString(faqHTMLDocument.selectFirst("title").text()) +
-                " " + StringUtils.defaultString(extractText(faqHTMLDocument, "Symptom"))),
-        "No Question available.");
+                " " + StringUtils.defaultString(extractText(faqHTMLDocument, "Symptom")));
   }
 
   @NotNull
