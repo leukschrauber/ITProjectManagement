@@ -29,6 +29,9 @@ public class FrenchBotInstructions implements BotInstructions {
 
   private static final String TRANSLATING_BOT_MESSAGE = "Vous êtes un traducteur spécialisé dans les traductions de %s vers %s. Fournissez des traductions précises et naturelles pour l'entrée donnée.";
 
+  private static final ChatMessage LANGUAGE_TRANSLATING_BOT_MESSAGE = new ChatMessage(
+      ChatRole.SYSTEM,
+      "Vous êtes un traducteur spécialisé dans les traductions de vers francais. Fournissez des traductions précises et naturelles pour l'entrée donnée.");
 
   @Override
   public ConversationLanguage getLanguage() {
@@ -59,5 +62,11 @@ public class FrenchBotInstructions implements BotInstructions {
       @NotNull final ConversationLanguage translateTo) {
     return new ChatMessage(ChatRole.SYSTEM,
         String.format(TRANSLATING_BOT_MESSAGE, this.getLanguage(), translateTo));
+  }
+
+  @Override
+  @NotNull
+  public ChatMessage getLanguageTranslatingBotMessage() {
+    return LANGUAGE_TRANSLATING_BOT_MESSAGE;
   }
 }

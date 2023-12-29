@@ -115,6 +115,24 @@ public class OpenAIConnectorService implements ConnectorService {
 
   @Override
   @NotBlank
+  public String translateToEnglish(@NotBlank final String prompt) {
+    final List<ChatMessage> messageList = new ArrayList<>();
+    messageList.add(
+        this.botInstructionResolver.getLanguageTranslatingBotMessage(ConversationLanguage.ENGLISH));
+    messageList.add(new ChatMessage(ChatRole.USER, prompt));
+
+    return this.openAIClient.getChatCompletions(this.deploymentId,
+            new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
+                .setTemperature(TEMPERATURE)
+                .setTopP(TOP_P)
+                .setFrequencyPenalty(
+                    FREQUENCY_PENALTY).setPresencePenalty(
+                    PRESENCE_PENALTY).setStop(Collections.emptyList())).getChoices().stream().findFirst()
+        .orElseThrow().getMessage().getContent();
+  }
+
+  @Override
+  @NotBlank
   @ApiKeyRestricted
   public String generateIncidentReport(final @NotNull Conversation conversation) {
       final List<ChatMessage> messageList = new ArrayList<>();

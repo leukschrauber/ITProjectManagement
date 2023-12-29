@@ -36,6 +36,13 @@ public class BotInstructionResolver {
         .getTranslatingBotMessage(translateTo);
   }
 
+  @NotNull
+  public ChatMessage getLanguageTranslatingBotMessage(
+      @NotNull final ConversationLanguage translateTo) {
+    return this.retrieveBotInstructions(translateTo)
+        .getLanguageTranslatingBotMessage();
+  }
+
   private BotInstructions retrieveBotInstructions(final ConversationLanguage language) {
     return this.botInstructions.stream()
         .filter(botinstruction -> botinstruction.getLanguage().equals(language)).findFirst()

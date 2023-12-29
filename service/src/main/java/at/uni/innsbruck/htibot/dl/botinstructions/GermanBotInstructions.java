@@ -29,6 +29,10 @@ public class GermanBotInstructions implements BotInstructions {
 
   private static final String TRANSLATING_BOT_MESSAGE = "Sie sind ein Sprachübersetzer, der sich auf Übersetzungen von %s nach %s spezialisiert hat. Geben Sie genaue und natürliche Übersetzungen für den gegebenen Text.\n";
 
+  private static final ChatMessage LANGUAGE_TRANSLATING_BOT_MESSAGE = new ChatMessage(
+      ChatRole.SYSTEM,
+      "Sie sind ein Sprachübersetzer, der sich auf Übersetzungen ins Deutsche spezialisiert hat. Geben Sie genaue und natürliche Übersetzungen für den gegebenen Text.\n");
+
 
   @Override
   public ConversationLanguage getLanguage() {
@@ -59,5 +63,11 @@ public class GermanBotInstructions implements BotInstructions {
       @NotNull final ConversationLanguage translateTo) {
     return new ChatMessage(ChatRole.SYSTEM,
         String.format(TRANSLATING_BOT_MESSAGE, this.getLanguage(), translateTo));
+  }
+
+  @Override
+  @NotNull
+  public ChatMessage getLanguageTranslatingBotMessage() {
+    return LANGUAGE_TRANSLATING_BOT_MESSAGE;
   }
 }

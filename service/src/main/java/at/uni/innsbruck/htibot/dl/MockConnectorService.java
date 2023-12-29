@@ -63,6 +63,12 @@ public class MockConnectorService implements ConnectorService {
 
   @Override
   @NotBlank
+  public String translateToEnglish(@NotBlank final String prompt) {
+    return prompt;
+  }
+
+  @Override
+  @NotBlank
   @ApiKeyRestricted
   public String generateIncidentReport(final @NotNull Conversation conversation) {
     final StringBuilder sb = new StringBuilder();

@@ -1,5 +1,6 @@
 package at.uni.innsbruck.htibot.core;
 
+import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeResourceService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
@@ -45,6 +46,9 @@ public class SetupListener implements ServletContextListener {
   @Inject
   private KnowledgeResourceService knowledgeResourceService;
 
+  @Inject
+  private ConnectorService connectorService;
+
   public void onStart(
       @Observes(notifyObserver = Reception.ALWAYS) @Initialized(ApplicationScoped.class) final Object notUsed) {
     this.migrateFlyway();
@@ -66,8 +70,10 @@ public class SetupListener implements ServletContextListener {
             String.format("Adding knowledge from file %s", faq.getFileName().toString()));
         final Document faqHTMLDocument = Jsoup.parse(new File(faq.toString()), "UTF-8");
 
-        final String questionText = this.getQuestionFromHTMLDocument(faqHTMLDocument);
-        final String answerText = this.getAnswerFromHTMLDocument(faqHTMLDocument);
+        final String questionText = this.connectorService.translateToEnglish(
+            this.getQuestionFromHTMLDocument(faqHTMLDocument));
+        final String answerText = this.connectorService.translateToEnglish(
+            this.getAnswerFromHTMLDocument(faqHTMLDocument));
         final String vectorplaceholder = "fewughiusdfhsdf";
         final Knowledge knowledge = this.knowledgeService.createAndSave(vectorplaceholder,
             questionText,

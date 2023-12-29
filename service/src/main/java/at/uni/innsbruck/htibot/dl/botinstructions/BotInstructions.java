@@ -19,4 +19,7 @@ public interface BotInstructions {
   @NotNull
   ChatMessage getTranslatingBotMessage(
       @NotNull ConversationLanguage translateTo);
+
+  @NotNull
+  ChatMessage getLanguageTranslatingBotMessage();
 }

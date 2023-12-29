@@ -23,6 +23,9 @@ public interface ConnectorService {
       final @NotNull ConversationLanguage to);
 
   @NotBlank
+  String translateToEnglish(final @NotBlank String prompt);
+
+  @NotBlank
   @ApiKeyRestricted
   String generateIncidentReport(final @NotNull Conversation conversation);
 }
