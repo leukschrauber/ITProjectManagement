@@ -23,9 +23,6 @@ public class ConfigProperties {
       String.class, null);
   public static final ConfigProperty<String> OPENAI_DEPLOYMENT = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.openai.connector.deploymentid", String.class, null);
-  public static final ConfigProperty<Integer> OPENAI_MAX_MESSAGES = new ConfigProperty<>(
-      "at.uni.innsbruck.htibot.openai.maxMessagesPerDay",
-      Integer.class, 10000);
   public static final ConfigProperty<String> HTBOT_API_KEY = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.apiKey", String.class, null);
   public static final ConfigProperty<String> HTBOT_DATABASE_URL = new ConfigProperty<>(
@@ -104,8 +101,7 @@ public class ConfigProperties {
 
   private void validatePropertyTypes() {
     final List<ConfigProperty<Integer>> typedProperties = List.of(HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE,
-        HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE,
-        OPENAI_MAX_MESSAGES);
+        HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE);
 
     for (final ConfigProperty<Integer> typedProperty : typedProperties) {
       if (this.keyExists(typedProperty.getKey())) {

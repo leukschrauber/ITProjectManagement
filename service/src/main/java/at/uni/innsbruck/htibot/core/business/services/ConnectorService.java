@@ -15,15 +15,14 @@ public interface ConnectorService {
   String getAnswer(final @NotBlank String prompt, final @NotNull Optional<Knowledge> knowledge,
       @NotNull final Optional<Conversation> conversation,
       final @NotNull ConversationLanguage language,
-      boolean close)
-      throws Exception;
+      boolean close);
 
   @NotBlank
   @ApiKeyRestricted
   String translate(final @NotBlank String prompt, final @NotNull ConversationLanguage from,
-      final @NotNull ConversationLanguage to) throws Exception;
+      final @NotNull ConversationLanguage to);
 
   @NotBlank
   @ApiKeyRestricted
-  String generateIncidentReport(final @NotNull Conversation conversation) throws Exception;
+  String generateIncidentReport(final @NotNull Conversation conversation);
 }

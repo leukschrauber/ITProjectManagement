@@ -21,7 +21,7 @@ public class ConnectorServiceProducer {
   @ApplicationScoped
   public ConnectorService produceConnectorService() {
     if (Boolean.TRUE.equals(this.configProperties.getProperty(ConfigProperties.MOCK_OPENAI))) {
-      return new MockConnectorService((this.configProperties));
+      return new MockConnectorService();
     }
     return new OpenAIConnectorService(this.configProperties, this.botInstructionResolver);
   }
