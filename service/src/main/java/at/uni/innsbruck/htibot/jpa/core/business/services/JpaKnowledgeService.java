@@ -2,6 +2,7 @@ package at.uni.innsbruck.htibot.jpa.core.business.services;
 
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.services.QPCLimitOffsetSort;
+import at.uni.innsbruck.htibot.core.exceptions.KnowledgeNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
@@ -11,6 +12,7 @@ import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge;
 import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge_;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -88,6 +90,26 @@ public class JpaKnowledgeService extends
   }
 
   @Override
+  @NotNull
+  public Knowledge archiveSystemKnowledge(@NotBlank final String filename)
+      throws PersistenceException, KnowledgeNotFoundException {
+    final Optional<Knowledge> knowledgeOptional = this.executeSingleResultQuery(
+        (query, cb, root) -> cb.and(cb.equal(root.get(JpaKnowledge_.CREATED_BY), UserType.SYSTEM),
+            cb.equal(root.get(JpaKnowledge_.ARCHIVED), Boolean.FALSE),
+            cb.equal(root.get(JpaKnowledge_.FILENAME), filename)));
+
+    if (knowledgeOptional.isEmpty()) {
+      throw new KnowledgeNotFoundException("Trying to archive knowledge that is not existing.");
+    }
+
+    final Knowledge knowledge = knowledgeOptional.orElseThrow();
+    knowledge.setArchived(Boolean.TRUE);
+
+    return this._update(knowledge);
+  }
+
+
+  @Override
   public void archiveSystemKnowledge() throws PersistenceException {
     final List<Knowledge> knowledgeList = this.executeResultListQuery(
         (query, cb, root) -> cb.and(cb.equal(root.get(JpaKnowledge_.CREATED_BY), UserType.SYSTEM),
@@ -97,5 +119,15 @@ public class JpaKnowledgeService extends
     knowledgeList.forEach(knowledge -> knowledge.setArchived(Boolean.TRUE));
 
     this._update(knowledgeList);
+  }
+
+  @NotNull
+  @Override
+  public List<String> getKnowledgeFileNames() {
+    return this.executeResultListQuery(Tuple.class, JpaKnowledge.class,
+        (query, cb, root) -> cb.and(cb.equal(root.get(JpaKnowledge_.CREATED_BY), UserType.SYSTEM),
+            cb.isFalse(root.get(JpaKnowledge_.ARCHIVED))), null,
+        (query, cb, root) -> query.multiselect(root.get(JpaKnowledge_.FILENAME)), true,
+        QPCLimitOffsetSort.create()).stream().map(tuple -> tuple.get(0, String.class)).toList();
   }
 }

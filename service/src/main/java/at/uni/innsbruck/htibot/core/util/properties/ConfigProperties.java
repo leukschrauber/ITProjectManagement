@@ -42,6 +42,9 @@ public class ConfigProperties {
   public static final ConfigProperty<String> KNOWLEDGE_FAQ_PATH = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.FAQ.path",
       String.class, null);
+  public static final ConfigProperty<Boolean> FAQ_CLEAN_UP = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.FAQ.cleanUp",
+      Boolean.class, Boolean.FALSE);
 
   private static final String DEFAULT_PROPERTY_PATH = "at/uni/innsbruck/htibot/config.properties";
 

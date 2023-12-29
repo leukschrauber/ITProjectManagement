@@ -4,6 +4,7 @@ import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeResourceService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
+import at.uni.innsbruck.htibot.core.exceptions.KnowledgeNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
@@ -17,6 +18,7 @@ import jakarta.inject.Inject;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,46 +61,82 @@ public class SetupListener implements ServletContextListener {
 
     try {
       this.logger.info("Loading FAQs to database...");
-      this.knowledgeService.archiveSystemKnowledge();
-      final Path faqPath = Paths.get(
-          this.configProperties.getProperty(ConfigProperties.KNOWLEDGE_FAQ_PATH));
-
-      for (final Path faq : Files.list(faqPath)
-          .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".html"))
-          .toList()) {
-        this.logger.info(
-            String.format("Adding knowledge from file %s", faq.getFileName().toString()));
-        final Document faqHTMLDocument = Jsoup.parse(new File(faq.toString()), "UTF-8");
-
-        final String questionText =
-            this.getQuestionFromHTMLDocument(faqHTMLDocument);
-        final String answerText =
-            this.getAnswerFromHTMLDocument(faqHTMLDocument);
-
-        if (StringUtils.isBlank(questionText) || StringUtils.isBlank(answerText)) {
-          this.logger.warn(String.format(
-              "FAQ file %s does not hold a question or an answer and is thus not considered.",
-              faq.getFileName().toString()));
-          continue;
-        }
-
-        final String vectorplaceholder = "fewughiusdfhsdf";
-        final Knowledge knowledge = this.knowledgeService.createAndSave(vectorplaceholder,
-            this.connectorService.translateToEnglish(questionText),
-            this.connectorService.translateToEnglish(answerText),
-            UserType.SYSTEM, new HashSet<>(), Boolean.FALSE, faq.getFileName().toString());
-
-        for (final String resourcePath : this.getResourcesFromHTMLDocument(faqPath,
-            faqHTMLDocument)) {
-          this.knowledgeResourceService.createAndSave(resourcePath, UserType.SYSTEM, knowledge);
-        }
-      }
-      this.logger.info("Done loading FAQs to database.");
+      this.archiveDeletedKnowledge();
+      this.addNewFaqs();
     } catch (final Exception e) {
       this.logger.error("Exception while setting up FAQ Knowledge Base.");
       this.logger.error(e);
       throw new IllegalStateException(e);
     }
+  }
+
+  private void archiveDeletedKnowledge()
+      throws IOException, KnowledgeNotFoundException, PersistenceException {
+    if (this.configProperties.getProperty(ConfigProperties.FAQ_CLEAN_UP)) {
+      this.knowledgeService.archiveSystemKnowledge();
+    } else {
+      final Path faqPath = Paths.get(
+          this.configProperties.getProperty(ConfigProperties.KNOWLEDGE_FAQ_PATH));
+      final List<String> existingFileNames = this.knowledgeService.getKnowledgeFileNames();
+      final List<String> newFileNames = Files.list(faqPath)
+          .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".html"))
+          .map(file -> file.getFileName().toString())
+          .toList();
+
+      for (final String existingFileName : existingFileNames) {
+        if (!newFileNames.contains(existingFileName)) {
+          this.logger.info(String.format(
+              "Removing %s from knowledge base, as it is not included in the FAQ data anymore.",
+              existingFileName));
+          this.knowledgeService.archiveSystemKnowledge(existingFileName);
+        }
+      }
+    }
+  }
+
+  private void addNewFaqs() throws IOException, PersistenceException {
+    final Path faqPath = Paths.get(
+        this.configProperties.getProperty(ConfigProperties.KNOWLEDGE_FAQ_PATH));
+    final List<String> existingfileNames = this.knowledgeService.getKnowledgeFileNames();
+
+    for (final Path faq : Files.list(faqPath)
+        .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".html"))
+        .toList()) {
+
+      if (existingfileNames.contains(faq.getFileName().toString())) {
+        this.logger.info(String.format("File %s already exists in knowledge base.",
+            faq.getFileName().toString()));
+        continue;
+      }
+
+      this.logger.info(
+          String.format("Adding knowledge from file %s", faq.getFileName().toString()));
+      final Document faqHTMLDocument = Jsoup.parse(new File(faq.toString()), "UTF-8");
+
+      final String questionText =
+          this.getQuestionFromHTMLDocument(faqHTMLDocument);
+      final String answerText =
+          this.getAnswerFromHTMLDocument(faqHTMLDocument);
+
+      if (StringUtils.isBlank(questionText) || StringUtils.isBlank(answerText)) {
+        this.logger.warn(String.format(
+            "FAQ file %s does not hold a question or an answer and is thus not considered.",
+            faq.getFileName().toString()));
+        continue;
+      }
+
+      final String vectorplaceholder = "fewughiusdfhsdf";
+      final Knowledge knowledge = this.knowledgeService.createAndSave(vectorplaceholder,
+          this.connectorService.translateToEnglish(questionText),
+          this.connectorService.translateToEnglish(answerText),
+          UserType.SYSTEM, new HashSet<>(), Boolean.FALSE, faq.getFileName().toString());
+
+      for (final String resourcePath : this.getResourcesFromHTMLDocument(faqPath,
+          faqHTMLDocument)) {
+        this.knowledgeResourceService.createAndSave(resourcePath, UserType.SYSTEM, knowledge);
+      }
+    }
+    this.logger.info("Done loading FAQs to database.");
   }
 
   @NotNull
