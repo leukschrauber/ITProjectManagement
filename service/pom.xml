@@ -222,6 +222,11 @@
       <artifactId>mysql-connector-java</artifactId>
       <version>${version.mysql-connector}</version>
     </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.17.1</version> <!-- Aktuelle Version überprüfen -->
+    </dependency>
   </dependencies>
 
   <build>
