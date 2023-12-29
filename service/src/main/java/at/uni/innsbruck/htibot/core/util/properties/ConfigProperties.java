@@ -45,13 +45,6 @@ public class ConfigProperties {
   public static final ConfigProperty<String> KNOWLEDGE_FAQ_PATH = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.FAQ.path",
       String.class, null);
-  public static final ConfigProperty<String> KNOWLEDGE_RESOURCES_PATH = new ConfigProperty<>(
-      "at.uni.innsbruck.htibot.Resources.path",
-      String.class, null);
-
-  public static final ConfigProperty<Boolean> FIRST_START = new ConfigProperty<>(
-      "at.uni.innsbruck.htibot.firststart",
-      Boolean.class, Boolean.TRUE);
 
   private static final String DEFAULT_PROPERTY_PATH = "at/uni/innsbruck/htibot/config.properties";
 
@@ -91,8 +84,7 @@ public class ConfigProperties {
 
   private void validateMandatoryProperties() {
     final List<String> mandatoryProperties = Stream.of(OPENAI_HOST, OPENAI_DEPLOYMENT, OPENAI_TOKEN,
-            HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD, KNOWLEDGE_FAQ_PATH,
-            KNOWLEDGE_RESOURCES_PATH)
+            HTBOT_DATABASE_URL, HTBOT_DATABASE_USER, HTBOT_DATABASE_PASSWORD, KNOWLEDGE_FAQ_PATH)
         .map(ConfigProperty::getKey)
         .toList();
 

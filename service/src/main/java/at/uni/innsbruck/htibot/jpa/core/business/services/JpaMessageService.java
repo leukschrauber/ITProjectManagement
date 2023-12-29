@@ -58,6 +58,7 @@ public class JpaMessageService extends JpaPersistenceService<Message, JpaMessage
 
   @Override
   @ApiKeyRestricted
+  @NotNull
   public Message createAndSave(@NotNull final Conversation conversation,
       @NotBlank final String message, @NotNull final UserType userType)
       throws PersistenceException {

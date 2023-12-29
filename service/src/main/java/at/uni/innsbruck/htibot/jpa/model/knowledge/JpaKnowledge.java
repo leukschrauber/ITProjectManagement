@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -32,9 +33,15 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
   @Column
   private String question;
 
+  @Column
+  private String filename;
+
   @NotBlank
   @Column
   private String answer;
+
+  @Column
+  private Boolean archived;
 
   @Enumerated(EnumType.STRING)
   @NotNull
@@ -55,12 +62,13 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
 
   public JpaKnowledge(@NotBlank final String questionVector, @NotBlank final String question,
       @NotBlank final String answer,
-      @NotNull final UserType createdBy) {
+      @NotNull final UserType createdBy, @NotNull final Boolean archived) {
     this.questionVector = questionVector;
     this.question = question;
     this.answer = answer;
     this.createdBy = createdBy;
     this.knowledgeResources = new HashSet<>();
+    this.archived = archived;
   }
 
   @Override
@@ -115,6 +123,27 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
   @Override
   public void setKnowledgeResources(final Set<KnowledgeResource> knowledgeResources) {
     this.knowledgeResources = knowledgeResources;
+  }
+
+  @NotNull
+  @Override
+  public Boolean getArchived() {
+    return this.archived;
+  }
+
+  @Override
+  public void setArchived(@NotNull final Boolean archived) {
+    this.archived = archived;
+  }
+
+  @Override
+  public Optional<String> getFilename() {
+    return Optional.ofNullable(this.filename);
+  }
+
+  @Override
+  public void setFilename(final String fileName) {
+    this.filename = fileName;
   }
 
 

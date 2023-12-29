@@ -34,7 +34,6 @@ import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -164,15 +163,6 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
                   .incidentReport(incidentReport.orElse(null)))
           .build();
     });
-  }
-
-  @Override
-  @NotNull
-  public Response updateKnowledgeDB(final InputStream zipFileInputStream, final Boolean cleanUp) {
-    if (zipFileInputStream == null) {
-      throw new IllegalArgumentException("zipFileInputStream must not be null");
-    }
-    return null;
   }
 
   private Response runWithinTryCatch(final String operationId,

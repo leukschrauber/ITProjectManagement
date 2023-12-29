@@ -10,6 +10,8 @@ CREATE TABLE jpa_knowledge
     question TEXT not null,
     answer   TEXT not null,
     created_by      varchar(255) not null,
+    archived BOOLEAN not null,
+    fileName varchar(255),
     PRIMARY KEY (id)
 );
 

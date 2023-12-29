@@ -162,7 +162,7 @@ class HTIBotApiIT {
     this.conversationService.update(conversation, conversation.getClosed().orElse(null),
         conversation.getLanguage(), conversation.getRating().orElse(null), conversation.getUserId(),
         null, conversation.getMessages(),
-        new JpaKnowledge("fasel", "auch fasel", "blubber blubber", UserType.SYSTEM));
+        new JpaKnowledge("fasel", "auch fasel", "blubber blubber", UserType.SYSTEM, Boolean.FALSE));
 
     final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());

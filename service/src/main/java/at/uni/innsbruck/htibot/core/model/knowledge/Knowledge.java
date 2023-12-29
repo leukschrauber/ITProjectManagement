@@ -4,6 +4,7 @@ import at.uni.innsbruck.htibot.core.model.IdentityIdHolder;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.Set;
 
 public interface Knowledge extends IdentityIdHolder {
@@ -32,6 +33,15 @@ public interface Knowledge extends IdentityIdHolder {
   Set<KnowledgeResource> getKnowledgeResources();
 
   void setKnowledgeResources(@NotNull Set<KnowledgeResource> knowledgeResources);
+
+  @NotNull
+  Boolean getArchived();
+
+  void setArchived(@NotNull Boolean archived);
+
+  Optional<String> getFilename();
+
+  void setFilename(String filename);
 
 
 }

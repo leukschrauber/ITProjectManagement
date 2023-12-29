@@ -2,7 +2,6 @@ package at.uni.innsbruck.htibot.rest.generated.api;
 
 import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
-import java.io.File;
 import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
@@ -82,18 +81,4 @@ public interface HtibotApi {
         @ApiResponse(code = 409, message = "Error.", response = BaseErrorModel.class),
         @ApiResponse(code = 500, message = "Error.", response = BaseErrorModel.class) })
     Response rateConversation(@QueryParam("userId") @NotNull  @ApiParam("The user id as determined by the caller")  String userId,@QueryParam("rating") @NotNull  @ApiParam("The rating of the conversation")  Boolean rating);
-
-    @POST
-    @Path("/updateKnowledgeDB")
-    @Consumes({ "multipart/form-data" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Updates the vector database with the uploaded zipfile.", notes = "Updates the vector database with the uploaded zipfile. Zipfile consists of FAQ in html format and enclosed resources folder with pictures. CleanUp=True will result in the old entries being wiped from the database after succesful upload.", authorizations = {
-        
-        @Authorization(value = "apiKeyAuth")
-         }, tags={  })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = BaseSuccessModel.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
-        @ApiResponse(code = 500, message = "Error.", response = BaseErrorModel.class) })
-    Response updateKnowledgeDB( @FormParam(value = "zipFile") InputStream zipFileInputStream,@FormParam(value = "cleanUp")  Boolean cleanUp);
 }

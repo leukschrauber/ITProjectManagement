@@ -12,6 +12,7 @@ public interface MessageService extends PersistenceService<Message, Long> {
 
   @NotNull
   @ApiKeyRestricted
+  @NotNull
   Message createAndSave(@NotNull Conversation conversation, @NotBlank String message,
       @NotNull UserType userType)
       throws PersistenceException;
