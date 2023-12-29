@@ -12,6 +12,7 @@ import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
 import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
@@ -145,16 +146,18 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   @NotNull
   public Response rateConversation(final @NotNull String userId, final @NotNull Boolean rating) {
     return this.runWithinTryCatch("rateConversation", () -> {
-      Optional<String> incidentReport = Optional.empty();
-
-      if (Boolean.FALSE.equals(rating)) {
-        incidentReport = Optional.of(this.connectorService.generateIncidentReport(
-            this.conversationService.getOpenConversationByUserId(userId)
-                .orElseThrow(ConversationNotFoundException::new)));
-      }
-
       final Optional<Conversation> conversationOptional = this.conversationService.getOpenConversationByUserId(
           userId);
+      Optional<IncidentReport> incidentReport = Optional.empty();
+      if (Boolean.FALSE.equals(rating)) {
+        incidentReport = Optional.of(
+            this.incidentReportService.createAndSave(this.connectorService.generateIncidentReport(
+            this.conversationService.getOpenConversationByUserId(userId)
+                .orElseThrow(ConversationNotFoundException::new))));
+        this.conversationService.addIncidentReport(conversationOptional.orElseThrow(),
+            incidentReport.orElseThrow());
+      }
+
 
       if (conversationOptional.isEmpty()) {
         throw new ConversationNotFoundException(
@@ -165,7 +168,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
       return Response.ok(
               new RateConversation200Response().resultCode(Status.OK.getStatusCode())
-                  .incidentReport(incidentReport.orElse(null)))
+                  .incidentReport(incidentReport.map(IncidentReport::getText).orElse(null)))
           .build();
     });
   }

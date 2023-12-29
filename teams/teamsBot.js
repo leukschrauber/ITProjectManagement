@@ -178,6 +178,7 @@ mapToLanguageEnum(userLocale) {
     this.htBotApi = new ApiClient.DefaultApi(client);
 
     this.onMembersAdded(async (context, next) => {
+      try {
       const membersAdded = context.activity.membersAdded;
       for (let cnt = 0; cnt < 1; cnt++) {
         if (membersAdded[cnt].id) {
@@ -188,11 +189,17 @@ mapToLanguageEnum(userLocale) {
         break;
         }
       }
-      await next();
+      await next(); 
+    } catch (error) {
+        console.error(error);
+        await context.sendActivity("There was an error while adding a member to the Bot. Please contact your administrator.");
+        await next();
+      }
     });
 
 
     this.onMessage(async (context, next) => {
+      try {
       var userId = context.activity.from.id;
       var language = context.activity.locale;
       var prompt = context.activity.text.trim();
@@ -207,7 +214,6 @@ mapToLanguageEnum(userLocale) {
       }
 
 
-      try {
         if (await this.hasOpenConversation(userId)) {
           await context.sendActivity(this.retrieveLanguageConfig(language).openConversation);
         } else {
@@ -219,16 +225,19 @@ mapToLanguageEnum(userLocale) {
           await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
           return;
         }
-      } catch (error) {
-        console.error(error);
-      }
       await next();
+    } catch (error) {
+      console.error(error);
+      await context.sendActivity("There was an error while communicating with the Bot. Please contact your administrator.");
+      await next();
+    }
     });
   }
 
   // Invoked when an action is taken on an Adaptive Card. The Adaptive Card sends an event to the Bot and this
   // method handles that event.
   async onAdaptiveCardInvoke(context, invokeValue) {
+    try{
 
     var locale = context.activity.locale;
     var userId = context.activity.from.id;
@@ -272,6 +281,11 @@ mapToLanguageEnum(userLocale) {
     });
     await context.sendActivity(message);
     return { statusCode: 200 };
+  } catch (error) {
+    console.error(error);
+    await context.sendActivity("There was an error while interacting with one of the cards. Please contact your administrator.");
+    await next();
+  }
   }
 }
 
