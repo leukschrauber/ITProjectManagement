@@ -8,11 +8,13 @@ import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.model.knowledge.KnowledgeResource;
 import at.uni.innsbruck.htibot.core.util.EmbeddingUtil;
+import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
 import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge;
 import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge_;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
@@ -31,6 +33,9 @@ public class JpaKnowledgeService extends
 
   @Serial
   private static final long serialVersionUID = -3507242399388356601L;
+
+  @Inject
+  private ConfigProperties configProperties;
 
 
   @Override
@@ -80,9 +85,11 @@ public class JpaKnowledgeService extends
         .map(tuple -> Pair.of(tuple.get(0, JpaKnowledge.class),
             EmbeddingUtil.computeCosineSimilarity(
                 EmbeddingUtil.getAsEmbedding(tuple.get(1, String.class)), questionVector))).max(
-            Comparator.comparing(Pair::getRight)).orElseThrow();
+            Comparator.comparing(Pair::getRight)).orElse(null);
 
-    if (knowledgeAndSimilarity.getRight() > 0.5) {
+    if (knowledgeAndSimilarity != null && knowledgeAndSimilarity.getRight() != null
+        && knowledgeAndSimilarity.getRight() > this.configProperties.getProperty(
+        ConfigProperties.COSINE_SIMILARITY_TRESHOLD)) {
       return Optional.of(knowledgeAndSimilarity.getLeft());
     } else {
       return Optional.empty();

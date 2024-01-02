@@ -48,7 +48,8 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
 
   @NotNull
   @ApiKeyRestricted
-  Conversation continueConversation(@NotBlank String userId) throws ConversationNotFoundException;
+  Conversation continueConversation(@NotBlank String userId)
+      throws ConversationNotFoundException;
 
   @NotNull
   @ApiKeyRestricted

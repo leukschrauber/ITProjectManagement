@@ -62,8 +62,10 @@ public class SetupListener implements ServletContextListener {
 
     try {
       this.logger.info("Loading FAQs to database...");
-      this.archiveDeletedKnowledge();
-      this.addNewFaqs();
+      final Path faqPath = Paths.get(
+          this.configProperties.getProperty(ConfigProperties.KNOWLEDGE_FAQ_PATH));
+      this.archiveDeletedKnowledge(faqPath);
+      this.addNewFaqs(faqPath);
     } catch (final Exception e) {
       this.logger.error("Exception while setting up FAQ Knowledge Base.");
       this.logger.error(e);
@@ -71,13 +73,11 @@ public class SetupListener implements ServletContextListener {
     }
   }
 
-  private void archiveDeletedKnowledge()
+  private void archiveDeletedKnowledge(final Path faqPath)
       throws IOException, KnowledgeNotFoundException, PersistenceException {
-    if (this.configProperties.getProperty(ConfigProperties.FAQ_CLEAN_UP)) {
+    if (Boolean.TRUE.equals(this.configProperties.getProperty(ConfigProperties.FAQ_CLEAN_UP))) {
       this.knowledgeService.archiveSystemKnowledge();
     } else {
-      final Path faqPath = Paths.get(
-          this.configProperties.getProperty(ConfigProperties.KNOWLEDGE_FAQ_PATH));
       final List<String> existingFileNames = this.knowledgeService.getKnowledgeFileNames();
       final List<String> newFileNames = Files.list(faqPath)
           .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".html"))
@@ -95,9 +95,7 @@ public class SetupListener implements ServletContextListener {
     }
   }
 
-  private void addNewFaqs() throws IOException, PersistenceException {
-    final Path faqPath = Paths.get(
-        this.configProperties.getProperty(ConfigProperties.KNOWLEDGE_FAQ_PATH));
+  private void addNewFaqs(final Path faqPath) throws IOException, PersistenceException {
     final List<String> existingfileNames = this.knowledgeService.getKnowledgeFileNames();
 
     for (final Path faq : Files.list(faqPath)

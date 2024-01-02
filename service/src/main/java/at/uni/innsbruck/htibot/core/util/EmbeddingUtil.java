@@ -31,7 +31,8 @@ public class EmbeddingUtil {
     }
   }
 
-  public static double computeCosineSimilarity(final List<Double> vectorA, final List<Double> vectorB) {
+  public static double computeCosineSimilarity(final @NotNull List<Double> vectorA,
+      final @NotNull List<Double> vectorB) {
     if (vectorA.size() != vectorB.size()) {
       throw new IllegalArgumentException(
           "Vectors must be of the same length for computing cosine similarity");

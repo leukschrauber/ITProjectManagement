@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 
 @ApplicationScoped
 public class ConfigProperties {
@@ -47,6 +48,9 @@ public class ConfigProperties {
   public static final ConfigProperty<Boolean> FAQ_CLEAN_UP = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.FAQ.cleanUp",
       Boolean.class, Boolean.FALSE);
+  public static final ConfigProperty<Double> COSINE_SIMILARITY_TRESHOLD = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.knowledge.cosinesimilartiy.treshold",
+      Double.class, 0.7);
 
   private static final String DEFAULT_PROPERTY_PATH = "at/uni/innsbruck/htibot/config.properties";
 
@@ -95,7 +99,7 @@ public class ConfigProperties {
     for (final String mandatoryProperty : mandatoryProperties) {
 
       if (Boolean.TRUE.equals(this.getProperty(ConfigProperties.MOCK_OPENAI))
-          && (mandatoryProperty.toLowerCase().contains("openai"))) {
+          && (StringUtils.containsIgnoreCase(mandatoryProperty, "openai"))) {
         continue;
       }
       if (!this.keyExists(mandatoryProperty)) {
@@ -107,13 +111,17 @@ public class ConfigProperties {
   }
 
   private void validatePropertyTypes() {
-    final List<ConfigProperty<Integer>> typedProperties = List.of(HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE,
-        HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE);
+    final List<ConfigProperty<?>> typedProperties = List.of(HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE,
+        HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE, COSINE_SIMILARITY_TRESHOLD);
 
-    for (final ConfigProperty<Integer> typedProperty : typedProperties) {
+    for (final ConfigProperty<?> typedProperty : typedProperties) {
       if (this.keyExists(typedProperty.getKey())) {
         try {
-          Integer.parseInt(this.properties.getProperty(typedProperty.getKey()));
+          if (typedProperty.getPropertyClass() == Integer.class) {
+            Integer.parseInt(this.properties.getProperty(typedProperty.getKey()));
+          } else if (typedProperty.getPropertyClass() == Double.class) {
+            Double.parseDouble(this.properties.getProperty(typedProperty.getKey()));
+          }
         } catch (final NumberFormatException e) {
           throw new IllegalArgumentException(
               String.format("Property %s is not of type %s, but is expected to be.",
@@ -132,7 +140,7 @@ public class ConfigProperties {
   public <T> T getProperty(final ConfigProperty<T> configProperty) {
 
     if (!this.keyExists(configProperty.getKey())) {
-      return (T) configProperty.getDefaultValue();
+      return (T) configProperty.getDefaultValue().orElseThrow();
     }
 
     final Class<T> returnType = configProperty.getPropertyClass();
@@ -144,6 +152,9 @@ public class ConfigProperties {
           this.properties.getProperty(configProperty.getKey()));
     } else if (returnType == Boolean.class) {
       returnValue = (T) (Boolean) Boolean.parseBoolean(
+          this.properties.getProperty(configProperty.getKey()));
+    } else if (returnType == Double.class) {
+      returnValue = (T) (Double) Double.parseDouble(
           this.properties.getProperty(configProperty.getKey()));
     } else {
       returnValue = (T) this.properties.getProperty(configProperty.getKey());

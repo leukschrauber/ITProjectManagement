@@ -5,11 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
+import at.uni.innsbruck.htibot.core.business.services.KnowledgeResourceService;
+import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
-import at.uni.innsbruck.htibot.jpa.model.knowledge.JpaKnowledge;
+import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
+import at.uni.innsbruck.htibot.core.model.knowledge.KnowledgeResource;
+import at.uni.innsbruck.htibot.core.util.EmbeddingUtil;
 import at.uni.innsbruck.htibot.rest.generated.api.HtibotApi;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
@@ -21,11 +25,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -38,12 +42,18 @@ class HTIBotApiIT {
   @Inject
   private ConversationService conversationService;
 
+  @Inject
+  private KnowledgeService knowledgeService;
+
+  @Inject
+  private KnowledgeResourceService knowledgeResourceService;
+
   private static final List<Conversation> CONVERSATION_CACHE = new ArrayList<>();
 
   private static final String USER_ID = "Eintracht Trier 05";
 
   @AfterEach
-  void cleanUp() {
+  void cleanUp() throws Exception {
     CONVERSATION_CACHE.forEach(conversation -> {
       try {
         this.conversationService.delete(this.conversationService.reload(conversation));
@@ -52,6 +62,7 @@ class HTIBotApiIT {
       }
     });
     CONVERSATION_CACHE.clear();
+    this.knowledgeService.archiveSystemKnowledge();
   }
 
   @Test
@@ -154,15 +165,14 @@ class HTIBotApiIT {
   }
 
   @Test
-  @Disabled
-    //TODO implement when knowledge is ready
   void verifyGetAnswerExistingConversationKnowledgeAlreadyAttached() throws Exception {
+    final Knowledge knowledge = this.createKnowledge(List.of(1.0, 2.0, 3.0));
     Conversation conversation = this.createConversation();
     conversation = this.conversationService.continueConversation(USER_ID);
     this.conversationService.update(conversation, conversation.getClosed().orElse(null),
         conversation.getLanguage(), conversation.getRating().orElse(null), conversation.getUserId(),
         null, conversation.getMessages(),
-        new JpaKnowledge("fasel", "auch fasel", "blubber blubber", UserType.SYSTEM, Boolean.FALSE));
+        knowledge);
 
     final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
@@ -170,13 +180,14 @@ class HTIBotApiIT {
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
 
     assertFalse(response200.getAutoClosedConversation());
-    assertFalse(StringUtils.isNotBlank(response200.getAnswer()));
+    assertTrue(StringUtils.isNotBlank(response200.getAnswer()));
     assertEquals(Status.OK.getStatusCode(), response200.getResultCode());
     assertTrue(StringUtils.isEmpty(response200.getIncidentReport()));
   }
 
   @Test
   void verifyGetAnswerCloseConversationWithKnowledge() throws Exception {
+    this.createKnowledge(List.of(1.0, 2.0, 3.0));
     Conversation conversation = this.createConversation();
     conversation = this.conversationService.continueConversation(USER_ID);
     this.conversationService.update(conversation, conversation.getClosed().orElse(null),
@@ -201,8 +212,6 @@ class HTIBotApiIT {
   }
 
   @Test
-  @Disabled
-    //TODO waiting for proper knowledge implementation - currently there is always knowledge being found
   void verifyGetAnswerCloseConversationWithoutKnowledge() throws Exception {
     this.createConversation();
     this.conversationService.continueConversation(USER_ID);
@@ -218,7 +227,29 @@ class HTIBotApiIT {
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
 
     assertTrue(response200.getAutoClosedConversation());
-    assertFalse(StringUtils.isNotBlank(response200.getAnswer()));
+    assertTrue(StringUtils.isNotBlank(response200.getAnswer()));
+    assertEquals(Status.OK.getStatusCode(), response200.getResultCode());
+    assertTrue(StringUtils.isNotBlank(response200.getIncidentReport()));
+  }
+
+  @Test
+  void verifyGetAnswerCloseConversationWithDissimilarKnowledge() throws Exception {
+    final Knowledge knowledge = this.createKnowledge(List.of(-0.1, -0.2, -0.3));
+    this.createConversation();
+    this.conversationService.continueConversation(USER_ID);
+
+    for (int i = 0; i < 3; i++) {
+      this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+      this.api.continueConversation(USER_ID);
+    }
+
+    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    assertEquals(Status.OK.getStatusCode(), response.getStatus());
+    assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
+    final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
+
+    assertTrue(response200.getAutoClosedConversation());
+    assertTrue(StringUtils.isNotBlank(response200.getAnswer()));
     assertEquals(Status.OK.getStatusCode(), response200.getResultCode());
     assertTrue(StringUtils.isNotBlank(response200.getIncidentReport()));
   }
@@ -275,6 +306,16 @@ class HTIBotApiIT {
         UserType.SYSTEM);
     CONVERSATION_CACHE.add(conversation);
     return conversation;
+  }
+
+  private Knowledge createKnowledge(final List<Double> vector) throws Exception {
+    final Knowledge knowledge = this.knowledgeService.createAndSave(
+        EmbeddingUtil.getAsString(vector),
+        "Whats the question?", "Whats the answer?", UserType.SYSTEM, new HashSet<>(), Boolean.FALSE,
+        "find/me/here");
+    final KnowledgeResource knowledgeResource = this.knowledgeResourceService.createAndSave(
+        "find/me/here", UserType.SYSTEM, knowledge);
+    return this.knowledgeService.reload(knowledge);
   }
 
 
