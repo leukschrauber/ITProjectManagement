@@ -133,7 +133,16 @@ public class SetupListener implements ServletContextListener {
 
       for (final String resourcePath : this.getResourcesFromHTMLDocument(faqPath,
           faqHTMLDocument)) {
-        this.knowledgeResourceService.createAndSave(resourcePath, UserType.SYSTEM, knowledge);
+
+        if (new File(resourcePath).exists() || StringUtils.startsWith(resourcePath, "http")) {
+          this.knowledgeResourceService.createAndSave(resourcePath, UserType.SYSTEM, knowledge);
+        } else {
+          this.logger.warn(
+              String.format("Resource %s in FAQ %s does not exist.",
+                  knowledge.getFilename().orElseThrow(),
+                  resourcePath));
+        }
+
       }
     }
     this.logger.info("Done loading FAQs to database.");
@@ -175,9 +184,15 @@ public class SetupListener implements ServletContextListener {
 
   @NotNull
   private List<String> getResourcesFromHTMLDocument(final Path faqDirectory,
-      final Document document) throws PersistenceException {
+      final Document document) {
     return document.select("img").stream()
-        .map(imgTag -> faqDirectory.resolve(imgTag.attr("src")).toAbsolutePath().toString())
+        .map(imgTag -> {
+          if (StringUtils.contains(imgTag.attr("src"), "http")) {
+            return imgTag.attr("src");
+          } else {
+            return faqDirectory.resolve(imgTag.attr("src")).toAbsolutePath().toString();
+          }
+        })
         .toList();
     }
 
