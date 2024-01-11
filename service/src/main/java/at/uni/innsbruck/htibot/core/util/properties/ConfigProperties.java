@@ -37,8 +37,6 @@ public class ConfigProperties {
   public static final ConfigProperty<String> HTBOT_DATABASE_PASSWORD = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.mysql.password",
       String.class, "root");
-  public static final ConfigProperty<Integer> HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE = new ConfigProperty<>(
-      "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithoutKnowledge", Integer.class, 6);
   public static final ConfigProperty<Integer> HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.getAnswer.maxMessagesWithKnowledge", Integer.class, 20);
 
@@ -112,7 +110,7 @@ public class ConfigProperties {
 
   private void validatePropertyTypes() {
     final List<ConfigProperty<?>> typedProperties = List.of(HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE,
-        HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE, COSINE_SIMILARITY_TRESHOLD);
+        COSINE_SIMILARITY_TRESHOLD);
 
     for (final ConfigProperty<?> typedProperty : typedProperties) {
       if (this.keyExists(typedProperty.getKey())) {

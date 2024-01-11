@@ -1,4 +1,4 @@
 {
-    "apiUrl": "http://localhost:9191/hti-bot-backend-1.0.0-SNAPSHOT/hti-bot-backend-1.0.0/rest/v1.0",
+    "apiUrl": "http://172.160.226.17:8080/hti-bot-backend-1.0.0-SNAPSHOT/hti-bot-backend-1.0.0/rest/v1.0",
     "apiKey": "9562015e-95c8-44bc-a5c3-d8f8c132b429"
 }

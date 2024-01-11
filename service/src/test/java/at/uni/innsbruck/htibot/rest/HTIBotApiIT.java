@@ -142,10 +142,10 @@ class HTIBotApiIT {
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
 
-    assertFalse(response200.getAutoClosedConversation());
+    assertTrue(response200.getAutoClosedConversation());
     assertTrue(StringUtils.isNotBlank(response200.getAnswer()));
     assertEquals(Status.OK.getStatusCode(), response200.getResultCode());
-    assertTrue(StringUtils.isEmpty(response200.getIncidentReport()));
+    assertFalse(StringUtils.isEmpty(response200.getIncidentReport()));
   }
 
   @Test
@@ -155,13 +155,10 @@ class HTIBotApiIT {
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
 
-    assertFalse(response200.getAutoClosedConversation());
+    assertTrue(response200.getAutoClosedConversation());
     assertTrue(StringUtils.isNotBlank(response200.getAnswer()));
     assertEquals(Status.OK.getStatusCode(), response200.getResultCode());
-    assertTrue(StringUtils.isEmpty(response200.getIncidentReport()));
-
-    this.conversationService.delete(
-        this.conversationService.getOpenConversationByUserId(USER_ID).orElseThrow());
+    assertFalse(StringUtils.isEmpty(response200.getIncidentReport()));
   }
 
   @Test

@@ -14,6 +14,11 @@
     },
     {
       "type": "TextBlock",
+      "text": "These are the three simple rules that I use to help you:\n1. If I find a FAQ related to your question, I will help you. \n2. I can only have one conversation with you. Thus, you must decide whether to close the conversation or continue the conversation using the buttons provided. \n3. If there is no FAQ related to your question, I will close our conversation immediately.",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
       "text": "Let's get started on finding the answers you need! Just type away, and let the conversation begin. 🚀",
       "wrap": true
     }

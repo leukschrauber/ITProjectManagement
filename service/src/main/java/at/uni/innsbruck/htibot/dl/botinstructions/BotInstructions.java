@@ -11,9 +11,6 @@ public interface BotInstructions {
   @NotNull ChatMessage getKnowledgeableBotMessage(String knowledge);
 
   @NotNull
-  ChatMessage getNoClueBotMessage();
-
-  @NotNull
   ChatMessage getClosingBotMessage();
 
   @NotNull

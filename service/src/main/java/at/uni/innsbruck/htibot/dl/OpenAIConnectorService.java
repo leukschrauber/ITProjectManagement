@@ -65,10 +65,8 @@ public class OpenAIConnectorService implements ConnectorService {
       @NotNull final Optional<Conversation> conversation,
       @NotNull final ConversationLanguage language, final boolean close) {
       final List<ChatMessage> messageList = new ArrayList<>();
-      if (close) {
+    if (close || knowledge.isEmpty()) {
         messageList.add(this.botInstructionResolver.getClosingBotMessage(language));
-      } else if (knowledge.isEmpty()) {
-        messageList.add(this.botInstructionResolver.getNoClueBotMessage(language));
       } else {
         messageList.add(
             this.botInstructionResolver.getKnowledgeableBotMessage(

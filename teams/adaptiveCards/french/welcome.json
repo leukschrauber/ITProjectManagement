@@ -14,6 +14,11 @@
     },
     {
       "type": "TextBlock",
+      "text": "Voici les trois règles simples que j'utilise pour t'aider:\n1. Si je trouve une FAQ liée à ta question, je t'aiderai.\n2. Je ne peux avoir qu'une seule conversation avec toi. Ainsi, tu dois décider de fermer la conversation ou de continuer la conversation en utilisant les boutons fournis.\n3. S'il n'y a pas de FAQ liée à ta question, je fermerai notre conversation immédiatement.",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
       "text": "Commençons à trouver les réponses dont tu as besoin ! Il te suffit de taper tes questions, et que la conversation commence. 🚀",
       "wrap": true
     }

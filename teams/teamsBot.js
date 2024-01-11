@@ -7,6 +7,10 @@ const germanSystemMessageCard = require("./adaptiveCards/german/systemMessage.js
 const englishSystemMessageCard = require("./adaptiveCards/english/systemMessage.json");
 const frenchSystemMessageCard = require("./adaptiveCards/french/systemMessage.json");
 const italianSystemMessageCard = require("./adaptiveCards/italian/systemMessage.json");
+const germanSystemMessageClosingCard = require("./adaptiveCards/german/systemMessageClosing.json");
+const englishSystemMessageClosingCard = require("./adaptiveCards/english/systemMessageClosing.json");
+const frenchSystemMessageClosingCard = require("./adaptiveCards/french/systemMessageClosing.json");
+const italianSystemMessageClosingCard = require("./adaptiveCards/italian/systemMessageClosing.json");
 const cardTools = require("@microsoft/adaptivecards-tools");
 const ApiClient =  require("./apiclient");
 const config = require('./config/config.json');
@@ -51,7 +55,10 @@ class TeamsBot extends TeamsActivityHandler {
         if (error) {
           reject(error);
         } else {
-          resolve(data.answer);
+          resolve({
+            answer: data.answer,
+            autoClosedConversation: data.autoClosedConversation
+          });
         }
       };
       this.htBotApi.getAnswer(prompt, userId, language, callback);
@@ -123,6 +130,25 @@ class TeamsBot extends TeamsActivityHandler {
       systemMessageCard = italianSystemMessageCard;
     } else if(userLocale.startsWith("fr-")) {
       systemMessageCard = frenchSystemMessageCard;
+    }
+
+    return systemMessageCard;
+  }
+  retrieveSystemMessageClosingCard(userLocale) {
+    if(!userLocale) {
+      return englishSystemMessageClosingCard;
+    }
+
+    var systemMessageCard;
+
+    if(userLocale.startsWith("en-")) {
+      systemMessageCard = englishSystemMessageClosingCard;
+    } else if(userLocale.startsWith("de-")) {
+      systemMessageCard = germanSystemMessageClosingCard;
+    } else if(userLocale.startsWith("it-")) {
+      systemMessageCard = italianSystemMessageClosingCard;
+    } else if(userLocale.startsWith("fr-")) {
+      systemMessageCard = frenchSystemMessageClosingCard;
     }
 
     return systemMessageCard;
@@ -218,11 +244,22 @@ mapToLanguageEnum(userLocale) {
           await context.sendActivity(this.retrieveLanguageConfig(language).openConversation);
         } else {
           var botAnswer = await this.getAnswer(prompt, userId, this.mapToLanguageEnum(language));
-          var answerobj = this.copyJSONObject(defaultSystemMessageProperties);
-          answerobj.answer = botAnswer;
-          var systemMessageCard = this.retrieveSystemMessageCard(language);
-          const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(answerobj);
-          await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
+          
+          if(botAnswer.autoClosedConversation) {
+            var closingObject = {answer: botAnswer.answer,
+                            question: prompt,
+                            linkAnswer: botAnswer.answer.replace(/ /g, '%20'),
+                            linkQuestion: prompt.replace(/ /g, '%20')}
+            var systemMessageClosingCard = this.retrieveSystemMessageClosingCard(language);
+            const card = cardTools.AdaptiveCards.declare(systemMessageClosingCard).render(closingObject);
+            await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
+          } else {
+            var answerobj = this.copyJSONObject(defaultSystemMessageProperties);
+            answerobj.answer = botAnswer.answer;
+            var systemMessageCard = this.retrieveSystemMessageCard(language);
+            const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(answerobj);
+            await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
+          }
           return;
         }
       await next();

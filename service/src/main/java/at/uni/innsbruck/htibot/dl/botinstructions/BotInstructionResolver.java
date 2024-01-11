@@ -19,11 +19,6 @@ public class BotInstructionResolver {
   }
 
   @NotNull
-  public ChatMessage getNoClueBotMessage(@NotNull final ConversationLanguage language) {
-    return this.retrieveBotInstructions(language).getNoClueBotMessage();
-  }
-
-  @NotNull
   public ChatMessage getClosingBotMessage(@NotNull final ConversationLanguage language) {
     return this.retrieveBotInstructions(language).getClosingBotMessage();
   }

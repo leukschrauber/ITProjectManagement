@@ -1,0 +1,57 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.16",
+    "version": "1.0.0",
+    "id": "09394dec-4820-4094-89bf-24def2684daa",
+    "packageName": "com.microsoft.teams.extension",
+    "developer": {
+        "name": "University of Innsbruck",
+        "websiteUrl": "https://www.uibk.ac.at/de/",
+        "privacyUrl": "https://www.example.com/termofuse",
+        "termsOfUseUrl": "https://www.example.com/privacy"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "name": {
+        "short": "HT-Bot-dev",
+        "full": "HT-Bot"
+    },
+    "description": {
+        "short": "HT-Bot is a customer service chatbot, using available FAQ data of HTI.",
+        "full": "Interact with the bot, discuss technical problems, generate incident reports and rate conversations."
+    },
+    "accentColor": "#FFFFFF",
+    "bots": [
+        {
+            "botId": "6a760709-652c-4652-9f79-4210f9a282dc",
+            "scopes": [
+                "personal"
+            ],
+            "supportsFiles": false,
+            "isNotificationOnly": false,
+            "commandLists": [
+                {
+                    "scopes": [
+                        "personal"
+                    ],
+                    "commands": [
+                        {
+                            "title": "welcome",
+                            "description": "Resend welcome card of this Bot"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "composeExtensions": [],
+    "configurableTabs": [],
+    "staticTabs": [],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
+    "validDomains": []
+}

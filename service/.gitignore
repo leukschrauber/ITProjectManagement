@@ -11,3 +11,4 @@ overlays/
 .project
 Temp/
 *.properties
+.java-version

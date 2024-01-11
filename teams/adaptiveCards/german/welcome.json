@@ -14,6 +14,11 @@
     },
     {
       "type": "TextBlock",
+      "text": "Dies sind die drei einfachen Regeln, die ich anwenden, um dir zu helfen:\n1. Wenn ich eine FAQ zu Deiner Frage finde, werde ich Dir helfen.\n2. Ich kann nur ein Gespräch mit Dir führen. Du musst daher entscheiden, ob Du das Gespräch beenden oder das Gespräch mit den bereitgestellten Buttons fortsetzen möchtest.\n3. Wenn es keine FAQ zu Deiner Frage gibt, werde ich unser Gespräch automatisch beenden.",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
       "text": "Lass uns damit beginnen, die Antworten zu finden, die du brauchst! Einfach loslegen und die Unterhaltung beginnen. 🚀",
       "wrap": true
     }

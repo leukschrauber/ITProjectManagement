@@ -101,7 +101,7 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       Conversation conversation = null;
       if (conversationOptional.isEmpty()) {
         conversation = this.conversationService.createAndSave(
-            closeConversation ? Boolean.TRUE : null,
+            null,
             conversationLanguage, null, userId,
             null,
             new ArrayList<>(),
@@ -216,17 +216,10 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
   private boolean isCloseConversation(final Optional<Conversation> conversationOptional,
       final Optional<Knowledge> knowledgeOptional) {
-    return conversationOptional.isPresent() && (
+    return knowledgeOptional.isEmpty() || conversationOptional.isPresent() && (
         conversationOptional.orElseThrow().getMessages().size() >
             this.configProperties.getProperty(
-                ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE) || (
-            conversationOptional.orElseThrow().getMessages().size() >
-                this.configProperties.getProperty(
-                    ConfigProperties.HTBOT_MAX_MESSAGES_WITHOUT_KNOWLEDGE) && (
-                knowledgeOptional.isEmpty()
-                    && conversationOptional.orElseThrow()
-                    .getKnowledge()
-                    .isEmpty())));
+                ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE));
   }
 
   private Optional<Knowledge> findKnowledge(final String prompt,

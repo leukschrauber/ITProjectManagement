@@ -2,6 +2,7 @@ package at.uni.innsbruck.htibot.jpa.core.business.services;
 
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.services.QPCLimitOffsetSort;
+import at.uni.innsbruck.htibot.core.business.util.Logger;
 import at.uni.innsbruck.htibot.core.exceptions.KnowledgeNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
@@ -36,6 +37,9 @@ public class JpaKnowledgeService extends
 
   @Inject
   private ConfigProperties configProperties;
+
+  @Inject
+  private Logger logger;
 
 
   @Override
@@ -86,6 +90,14 @@ public class JpaKnowledgeService extends
             EmbeddingUtil.computeCosineSimilarity(
                 EmbeddingUtil.getAsEmbedding(tuple.get(1, String.class)), questionVector))).max(
             Comparator.comparing(Pair::getRight)).orElse(null);
+
+    this.logger.info(
+        String.format("Found knowledge with id %s as most similar. Cosine similarity is %s",
+            Optional.ofNullable(knowledgeAndSimilarity)
+                .flatMap(pair -> pair.getLeft().getFilename()).orElse(null),
+            Optional.ofNullable(knowledgeAndSimilarity)
+                .map(pair -> EmbeddingUtil.computeCosineSimilarity(questionVector,
+                    pair.getLeft().getQuestionVector())).orElse(null)));
 
     if (knowledgeAndSimilarity != null && knowledgeAndSimilarity.getRight() != null
         && knowledgeAndSimilarity.getRight() > this.configProperties.getProperty(

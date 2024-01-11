@@ -14,6 +14,11 @@
     },
     {
       "type": "TextBlock",
+      "text": "Queste sono le tre semplici regole che uso per aiutarti:\n1. Se trovo una FAQ relativa alla tua domanda, ti aiuterò.\n2. Posso avere solo una conversazione con te. Pertanto, devi decidere se chiudere la conversazione o continuare la conversazione utilizzando i pulsanti forniti.\n3. Se non c'è una FAQ relativa alla tua domanda, chiuderò immediatamente la nostra conversazione.",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
       "text": "Cominciamo a trovare le risposte di cui hai bisogno! Basta digitare e iniziamo la conversazione. 🚀",
       "wrap": true
     }
