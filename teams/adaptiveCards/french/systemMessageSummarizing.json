@@ -1,0 +1,29 @@
+{
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Je suis désolé de n'avoir pas pu t'aider avec le problème technique que tu as signalé. Pour l'instant, tu peux contacter le service d'assistance HTI à l'adresse ITsupport@hti.global. Mais n'hésite pas à utiliser à nouveau le chatbot la prochaine fois. Nous pourrions trouver une solution ensemble. Merci de ta compréhension ! Voici le rapport d'incident que nous avons généré pour toi :",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "${report}",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Est-ce qu'il y a quelque chose d'autre avec lequel je pourrais t'aider?",
+      "wrap": true
+    }
+  ],                
+  "actions": [
+    {
+        "type": "Action.OpenUrl",
+        "url": "http://gis-support.corp.local/otrs/customer.pl",
+        "title": "Visite le site du service d'assistance"
+    }
+],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.4"
+}

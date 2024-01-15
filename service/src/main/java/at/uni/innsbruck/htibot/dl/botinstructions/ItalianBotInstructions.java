@@ -15,6 +15,11 @@ public class ItalianBotInstructions implements BotInstructions {
   private static final ChatMessage CLOSING_BOT_MESSAGE = new ChatMessage(ChatRole.USER,
       "Agisci come un assistente cortese per un dipendente del servizio di assistenza. Non farmi domande. Se i miei problemi non sono legati all'IT, il tuo unico compito è dire che la domanda non riguarda l'IT. Se la domanda è legata all'IT, categorizzi l'incidente per i tuoi colleghi e fornisci un elenco ristretto di possibili cause. Non fare domande di approfondimento. Non cercare di risolvere il mio problema. Di nuovo: Non fare alcuna domanda.");
 
+  private static final String SUMMARIZING_BOT_MESSAGE =
+      "Per favore, gestisci la mia richiesta come un assistente cortese per un dipendente del servizio di assistenza. Non farmi domande."
+          + "Il tuo unico compito è categorizzare il mio problema per i tuoi colleghi, riassumere i passaggi tentati per risolvere il problema e fornire un elenco ristretto delle possibili cause."
+          + " Non fare mai domande di follow-up. Non cercare di risolvere il mio problema. Ancora una volta: Non fare alcuna domanda. Queste sono state le mie domande: \n\n%s\nQuesta è stata l'assistenza che ho ricevuto:\n\n%s";
+
   private static final String TRANSLATING_BOT_MESSAGE = "Sei un traduttore specializzato nelle traduzioni da %s a %s. Fornisci traduzioni accurate e naturali per l'input fornito.";
 
   private static final ChatMessage LANGUAGE_TRANSLATING_BOT_MESSAGE = new ChatMessage(
@@ -51,5 +56,12 @@ public class ItalianBotInstructions implements BotInstructions {
   @NotNull
   public ChatMessage getLanguageTranslatingBotMessage() {
     return LANGUAGE_TRANSLATING_BOT_MESSAGE;
+  }
+
+  @Override
+  @NotNull
+  public ChatMessage getSummarizingBotMessage(final String userQuestion, final String botAnswer) {
+    return new ChatMessage(ChatRole.USER,
+        String.format(SUMMARIZING_BOT_MESSAGE, userQuestion, botAnswer));
   }
 }

@@ -11,6 +11,10 @@ const germanSystemMessageClosingCard = require("./adaptiveCards/german/systemMes
 const englishSystemMessageClosingCard = require("./adaptiveCards/english/systemMessageClosing.json");
 const frenchSystemMessageClosingCard = require("./adaptiveCards/french/systemMessageClosing.json");
 const italianSystemMessageClosingCard = require("./adaptiveCards/italian/systemMessageClosing.json");
+const germanSystemMessageSummarizingCard = require("./adaptiveCards/german/systemMessageSummarizing.json");
+const englishSystemMessageSummarizingCard = require("./adaptiveCards/english/systemMessageSummarizing.json");
+const frenchSystemMessageSummarizingCard = require("./adaptiveCards/french/systemMessageSummarizing.json");
+const italianSystemMessageSummarizingCard = require("./adaptiveCards/italian/systemMessageSummarizing.json");
 const cardTools = require("@microsoft/adaptivecards-tools");
 const ApiClient =  require("./apiclient");
 const config = require('./config/config.json');
@@ -154,6 +158,26 @@ class TeamsBot extends TeamsActivityHandler {
     return systemMessageCard;
   }
 
+  retrieveSystemMessageSummarizingCard(userLocale) {
+    if(!userLocale) {
+      return englishSystemMessageSummarizingCard;
+    }
+
+    var systemMessageCard;
+
+    if(userLocale.startsWith("en-")) {
+      systemMessageCard = englishSystemMessageSummarizingCard;
+    } else if(userLocale.startsWith("de-")) {
+      systemMessageCard = germanSystemMessageSummarizingCard;
+    } else if(userLocale.startsWith("it-")) {
+      systemMessageCard = italianSystemMessageSummarizingCard;
+    } else if(userLocale.startsWith("fr-")) {
+      systemMessageCard = frenchSystemMessageSummarizingCard;
+    }
+
+    return systemMessageCard;
+  }
+
   retrieveLanguageConfig(userLocale) {
     if(!userLocale) {
       return englishConfig;
@@ -247,9 +271,7 @@ mapToLanguageEnum(userLocale) {
           
           if(botAnswer.autoClosedConversation) {
             var closingObject = {answer: botAnswer.answer,
-                            question: prompt,
-                            linkAnswer: botAnswer.answer.replace(/ /g, '%20'),
-                            linkQuestion: prompt.replace(/ /g, '%20')}
+                            question: prompt}
             var systemMessageClosingCard = this.retrieveSystemMessageClosingCard(language);
             const card = cardTools.AdaptiveCards.declare(systemMessageClosingCard).render(closingObject);
             await context.sendActivity({ attachments: [CardFactory.adaptiveCard(card)] });
@@ -290,7 +312,7 @@ mapToLanguageEnum(userLocale) {
     answerObj.buttonsVisible = false;
 
     message = this.retrieveLanguageConfig(context.activity.locale).continueConversation;
-
+    await context.sendActivity(message);
     } else if (invokeValue.action.verb === "negativeRating") {
       var incidentReport = await this.rateConversationNegative(context.activity.from.id, false);
       systemMessageCard = this.retrieveSystemMessageCard(context.activity.locale);
@@ -299,7 +321,10 @@ mapToLanguageEnum(userLocale) {
       answerObj.negativeRatingVisible = true;
       answerObj.buttonsVisible = false;
 
-      message = this.retrieveLanguageConfig(context.activity.locale).negativeRating + incidentReport;
+      var summarizingObject = {report: incidentReport}
+      var systemMessageSummarizingCard = this.retrieveSystemMessageSummarizingCard(locale);
+      const summarizingCard = cardTools.AdaptiveCards.declare(systemMessageSummarizingCard).render(summarizingObject);
+      await context.sendActivity({ attachments: [CardFactory.adaptiveCard(summarizingCard)] });
     } else if (invokeValue.action.verb === "positiveRating") {
       var reply = await this.rateConversationPositive(context.activity.from.id, true);
 
@@ -308,6 +333,7 @@ mapToLanguageEnum(userLocale) {
       answerObj.buttonsVisible = false;
 
       message = this.retrieveLanguageConfig(context.activity.locale).positiveRating;
+      await context.sendActivity(message);
     }
 
     const card = cardTools.AdaptiveCards.declare(systemMessageCard).render(answerObj);
@@ -316,12 +342,10 @@ mapToLanguageEnum(userLocale) {
       id: context.activity.replyToId,
       attachments: [CardFactory.adaptiveCard(card)],
     });
-    await context.sendActivity(message);
     return { statusCode: 200 };
   } catch (error) {
     console.error(error);
     await context.sendActivity("There was an error while interacting with one of the cards. Please contact your administrator.");
-    await next();
   }
   }
 }

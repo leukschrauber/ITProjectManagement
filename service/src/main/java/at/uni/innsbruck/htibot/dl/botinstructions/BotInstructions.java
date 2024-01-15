@@ -19,4 +19,7 @@ public interface BotInstructions {
 
   @NotNull
   ChatMessage getLanguageTranslatingBotMessage();
+
+  @NotNull
+  ChatMessage getSummarizingBotMessage(String userQuestion, String botAnswer);
 }

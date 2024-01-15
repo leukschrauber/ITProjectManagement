@@ -17,6 +17,12 @@ public class EnglishBotInstructions implements BotInstructions {
   //TODO: https://community.openai.com/t/system-message-how-to-force-chatgpt-api-to-follow-it/82775/7
   private static final ChatMessage CLOSING_BOT_MESSAGE = new ChatMessage(ChatRole.USER,
       "Act as an polite assistant to a helpdesk employee. Do not ask me any questions. If my issues are not IT-related, your only job is to say that the question is not IT-related. If the question is IT-related, you categorize my incident for your colleagues and provide a shortlist of possible root causes. Never ask follow-up questions. Do not try to resolve my problem. Again: Do not ask any question.");
+
+  private static final String SUMMARIZING_BOT_MESSAGE =
+      "Act as an polite assistant to a helpdesk employee. Do not ask me any questions."
+          + "Your only job is to categorize my incident for your colleagues, summarize the steps tried to resolve the issue and provide a shortlist of possible root causes."
+          + " Never ask follow-up questions. Do not try to resolve my problem. Again: Do not ask any question. These have been my questions: \n\n%s\nThis has been the help I received:\n\n%s";
+
   private static final String TRANSLATING_BOT_MESSAGE = "You are a language translator specializing in %s to %s translations. Provide accurate and natural translations for the given input.";
 
   private static final ChatMessage LANGUAGE_TRANSLATING_BOT_MESSAGE = new ChatMessage(
@@ -53,5 +59,12 @@ public class EnglishBotInstructions implements BotInstructions {
   @NotNull
   public ChatMessage getLanguageTranslatingBotMessage() {
     return LANGUAGE_TRANSLATING_BOT_MESSAGE;
+  }
+
+  @Override
+  @NotNull
+  public ChatMessage getSummarizingBotMessage(final String userQuestion, final String botAnswer) {
+    return new ChatMessage(ChatRole.USER,
+        String.format(SUMMARIZING_BOT_MESSAGE, userQuestion, botAnswer));
   }
 }

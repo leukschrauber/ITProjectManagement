@@ -1,6 +1,5 @@
 {
     "openConversation": "Sembra che ci sia una conversazione aperta per te. Se vuoi continuare in questa conversazione, faccelo sapere cliccando il pulsante. In caso contrario, valuta la conversazione per chiuderla.",
-    "negativeRating": "Mi dispiace, non sono riuscito ad aiutarti con il problema tecnico che hai segnalato. Per ora, puoi contattare l'Helpdesk HTI. Prova a utilizzare di nuovo il chatbot la prossima volta. Potremmo trovare una soluzione insieme. Grazie per la tua comprensione! Questo è il rapporto dell'incidente che abbiamo generato per ti: ",
     "positiveRating": "Grazie per aver utilizzato il nostro servizio. Saremmo felici di aiutarti nuovamente.",
     "continueConversation": "Ora puoi continuare la conversazione. Potresti fornire ulteriori informazioni su questo problema?"
 }

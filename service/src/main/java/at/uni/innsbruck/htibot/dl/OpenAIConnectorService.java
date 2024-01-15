@@ -2,6 +2,7 @@ package at.uni.innsbruck.htibot.dl;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
+import at.uni.innsbruck.htibot.core.model.conversation.Message;
 import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class OpenAIConnectorService implements ConnectorService {
 
@@ -139,15 +141,12 @@ public class OpenAIConnectorService implements ConnectorService {
   public String generateIncidentReport(final @NotNull Conversation conversation) {
       final List<ChatMessage> messageList = new ArrayList<>();
 
-      messageList.add(
-          this.botInstructionResolver.getClosingBotMessage(
-              conversation.getLanguage()));
-
-      messageList.addAll(conversation.getMessages().stream().map(
-              message -> new ChatMessage(
-                  UserType.USER.equals(message.getCreatedBy()) ? ChatRole.USER : ChatRole.ASSISTANT,
-                  message.getMessage()))
-          .toList());
+    messageList.add(this.botInstructionResolver.getSummarizingBotMessage(conversation.getLanguage(),
+        conversation.getMessages().stream().filter(msg -> UserType.USER.equals(msg.getCreatedBy()))
+            .map(Message::getMessage).collect(Collectors.joining("\n")),
+        conversation.getMessages().stream()
+            .filter(msg -> UserType.SYSTEM.equals(msg.getCreatedBy()))
+            .map(Message::getMessage).collect(Collectors.joining("\n"))));
 
     return this.openAIClient.getChatCompletions(this.gptDeploymentId,
               new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)

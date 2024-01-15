@@ -1,0 +1,29 @@
+{
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Mi dispiace, non sono riuscito(a) ad assisterti con il problema tecnico che hai segnalato. Per ora, puoi contattare l'Helpdesk HTI all'indirizzo ITsupport@hti.global. Ma sentiti libero(a) di utilizzare nuovamente il chatbot la prossima volta. Potremmo trovare insieme una soluzione. Grazie per la tua comprensione! Questo è il rapporto dell'incidente che abbiamo generato per te:",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "${report}",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "C'è qualcos'altro con cui posso aiutarti?",
+      "wrap": true
+    }
+  ],                
+  "actions": [
+    {
+        "type": "Action.OpenUrl",
+        "url": "http://gis-support.corp.local/otrs/customer.pl",
+        "title": "Visita il sito del servizio di assistenza"
+    }
+],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.4"
+}

@@ -38,6 +38,13 @@ public class BotInstructionResolver {
         .getLanguageTranslatingBotMessage();
   }
 
+  @NotNull
+  public ChatMessage getSummarizingBotMessage(
+      @NotNull final ConversationLanguage language, final String userQuestion, final String botAnswer) {
+    return this.retrieveBotInstructions(language)
+        .getSummarizingBotMessage(userQuestion, botAnswer);
+  }
+
   private BotInstructions retrieveBotInstructions(final ConversationLanguage language) {
     return this.botInstructions.stream()
         .filter(botinstruction -> botinstruction.getLanguage().equals(language)).findFirst()
