@@ -100,7 +100,7 @@ class TeamsBot extends TeamsActivityHandler {
       return englishWelcomeCard;
     }
 
-    var welcomeCard;
+    var welcomeCard = englishWelcomeCard;
 
     if(userLocale.startsWith("en-")) {
       welcomeCard = englishWelcomeCard;
@@ -124,7 +124,7 @@ class TeamsBot extends TeamsActivityHandler {
       return englishSystemMessageCard;
     }
 
-    var systemMessageCard;
+    var systemMessageCard = englishSystemMessageCard;
 
     if(userLocale.startsWith("en-")) {
       systemMessageCard = englishSystemMessageCard;
@@ -143,7 +143,7 @@ class TeamsBot extends TeamsActivityHandler {
       return englishSystemMessageClosingCard;
     }
 
-    var systemMessageCard;
+    var systemMessageCard = englishSystemMessageClosingCard;
 
     if(userLocale.startsWith("en-")) {
       systemMessageCard = englishSystemMessageClosingCard;
@@ -163,7 +163,7 @@ class TeamsBot extends TeamsActivityHandler {
       return englishSystemMessageSummarizingCard;
     }
 
-    var systemMessageCard;
+    var systemMessageCard = englishSystemMessageSummarizingCard;
 
     if(userLocale.startsWith("en-")) {
       systemMessageCard = englishSystemMessageSummarizingCard;
@@ -183,7 +183,7 @@ class TeamsBot extends TeamsActivityHandler {
       return englishConfig;
     }
 
-    var languageConfig;
+    var languageConfig = englishConfig;
 
     if(userLocale.startsWith("en-")) {
       languageConfig = englishConfig;
@@ -203,7 +203,7 @@ mapToLanguageEnum(userLocale) {
       return "English";
     }
 
-    var languageEnum;
+    var languageEnum = "English";
 
     if(userLocale.startsWith("en-")) {
       languageEnum = "English";

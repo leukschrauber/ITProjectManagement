@@ -8,18 +8,18 @@
     },
     {
       "type": "TextBlock",
-      "text": "You have rated this conversation as positive.",
+      "text": "Tu as évalué cette conversation de manière positive.",
       "wrap": true,
       "isVisible": "${positiveRatingVisible}"
     },
     {
       "type": "TextBlock",
-      "text": "You have rated this conversation as negative.",
+      "text": "Tu as évalué cette conversation de manière négative.",
       "isVisible": "${negativeRatingVisible}"
     },
     {
       "type": "TextBlock",
-      "text": "You have requested to continue this conversation.",
+      "text": "Tu as demandé de poursuivre cette conversation.",
       "wrap": true,
       "isVisible": "${continueConversationTextVisible}"
     },
