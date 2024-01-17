@@ -19,10 +19,12 @@ import com.azure.core.credential.AzureKeyCredential;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public class OpenAIConnectorService implements ConnectorService {
 
@@ -88,7 +90,10 @@ public class OpenAIConnectorService implements ConnectorService {
       messageList.add(new ChatMessage(ChatRole.USER, prompt));
 
     return this.openAIClient.getChatCompletions(this.gptDeploymentId,
-              new ChatCompletionsOptions(messageList).setMaxTokens(MAX_TOKENS)
+            new ChatCompletionsOptions(messageList).setMaxTokens(
+                    knowledge.map(knowledgeValue -> Arrays.stream(
+                            StringUtils.split(knowledgeValue.getAnswer(), " ")).toList()
+                        .size()).orElse(MAX_TOKENS) * 3)
                   .setTemperature(TEMPERATURE)
                   .setTopP(TOP_P)
                   .setFrequencyPenalty(
