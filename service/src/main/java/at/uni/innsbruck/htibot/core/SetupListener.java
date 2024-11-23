@@ -102,47 +102,53 @@ public class SetupListener implements ServletContextListener {
         .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".html"))
         .toList()) {
 
-      if (existingfileNames.contains(faq.getFileName().toString())) {
-        this.logger.info(String.format("File %s already exists in knowledge base.",
-            faq.getFileName().toString()));
-        continue;
-      }
-
-      this.logger.info(
-          String.format("Adding knowledge from file %s", faq.getFileName().toString()));
-      final Document faqHTMLDocument = Jsoup.parse(new File(faq.toString()), "UTF-8");
-
-      final String questionText =
-          this.getQuestionFromHTMLDocument(faqHTMLDocument);
-      final String answerText =
-          this.getAnswerFromHTMLDocument(faqHTMLDocument);
-
-      if (StringUtils.isBlank(questionText) || StringUtils.isBlank(answerText)) {
-        this.logger.warn(String.format(
-            "FAQ file %s does not hold a question or an answer and is thus not considered.",
-            faq.getFileName().toString()));
-        continue;
-      }
-
-      final String questionVector = EmbeddingUtil.getAsString(
-          this.connectorService.getEmbedding(questionText));
-      final Knowledge knowledge = this.knowledgeService.createAndSave(questionVector,
-          this.connectorService.translateToEnglish(questionText),
-          this.connectorService.translateToEnglish(answerText),
-          UserType.SYSTEM, new HashSet<>(), Boolean.FALSE, faq.getFileName().toString());
-
-      for (final String resourcePath : this.getResourcesFromHTMLDocument(faqPath,
-          faqHTMLDocument)) {
-
-        if (new File(resourcePath).exists() || StringUtils.startsWith(resourcePath, "http")) {
-          this.knowledgeResourceService.createAndSave(resourcePath, UserType.SYSTEM, knowledge);
-        } else {
-          this.logger.warn(
-              String.format("Resource %s in FAQ %s does not exist.",
-                  knowledge.getFilename().orElseThrow(),
-                  resourcePath));
+      try {
+        if (existingfileNames.contains(faq.getFileName().toString())) {
+          this.logger.info(String.format("File %s already exists in knowledge base.",
+                                         faq.getFileName().toString()));
+          continue;
         }
 
+        this.logger.info(
+            String.format("Adding knowledge from file %s", faq.getFileName().toString()));
+        final Document faqHTMLDocument = Jsoup.parse(new File(faq.toString()), "UTF-8");
+
+        final String questionText =
+            this.getQuestionFromHTMLDocument(faqHTMLDocument);
+        final String answerText =
+            this.getAnswerFromHTMLDocument(faqHTMLDocument);
+
+        if (StringUtils.isBlank(questionText) || StringUtils.isBlank(answerText)) {
+          this.logger.warn(String.format(
+              "FAQ file %s does not hold a question or an answer and is thus not considered.",
+              faq.getFileName().toString()));
+          continue;
+        }
+
+        final String questionVector = EmbeddingUtil.getAsString(
+            this.connectorService.getEmbedding(questionText));
+        final Knowledge knowledge = this.knowledgeService.createAndSave(questionVector,
+                                                                        this.connectorService.translateToEnglish(questionText),
+                                                                        this.connectorService.translateToEnglish(answerText),
+                                                                        UserType.SYSTEM, new HashSet<>(), Boolean.FALSE,
+                                                                        faq.getFileName().toString());
+
+        for (final String resourcePath : this.getResourcesFromHTMLDocument(faqPath,
+                                                                           faqHTMLDocument)) {
+
+          if (new File(resourcePath).exists() || StringUtils.startsWith(resourcePath, "http")) {
+            this.knowledgeResourceService.createAndSave(resourcePath, UserType.SYSTEM, knowledge);
+          } else {
+            this.logger.warn(
+                String.format("Resource %s in FAQ %s does not exist.",
+                              knowledge.getFilename().orElseThrow(),
+                              resourcePath));
+          }
+
+        }
+      } catch (Exception e) {
+        this.logger.warn(String.format("File %s could not be set up",
+                                       faq.getFileName().toString()));
       }
     }
     this.logger.info("Done loading FAQs to database.");
