@@ -36,6 +36,8 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationPath(RestResourceRoot.APPLICATION_PATH)
@@ -143,6 +145,34 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   }
 
   @Override
+  public Response htibotContinueConversationOptions() {
+    return addCorsHeaders(Response
+                              .status(Status.OK)
+                              .build());
+  }
+
+  @Override
+  public Response htibotGetAnswerOptions() {
+    return addCorsHeaders(Response
+                              .status(Status.OK)
+                              .build());
+  }
+
+  @Override
+  public Response htibotHasOpenConversationOptions() {
+    return addCorsHeaders(Response
+                              .status(Status.OK)
+                              .build());
+  }
+
+  @Override
+  public Response htibotRateConversationOptions() {
+    return addCorsHeaders(Response
+                              .status(Status.OK)
+                              .build());
+  }
+
+  @Override
   @NotNull
   public Response rateConversation(final @NotNull String userId, final @NotNull Boolean rating) {
     return this.runWithinTryCatch("rateConversation", () -> {
@@ -173,40 +203,47 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
     });
   }
 
+  private static Response addCorsHeaders(final Response response) {
+    response.getHeaders().put("Access-Control-Allow-Origin", Collections.singletonList("*"));
+    response.getHeaders().put("Access-Control-Allow-Methods", List.of("PUT", "POST", "GET", "OPTIONS", "DELETE"));
+    response.getHeaders().put("Access-Control-Allow-Headers", List.of("X-API-Key"));
+    return response;
+  }
+
   private Response runWithinTryCatch(final String operationId,
       final ExceptionalSupplier<Response> supplier) {
     final long startTime = System.currentTimeMillis();
     try {
-      return supplier.get();
+      return addCorsHeaders(supplier.get());
     } catch (final PermissionDeniedException e) {
       this.logger.warn(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
-      return Response.status(Status.UNAUTHORIZED).build();
+      return addCorsHeaders(Response.status(Status.UNAUTHORIZED).build());
     } catch (final ConstraintViolationException | IllegalArgumentException | UserIdFinalException |
                    LanguageFinalException e) {
       this.logger.info(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
-      return Response.status(Status.BAD_REQUEST)
+      return addCorsHeaders(Response.status(Status.BAD_REQUEST)
           .entity(new BaseErrorModel().resultCode(Status.BAD_REQUEST.getStatusCode())
-              .message(e.getMessage())).build();
+              .message(e.getMessage())).build());
     } catch (final ConversationNotClosedException | ConversationClosedException e) {
       this.logger.info(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
-      return Response.status(Status.CONFLICT)
+      return addCorsHeaders(Response.status(Status.CONFLICT)
           .entity(new BaseErrorModel().resultCode(Status.CONFLICT.getStatusCode())
-              .message(e.getMessage())).build();
+              .message(e.getMessage())).build());
     } catch (final ConversationNotFoundException e) {
       this.logger.info(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
-      return Response.status(Status.NOT_FOUND)
+      return addCorsHeaders(Response.status(Status.NOT_FOUND)
           .entity(new BaseErrorModel().resultCode(Status.NOT_FOUND.getStatusCode())
-              .message(e.getMessage())).build();
+              .message(e.getMessage())).build());
     } catch (final Exception e) {
       this.logger.warn(
           String.format(OPERATION_FAILED, operationId, e.getClass().getName()), e);
-      return Response.status(Status.INTERNAL_SERVER_ERROR)
+      return addCorsHeaders(Response.status(Status.INTERNAL_SERVER_ERROR)
           .entity(new BaseErrorModel().resultCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
-              .message(e.getMessage())).build();
+              .message(e.getMessage())).build());
     } finally {
       this.logger.info(
           String.format("%s completed in %s ms", operationId,

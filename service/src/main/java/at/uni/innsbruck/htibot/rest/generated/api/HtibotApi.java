@@ -67,6 +67,34 @@ public interface HtibotApi {
         @ApiResponse(code = 500, message = "Error.", response = BaseErrorModel.class) })
     Response hasOpenConversation(@QueryParam("userId") @NotNull  @ApiParam("The user id as determined by the caller")  String userId);
 
+    @OPTIONS
+    @Path("/continueConversation")
+    @ApiOperation(value = "CORS support", notes = "Enable CORS by returning correct headers", tags={  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "A successful response to the preflight request including CORS headers", response = Void.class) })
+    Response htibotContinueConversationOptions();
+
+    @OPTIONS
+    @Path("/getAnswer")
+    @ApiOperation(value = "CORS support", notes = "Enable CORS by returning correct headers", tags={  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "A successful response to the preflight request including CORS headers", response = Void.class) })
+    Response htibotGetAnswerOptions();
+
+    @OPTIONS
+    @Path("/hasOpenConversation")
+    @ApiOperation(value = "CORS support", notes = "Enable CORS by returning correct headers", tags={  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "A successful response to the preflight request including CORS headers", response = Void.class) })
+    Response htibotHasOpenConversationOptions();
+
+    @OPTIONS
+    @Path("/rateConversation")
+    @ApiOperation(value = "CORS support", notes = "Enable CORS by returning correct headers", tags={  })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "A successful response to the preflight request including CORS headers", response = Void.class) })
+    Response htibotRateConversationOptions();
+
     @PUT
     @Path("/rateConversation")
     @Produces({ "application/json" })

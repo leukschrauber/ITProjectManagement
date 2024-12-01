@@ -4,9 +4,15 @@ info:
   title: HTI Bot API
   description: Interact with the HTI Bot Backend
 servers:
-  - url: http://localhost:9191/hti-bot-backend-1.0.0/rest/v1.0
+  - url: http://localhost:8080/hti-bot-backend-1.0.0/rest/v1.0
 paths:
   /htibot/hasOpenConversation:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers
+      responses:
+        '200':
+          description: A successful response to the preflight request including CORS headers
     get:
       security:
         - apiKeyAuth: [ ]
@@ -43,6 +49,12 @@ paths:
         '500':
           $ref: "#/components/responses/Error"
   /htibot/rateConversation:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers
+      responses:
+        '200':
+          description: A successful response to the preflight request including CORS headers
     put:
       security:
         - apiKeyAuth: [ ]
@@ -87,6 +99,12 @@ paths:
         '500':
           $ref: "#/components/responses/Error"
   /htibot/continueConversation:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers
+      responses:
+        '200':
+          description: A successful response to the preflight request including CORS headers
     put:
       security:
         - apiKeyAuth: [ ]
@@ -113,6 +131,12 @@ paths:
         '500':
           $ref: "#/components/responses/Error"
   /htibot/getAnswer:
+    options:
+      summary: CORS support
+      description: Enable CORS by returning correct headers
+      responses:
+        '200':
+          description: A successful response to the preflight request including CORS headers
     get:
       security:
         - apiKeyAuth: [ ]
