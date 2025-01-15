@@ -15,7 +15,7 @@ import java.util.Set;
 public interface KnowledgeService extends PersistenceService<Knowledge, Long> {
 
   @ApiKeyRestricted
-  Optional<Knowledge> retrieveKnowledge(@NotNull List<Double> questionVector);
+  Optional<Knowledge> retrieveKnowledge(@NotNull List<Float> questionVector);
 
   @NotNull
   Knowledge createAndSave(@NotBlank String questionVector, @NotBlank String question,
@@ -25,7 +25,7 @@ public interface KnowledgeService extends PersistenceService<Knowledge, Long> {
       throws PersistenceException;
 
   @NotNull
-  Knowledge archiveSystemKnowledge(@NotBlank String filename)
+  List<Knowledge> archiveSystemKnowledge(@NotBlank String filename)
       throws PersistenceException, KnowledgeNotFoundException;
 
   void archiveSystemKnowledge() throws PersistenceException;

@@ -9,7 +9,6 @@ import at.uni.innsbruck.htibot.core.business.services.KnowledgeResourceService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.model.knowledge.KnowledgeResource;
@@ -19,8 +18,6 @@ import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
 import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
-import at.uni.innsbruck.htibot.rest.generated.model.RateConversation200Response;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
@@ -121,7 +118,7 @@ class HTIBotApiIT {
   void failGetAnswerConversationNotClosed() throws Exception {
     this.createConversation();
 
-    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    final Response response = this.api.getAnswer("blabla", USER_ID);
     assertEquals(Status.CONFLICT.getStatusCode(), response.getStatus());
     assertEquals(BaseErrorModel.class, response.getEntity().getClass());
     final BaseErrorModel response409 = (BaseErrorModel) response.getEntity();
@@ -137,7 +134,7 @@ class HTIBotApiIT {
     this.createConversation();
     this.conversationService.continueConversation(USER_ID);
 
-    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    final Response response = this.api.getAnswer("blabla", USER_ID);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
@@ -150,7 +147,7 @@ class HTIBotApiIT {
 
   @Test
   void verifyGetAnswerNewConversation() throws Exception {
-    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    final Response response = this.api.getAnswer("blabla", USER_ID);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
@@ -163,15 +160,13 @@ class HTIBotApiIT {
 
   @Test
   void verifyGetAnswerExistingConversationKnowledgeAlreadyAttached() throws Exception {
-    final Knowledge knowledge = this.createKnowledge(List.of(1.0, 2.0, 3.0));
+    final Knowledge knowledge = this.createKnowledge(List.of(1.0f, 2.0f, 3.0f));
     Conversation conversation = this.createConversation();
     conversation = this.conversationService.continueConversation(USER_ID);
-    this.conversationService.update(conversation, conversation.getClosed().orElse(null),
-        conversation.getLanguage(), conversation.getRating().orElse(null), conversation.getUserId(),
-        null, conversation.getMessages(),
+    this.conversationService.update(conversation, conversation.getClosed().orElse(null), conversation.getRating().orElse(null), conversation.getUserId(), conversation.getMessages(),
         knowledge);
 
-    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    final Response response = this.api.getAnswer("blabla", USER_ID);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
@@ -184,20 +179,19 @@ class HTIBotApiIT {
 
   @Test
   void verifyGetAnswerCloseConversationWithKnowledge() throws Exception {
-    this.createKnowledge(List.of(1.0, 2.0, 3.0));
+    this.createKnowledge(List.of(1.0f, 2.0f, 3.0f));
     Conversation conversation = this.createConversation();
     conversation = this.conversationService.continueConversation(USER_ID);
-    this.conversationService.update(conversation, conversation.getClosed().orElse(null),
-        conversation.getLanguage(), conversation.getRating().orElse(null), conversation.getUserId(),
-        null, conversation.getMessages(), null);
+    this.conversationService.update(conversation, conversation.getClosed().orElse(null), conversation.getRating().orElse(null), conversation.getUserId(),
+        conversation.getMessages(), null);
 
     for (int i = 0; i < 4; i++) {
-      final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+      final Response response = this.api.getAnswer("blabla", USER_ID);
       assertEquals(Status.OK.getStatusCode(), response.getStatus());
       this.api.continueConversation(USER_ID);
     }
 
-    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    final Response response = this.api.getAnswer("blabla", USER_ID);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
@@ -214,11 +208,11 @@ class HTIBotApiIT {
     this.conversationService.continueConversation(USER_ID);
 
     for (int i = 0; i < 3; i++) {
-      this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+      this.api.getAnswer("blabla", USER_ID);
       this.api.continueConversation(USER_ID);
     }
 
-    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    final Response response = this.api.getAnswer("blabla", USER_ID);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
@@ -231,16 +225,16 @@ class HTIBotApiIT {
 
   @Test
   void verifyGetAnswerCloseConversationWithDissimilarKnowledge() throws Exception {
-    final Knowledge knowledge = this.createKnowledge(List.of(-0.1, -0.2, -0.3));
+    final Knowledge knowledge = this.createKnowledge(List.of(-0.1f, -0.2f, -0.3f));
     this.createConversation();
     this.conversationService.continueConversation(USER_ID);
 
     for (int i = 0; i < 3; i++) {
-      this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+      this.api.getAnswer("blabla", USER_ID);
       this.api.continueConversation(USER_ID);
     }
 
-    final Response response = this.api.getAnswer("blabla", USER_ID, LanguageEnum.ENGLISH);
+    final Response response = this.api.getAnswer("blabla", USER_ID);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertEquals(GetAnswer200Response.class, response.getEntity().getClass());
     final GetAnswer200Response response200 = (GetAnswer200Response) response.getEntity();
@@ -251,52 +245,9 @@ class HTIBotApiIT {
     assertTrue(StringUtils.isNotBlank(response200.getIncidentReport()));
   }
 
-  @Test
-  void verifyRateConversationPositive() throws Exception {
-    this.createConversation();
-
-    final Response response = this.api.rateConversation(USER_ID, true);
-    assertEquals(Status.OK.getStatusCode(), response.getStatus());
-    assertEquals(RateConversation200Response.class, response.getEntity().getClass());
-    final RateConversation200Response response200 = (RateConversation200Response) response.getEntity();
-
-    assertEquals(Status.OK.getStatusCode(), response200.getResultCode());
-    assertTrue(
-        StringUtils.isEmpty(response200.getIncidentReport()));
-
-  }
-
-  @Test
-  void verifyRateConversationNegative() throws Exception {
-    this.createConversation();
-
-    final Response response = this.api.rateConversation(USER_ID, false);
-    assertEquals(Status.OK.getStatusCode(), response.getStatus());
-    assertEquals(RateConversation200Response.class, response.getEntity().getClass());
-    final RateConversation200Response response200 = (RateConversation200Response) response.getEntity();
-
-    assertEquals(Status.OK.getStatusCode(), response200.getResultCode());
-    assertFalse(
-        StringUtils.isBlank(response200.getIncidentReport()));
-  }
-
-  @Test
-  void failRateConversationNoOpenConversation() throws Exception {
-    final Response response = this.api.rateConversation(USER_ID, true);
-    assertEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
-    assertEquals(BaseErrorModel.class, response.getEntity().getClass());
-    final BaseErrorModel response404 = (BaseErrorModel) response.getEntity();
-
-    assertEquals(Status.NOT_FOUND.getStatusCode(), response404.getResultCode());
-    assertEquals(
-        String.format("Could not find open conversation for user with id %s", USER_ID),
-        response404.getMessage());
-  }
-
 
   private Conversation createConversation() throws Exception {
-    Conversation conversation = this.conversationService.createAndSave(null,
-        ConversationLanguage.ENGLISH, null, USER_ID, null, new ArrayList<>(), null);
+    Conversation conversation = this.conversationService.createAndSave(null, null, USER_ID,  new ArrayList<>(), null);
 
     this.conversationService.addMessage(conversation, "Help me", UserType.USER);
     conversation = this.conversationService.addMessage(conversation, "Here is your help",
@@ -305,7 +256,7 @@ class HTIBotApiIT {
     return conversation;
   }
 
-  private Knowledge createKnowledge(final List<Double> vector) throws Exception {
+  private Knowledge createKnowledge(final List<Float> vector) throws Exception {
     final Knowledge knowledge = this.knowledgeService.createAndSave(
         EmbeddingUtil.getAsString(vector),
         "Whats the question?", "Whats the answer?", UserType.SYSTEM, new HashSet<>(), Boolean.FALSE,

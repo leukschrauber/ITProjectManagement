@@ -11,7 +11,6 @@ import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.jpa.core.business.services.JpaConversationService;
 import jakarta.inject.Inject;
@@ -72,12 +71,10 @@ class ConversationIT {
   void verifyCreateAndSave() throws Exception {
     final Conversation createdConversation = this.createConversation();
 
-    assertEquals(ConversationLanguage.ENGLISH, createdConversation.getLanguage());
     assertTrue(createdConversation.getClosed().isEmpty());
     assertTrue(createdConversation.getRating().isEmpty());
     assertTrue(createdConversation.getKnowledge().isEmpty());
     assertEquals(USER_ID, createdConversation.getUserId());
-    assertTrue(createdConversation.getIncidentReport().isEmpty());
     assertEquals(2, createdConversation.getMessages().size());
     assertEquals(UserType.USER, createdConversation.getMessages().get(0).getCreatedBy());
     assertEquals(UserType.SYSTEM, createdConversation.getMessages().get(1).getCreatedBy());
@@ -87,15 +84,13 @@ class ConversationIT {
   void verifyUpdate() throws Exception {
     final Conversation createdConversation = this.createConversation();
 
-    this.conversationService.update(createdConversation, Boolean.TRUE, ConversationLanguage.ENGLISH,
-        Boolean.TRUE, USER_ID, null, new ArrayList<>(), null);
+    this.conversationService.update(createdConversation, Boolean.TRUE,
+        Boolean.TRUE, USER_ID, new ArrayList<>(), null);
 
-    assertEquals(ConversationLanguage.ENGLISH, createdConversation.getLanguage());
     assertTrue(createdConversation.getClosed().orElseThrow());
     assertTrue(createdConversation.getRating().orElseThrow());
     assertTrue(createdConversation.getKnowledge().isEmpty());
     assertEquals(USER_ID, createdConversation.getUserId());
-    assertTrue(createdConversation.getIncidentReport().isEmpty());
     assertEquals(0, createdConversation.getMessages().size());
   }
 
@@ -104,8 +99,7 @@ class ConversationIT {
     final Conversation createdConversation = this.createConversation();
 
     assertThrows(LanguageFinalException.class,
-        () -> this.conversationService.update(createdConversation, null,
-            ConversationLanguage.GERMAN, null, USER_ID, null, new ArrayList<>(), null));
+        () -> this.conversationService.update(createdConversation, null, null, USER_ID, new ArrayList<>(), null));
   }
 
   @Test
@@ -114,9 +108,8 @@ class ConversationIT {
 
     assertThrows(
         UserIdFinalException.class,
-        () -> this.conversationService.update(createdConversation, null,
-            ConversationLanguage.ENGLISH, null,
-            "Ich sach Eintracht, du sachst Trier!", null, new ArrayList<>(), null));
+        () -> this.conversationService.update(createdConversation, null, null,
+            "Ich sach Eintracht, du sachst Trier!", new ArrayList<>(), null));
   }
 
   @Test
@@ -125,23 +118,20 @@ class ConversationIT {
     this.conversationService.rateConversation(positiveConversation, true);
 
     assertThrows(ConversationClosedException.class,
-        () -> this.conversationService.update(positiveConversation, null,
-            ConversationLanguage.ENGLISH, null, USER_ID, null, new ArrayList<>(), null));
+        () -> this.conversationService.update(positiveConversation, null, null, USER_ID, new ArrayList<>(), null));
 
     final Conversation negativeConversation = this.createConversation();
     this.conversationService.rateConversation(negativeConversation, true);
 
     assertThrows(ConversationClosedException.class,
-        () -> this.conversationService.update(negativeConversation, null,
-            ConversationLanguage.ENGLISH, null, USER_ID, null, new ArrayList<>(), null));
+        () -> this.conversationService.update(negativeConversation, null, null, USER_ID, new ArrayList<>(), null));
   }
 
   @Test
   void verifyAddMessage() throws Exception {
     Conversation createdConversation = this.createConversation();
 
-    createdConversation = this.conversationService.update(createdConversation, Boolean.FALSE,
-        ConversationLanguage.ENGLISH, null, USER_ID, null, new ArrayList<>(), null);
+    createdConversation = this.conversationService.update(createdConversation, Boolean.FALSE, null, USER_ID, new ArrayList<>(), null);
 
     createdConversation = this.conversationService.addMessage(createdConversation, "0",
         UserType.USER);
@@ -216,8 +206,7 @@ class ConversationIT {
   }
 
   private Conversation createConversation() throws Exception {
-    Conversation conversation = this.conversationService.createAndSave(null,
-        ConversationLanguage.ENGLISH, null, USER_ID, null, new ArrayList<>(), null);
+    Conversation conversation = this.conversationService.createAndSave(null, null, USER_ID, new ArrayList<>(), null);
 
     this.conversationService.addMessage(conversation, "Help me", UserType.USER);
     conversation = this.conversationService.addMessage(conversation, "Here is your help",

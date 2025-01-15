@@ -7,9 +7,7 @@ import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.exceptions.RatingFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
-import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
@@ -23,17 +21,16 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
 
   @NotNull
   @ApiKeyRestricted
-  Conversation createAndSave(Boolean closed, @NotNull ConversationLanguage language, Boolean rating,
-      @NotBlank String userId, IncidentReport incidentReport, @NotNull List<Message> messages,
+  Conversation createAndSave(Boolean closed, Boolean rating,
+      @NotBlank String userId,  @NotNull List<Message> messages,
       Knowledge knowledge)
       throws PersistenceException;
 
   @NotNull
   @ApiKeyRestricted
   Conversation update(@NotNull Conversation conversation, Boolean closed,
-      @NotNull ConversationLanguage language,
       Boolean rating,
-      @NotBlank String userId, IncidentReport incidentReport, @NotNull List<Message> messages,
+      @NotBlank String userId, @NotNull List<Message> messages,
       Knowledge knowledge)
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException, UserIdFinalException;
 
@@ -59,8 +56,4 @@ public interface ConversationService extends PersistenceService<Conversation, Lo
   @ApiKeyRestricted
   Optional<Conversation> getOpenConversationByUserId(@NotBlank String userId);
 
-  @ApiKeyRestricted
-  @NotNull
-  Conversation addIncidentReport(@NotNull Conversation conversation,
-      @NotNull IncidentReport incidentReport) throws PersistenceException;
 }

@@ -53,7 +53,7 @@
     <version.mysql-connector>8.0.33</version.mysql-connector>
     <version.flyway>10.0.0</version.flyway>
     <version.shrinkwrap-resolver-impl-maven>3.2.1</version.shrinkwrap-resolver-impl-maven>
-    <azure-ai-openai.version>1.0.0-beta.5</azure-ai-openai.version>
+    <azure-ai-openai.version>1.0.0-beta.13</azure-ai-openai.version>
     <commons-fileupload.version>1.5</commons-fileupload.version>
     <jackson-databind.version>2.15.2</jackson-databind.version>
     <swagger-annotations.version>1.6.11</swagger-annotations.version>

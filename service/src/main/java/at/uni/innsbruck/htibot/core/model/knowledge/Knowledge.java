@@ -15,10 +15,10 @@ public interface Knowledge extends IdentityIdHolder {
 
   void setQuestionVectorString(@NotBlank String questionVectorString);
 
-  void setQuestionVector(@NotNull List<Double> questionVector);
+  void setQuestionVector(@NotNull List<Float> questionVector);
 
   @NotNull
-  List<Double> getQuestionVector();
+  List<Float> getQuestionVector();
 
   @NotBlank
   String getQuestion();

@@ -46,6 +46,9 @@ public class ConfigProperties {
   public static final ConfigProperty<Boolean> FAQ_CLEAN_UP = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.FAQ.cleanUp",
       Boolean.class, Boolean.FALSE);
+  public static final ConfigProperty<Boolean> FAQ_INIT = new ConfigProperty<>(
+      "at.uni.innsbruck.htibot.FAQ.init",
+      Boolean.class, Boolean.FALSE);
   public static final ConfigProperty<Double> COSINE_SIMILARITY_TRESHOLD = new ConfigProperty<>(
       "at.uni.innsbruck.htibot.knowledge.cosinesimilartiy.treshold",
       Double.class, 0.7);

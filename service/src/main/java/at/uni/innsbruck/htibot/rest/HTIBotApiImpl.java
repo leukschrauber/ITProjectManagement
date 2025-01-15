@@ -2,7 +2,6 @@ package at.uni.innsbruck.htibot.rest;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.business.services.ConversationService;
-import at.uni.innsbruck.htibot.core.business.services.IncidentReportService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
 import at.uni.innsbruck.htibot.core.exceptions.ConversationClosedException;
@@ -12,8 +11,6 @@ import at.uni.innsbruck.htibot.core.exceptions.LanguageFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.PermissionDeniedException;
 import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
-import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.ExceptionalSupplier;
@@ -24,9 +21,7 @@ import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
 import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
 import at.uni.innsbruck.htibot.rest.generated.model.RateConversation200Response;
-import at.uni.innsbruck.htibot.rest.util.RestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
@@ -61,9 +56,6 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
   @Inject
   private ConfigProperties configProperties;
 
-  @Inject
-  private IncidentReportService incidentReportService;
-
   @Override
   @NotNull
   public Response continueConversation(@NotNull final String userId) {
@@ -75,37 +67,32 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
 
   @Override
   @NotNull
-  public Response getAnswer(@NotNull final String prompt, final @NotNull String userId,
-      final @NotNull LanguageEnum language) {
+  public Response getAnswer(@NotNull final String prompt, final @NotNull String userId) {
     return this.runWithinTryCatch("getAnswer", () -> {
       if (this.conversationService.hasOpenConversation(userId)) {
         throw new ConversationNotClosedException(
             "User can not conversate in Conversation that has not been closed or been requested for further conversation.");
       }
 
-      final ConversationLanguage conversationLanguage = RestUtil.fromConversationLanguage(language);
       final Optional<Conversation> conversationOptional = this.conversationService.getOpenConversationByUserId(
           userId);
 
       Optional<Knowledge> knowledgeOptional = Optional.empty();
       if (conversationOptional.isEmpty() || conversationOptional.orElseThrow().getKnowledge()
           .isEmpty()) {
-        knowledgeOptional = this.findKnowledge(prompt, conversationLanguage);
+        knowledgeOptional = this.findKnowledge(prompt);
       } else if (conversationOptional.orElseThrow().getKnowledge().isPresent()) {
         knowledgeOptional = conversationOptional.get().getKnowledge();
       }
 
       final boolean closeConversation = this.isCloseConversation(conversationOptional, knowledgeOptional);
       final String answer = this.connectorService.getAnswer(prompt, knowledgeOptional,
-          conversationOptional,
-          conversationLanguage, closeConversation);
+          conversationOptional, closeConversation);
 
       Conversation conversation = null;
       if (conversationOptional.isEmpty()) {
         conversation = this.conversationService.createAndSave(
-            null,
-            conversationLanguage, null, userId,
-            null,
+            null, null, userId,
             new ArrayList<>(),
             knowledgeOptional.map(
                     knowledge -> this.knowledgeService.getById(knowledge.getId()).orElseThrow())
@@ -117,18 +104,13 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
       this.conversationService.addMessage(conversation, prompt, UserType.USER);
       this.conversationService.addMessage(conversation, answer, UserType.SYSTEM);
 
-      Optional<String> incidentReport = Optional.empty();
       if (closeConversation) {
         this.conversationService.rateConversation(conversation, false);
-        this.conversationService.addIncidentReport(conversation,
-            this.incidentReportService.createAndSave(answer));
-        incidentReport = Optional.of(answer);
       }
 
       return Response.ok(
           new GetAnswer200Response().answer(answer).resultCode(Status.OK.getStatusCode())
-              .autoClosedConversation(closeConversation)
-              .incidentReport(incidentReport.orElse(null))).build();
+              .autoClosedConversation(closeConversation)).build();
     });
   }
 
@@ -178,28 +160,17 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
     return this.runWithinTryCatch("rateConversation", () -> {
       final Optional<Conversation> conversationOptional = this.conversationService.getOpenConversationByUserId(
           userId);
-      Optional<IncidentReport> incidentReport = Optional.empty();
-      if (Boolean.FALSE.equals(rating)) {
-        incidentReport = Optional.of(
-            this.incidentReportService.createAndSave(this.connectorService.generateIncidentReport(
-            this.conversationService.getOpenConversationByUserId(userId)
-                .orElseThrow(ConversationNotFoundException::new))));
-        this.conversationService.addIncidentReport(conversationOptional.orElseThrow(),
-            incidentReport.orElseThrow());
-      }
-
 
       if (conversationOptional.isEmpty()) {
-        throw new ConversationNotFoundException(
-            String.format("Could not find open conversation for user with id %s", userId));
+        this.logger.warn(String.format("No open conversation found for user %s", userId));
+        return Response.ok(
+            new RateConversation200Response().resultCode(Status.OK.getStatusCode())).build();
       }
 
       this.conversationService.rateConversation(conversationOptional.orElseThrow(), rating);
 
       return Response.ok(
-              new RateConversation200Response().resultCode(Status.OK.getStatusCode())
-                  .incidentReport(incidentReport.map(IncidentReport::getText).orElse(null)))
-          .build();
+              new RateConversation200Response().resultCode(Status.OK.getStatusCode())).build();
     });
   }
 
@@ -259,17 +230,8 @@ public class HTIBotApiImpl extends Application implements HtibotApi {
                 ConfigProperties.HTBOT_MAX_MESSAGES_WITH_KNOWLEDGE));
   }
 
-  private Optional<Knowledge> findKnowledge(final String prompt,
-      final ConversationLanguage language) {
-    String englishPrompt = null;
-    if (!ConversationLanguage.ENGLISH.equals(language)) {
-      englishPrompt = this.connectorService.translate(prompt, language,
-          ConversationLanguage.ENGLISH);
-    } else {
-      englishPrompt = prompt;
-    }
-
+  private Optional<Knowledge> findKnowledge(final String prompt) {
     return this.knowledgeService.retrieveKnowledge(
-        this.connectorService.getEmbedding(englishPrompt));
+        this.connectorService.getEmbedding(prompt));
   }
 }

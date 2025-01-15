@@ -9,9 +9,7 @@ import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.exceptions.RatingFinalException;
 import at.uni.innsbruck.htibot.core.exceptions.UserIdFinalException;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
-import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.jpa.common.services.JpaPersistenceService;
@@ -41,17 +39,15 @@ public class JpaConversationService extends
   @Override
   @NotNull
   @ApiKeyRestricted
-  public Conversation createAndSave(final Boolean closed,
-      @NotNull final ConversationLanguage language, final Boolean rating,
-      @NotBlank final String userId, final IncidentReport incidentReport,
+  public Conversation createAndSave(final Boolean closed, final Boolean rating,
+      @NotBlank final String userId,
       @NotNull final List<Message> messages,
       final Knowledge knowledge)
       throws PersistenceException {
-    final Conversation conversation = new JpaConversation(language, userId);
+    final Conversation conversation = new JpaConversation(userId);
 
     conversation.setClosed(closed);
     conversation.setRating(rating);
-    conversation.setIncidentReport(incidentReport);
     conversation.setMessages(messages);
     conversation.setKnowledge(knowledge);
 
@@ -62,9 +58,8 @@ public class JpaConversationService extends
   @NotNull
   @ApiKeyRestricted
   public Conversation update(@NotNull final Conversation conversation, final Boolean closed,
-      @NotNull final ConversationLanguage language,
       final Boolean rating,
-      @NotBlank final String userId, final IncidentReport incidentReport,
+      @NotBlank final String userId,
       @NotNull final List<Message> messages, final Knowledge knowledge)
       throws PersistenceException, ConversationClosedException, LanguageFinalException, RatingFinalException, UserIdFinalException {
 
@@ -72,9 +67,6 @@ public class JpaConversationService extends
       throw new ConversationClosedException("Closed conversation can not be changed.");
     }
 
-    if (!conversation.getLanguage().equals(language)) {
-      throw new LanguageFinalException("Language of a Conversation can not be changed once set.");
-    }
 
     if (!conversation.getUserId().equals(userId)) {
       throw new UserIdFinalException("User Id of a Conversation can not be changed once set.");
@@ -87,10 +79,8 @@ public class JpaConversationService extends
     }
 
     conversation.setClosed(closed);
-    conversation.setLanguage(language);
     conversation.setRating(rating);
     conversation.setUserId(userId);
-    conversation.setIncidentReport(incidentReport);
     conversation.setMessages(messages);
     conversation.setKnowledge(knowledge);
 
@@ -158,16 +148,6 @@ public class JpaConversationService extends
         (query, cb, root) -> cb.and(cb.equal(root.get(JpaConversation_.userId), userId),
             cb.or(cb.isNull(root.get(JpaConversation_.CLOSED)),
                 cb.isFalse(root.get(JpaConversation_.CLOSED)))));
-  }
-
-  @Override
-  @ApiKeyRestricted
-  @NotNull
-  public Conversation addIncidentReport(@NotNull final Conversation conversation,
-      @NotNull final IncidentReport incidentReport)
-      throws PersistenceException {
-    conversation.setIncidentReport(incidentReport);
-    return this._update(conversation);
   }
 
   @Override

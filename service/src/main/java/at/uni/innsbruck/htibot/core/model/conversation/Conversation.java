@@ -1,7 +1,6 @@
 package at.uni.innsbruck.htibot.core.model.conversation;
 
 import at.uni.innsbruck.htibot.core.model.IdentityIdHolder;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,11 +13,6 @@ public interface Conversation extends IdentityIdHolder {
 
   void setClosed(@NotNull Boolean closed);
 
-  @NotNull
-  ConversationLanguage getLanguage();
-
-  void setLanguage(@NotNull ConversationLanguage language);
-
   Optional<Boolean> getRating();
 
   void setRating(@NotNull Boolean rating);
@@ -27,10 +21,6 @@ public interface Conversation extends IdentityIdHolder {
   String getUserId();
 
   void setUserId(@NotBlank String userId);
-
-  Optional<IncidentReport> getIncidentReport();
-
-  void setIncidentReport(IncidentReport incidentReport);
 
   @NotNull
   List<Message> getMessages();

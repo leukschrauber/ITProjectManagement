@@ -2,8 +2,6 @@ package at.uni.innsbruck.htibot.dl;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
-import at.uni.innsbruck.htibot.core.model.conversation.Message;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.security.ApiKeyRestricted;
 import jakarta.validation.constraints.NotBlank;
@@ -18,8 +16,7 @@ public class MockConnectorService implements ConnectorService {
   @ApiKeyRestricted
   public String getAnswer(@NotBlank final String prompt,
       final @NotNull Optional<Knowledge> knowledge,
-      @NotNull final Optional<Conversation> conversation,
-      @NotNull final ConversationLanguage language, final boolean close) {
+      @NotNull final Optional<Conversation> conversation, final boolean close) {
 
     final StringBuilder sb = new StringBuilder();
     sb.append("This is an answer from a mocked OpenAI-Service.").append("\n\n");
@@ -42,10 +39,6 @@ public class MockConnectorService implements ConnectorService {
       sb.append("This is the beginning of a conversation.").append("\n\n");
     }
 
-    sb.append(String.format(
-            "Your language is %s. However, this is mock mode and everything is in English.",
-            language.name()))
-        .append("\n\n");
 
     if (close) {
       sb.append("I have been asked to close this conversation").append("\n\n");
@@ -54,39 +47,10 @@ public class MockConnectorService implements ConnectorService {
     return sb.toString();
   }
 
-  @Override
-  @NotBlank
-  @ApiKeyRestricted
-  public String translate(@NotBlank final String prompt, @NotNull final ConversationLanguage from,
-      @NotNull final ConversationLanguage to) {
-    return prompt;
-  }
-
-  @Override
-  @NotBlank
-  public String translateToEnglish(@NotBlank final String prompt) {
-    return prompt;
-  }
-
-  @Override
-  @NotBlank
-  @ApiKeyRestricted
-  public String generateIncidentReport(final @NotNull Conversation conversation) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(String.format("Mocked Incident Report for Conversation with id %s%n%n",
-        conversation.getId()));
-
-    for (final Message message : conversation.getMessages()) {
-      sb.append(String.format("Messagy by %s ", message.getCreatedBy().name()))
-          .append(message.getMessage()).append("\n\n");
-    }
-    return sb.toString();
-  }
-
   @NotNull
   @Override
-  public List<Double> getEmbedding(final @NotBlank String prompt) {
-    return List.of(1.0, 2.0, 3.0);
+  public List<Float> getEmbedding(final @NotBlank String prompt) {
+    return List.of(1.0f, 2.0f, 3.0f);
   }
 
 }

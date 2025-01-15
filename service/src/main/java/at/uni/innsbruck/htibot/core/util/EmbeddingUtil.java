@@ -11,7 +11,7 @@ public class EmbeddingUtil {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @NotNull
-  public static String getAsString(@NotNull final List<Double> embedding) {
+  public static String getAsString(@NotNull final List<Float> embedding) {
     try {
       return OBJECT_MAPPER.writeValueAsString(embedding);
     } catch (final JsonProcessingException e) {
@@ -21,9 +21,9 @@ public class EmbeddingUtil {
   }
 
   @NotNull
-  public static List<Double> getAsEmbedding(@NotNull final String embedding) {
+  public static List<Float> getAsEmbedding(@NotNull final String embedding) {
     try {
-      return OBJECT_MAPPER.readValue(embedding, new TypeReference<List<Double>>() {
+      return OBJECT_MAPPER.readValue(embedding, new TypeReference<List<Float>>() {
       });
     } catch (final JsonProcessingException e) {
       throw new IllegalStateException(
@@ -31,8 +31,8 @@ public class EmbeddingUtil {
     }
   }
 
-  public static double computeCosineSimilarity(final @NotNull List<Double> vectorA,
-      final @NotNull List<Double> vectorB) {
+  public static double computeCosineSimilarity(final @NotNull List<Float> vectorA,
+      final @NotNull List<Float> vectorB) {
     if (vectorA.size() != vectorB.size()) {
       throw new IllegalArgumentException(
           "Vectors must be of the same length for computing cosine similarity");

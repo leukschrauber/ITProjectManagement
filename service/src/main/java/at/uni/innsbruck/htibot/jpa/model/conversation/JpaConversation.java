@@ -1,9 +1,7 @@
 package at.uni.innsbruck.htibot.jpa.model.conversation;
 
 import at.uni.innsbruck.htibot.core.model.conversation.Conversation;
-import at.uni.innsbruck.htibot.core.model.conversation.IncidentReport;
 import at.uni.innsbruck.htibot.core.model.conversation.Message;
-import at.uni.innsbruck.htibot.core.model.enums.ConversationLanguage;
 import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.jpa.model.JpaIdentityIdHolder;
 import at.uni.innsbruck.htibot.jpa.model.JpaUpdateCreateHolder_;
@@ -34,23 +32,12 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   @Column
   private Boolean closed;
 
-  @Enumerated(EnumType.STRING)
-  @NotNull
-  private ConversationLanguage language;
-
   @Column
   private Boolean rating;
 
   @NotBlank
   @Column
   private String userId;
-
-  @OneToOne(targetEntity = JpaIncidentReport.class,
-      fetch = FetchType.LAZY,
-      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
-      orphanRemoval = true)
-  @JoinColumn(name = "incident_report_id")
-  private IncidentReport incidentReport;
 
   @OneToMany(targetEntity = JpaMessage.class,
       fetch = FetchType.LAZY,
@@ -72,9 +59,8 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
     //needed for JPA
   }
 
-  public JpaConversation(@NotNull final ConversationLanguage language,
+  public JpaConversation(
       @NotBlank final String userId) {
-    this.language = language;
     this.userId = userId;
     this.messages = new ArrayList<>();
   }
@@ -87,17 +73,6 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   @Override
   public void setClosed(@NotNull final Boolean closed) {
     this.closed = closed;
-  }
-
-  @Override
-  @NotNull
-  public ConversationLanguage getLanguage() {
-    return this.language;
-  }
-
-  @Override
-  public void setLanguage(@NotNull final ConversationLanguage language) {
-    this.language = language;
   }
 
   @Override
@@ -119,16 +94,6 @@ public class JpaConversation extends JpaIdentityIdHolder implements Conversation
   @Override
   public void setUserId(@NotBlank final String userId) {
     this.userId = userId;
-  }
-
-  @Override
-  public Optional<IncidentReport> getIncidentReport() {
-    return Optional.ofNullable(this.incidentReport);
-  }
-
-  @Override
-  public void setIncidentReport(final IncidentReport incidentReport) {
-    this.incidentReport = incidentReport;
   }
 
   @Override

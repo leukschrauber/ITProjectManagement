@@ -86,12 +86,12 @@ public class JpaKnowledge extends JpaIdentityIdHolder implements Knowledge {
 
   @Override
   @NotNull
-  public List<Double> getQuestionVector() {
+  public List<Float> getQuestionVector() {
     return EmbeddingUtil.getAsEmbedding(this.questionVector);
   }
 
   @Override
-  public void setQuestionVector(@NotNull final List<Double> embedding) {
+  public void setQuestionVector(@NotNull final List<Float> embedding) {
     this.questionVector = EmbeddingUtil.getAsString(embedding);
   }
 

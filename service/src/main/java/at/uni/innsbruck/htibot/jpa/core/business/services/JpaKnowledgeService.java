@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
@@ -78,7 +79,7 @@ public class JpaKnowledgeService extends
   @Override
   @NotNull
   @ApiKeyRestricted
-  public Optional<Knowledge> retrieveKnowledge(@NotNull final List<Double> questionVector) {
+  public Optional<Knowledge> retrieveKnowledge(@NotNull final List<Float> questionVector) {
     final Pair<JpaKnowledge, Double> knowledgeAndSimilarity = this.executeResultListQuery(
             Tuple.class,
             JpaKnowledge.class,
@@ -126,21 +127,20 @@ public class JpaKnowledgeService extends
 
   @Override
   @NotNull
-  public Knowledge archiveSystemKnowledge(@NotBlank final String filename)
+  public List<Knowledge> archiveSystemKnowledge(@NotBlank final String filename)
       throws PersistenceException, KnowledgeNotFoundException {
-    final Optional<Knowledge> knowledgeOptional = this.executeSingleResultQuery(
+    final List<Knowledge> knowledgeList = this.executeResultListQuery(
         (query, cb, root) -> cb.and(cb.equal(root.get(JpaKnowledge_.CREATED_BY), UserType.SYSTEM),
             cb.equal(root.get(JpaKnowledge_.ARCHIVED), Boolean.FALSE),
-            cb.equal(root.get(JpaKnowledge_.FILENAME), filename)));
+            cb.equal(root.get(JpaKnowledge_.FILENAME), filename)), null, false, null);
 
-    if (knowledgeOptional.isEmpty()) {
+    if (knowledgeList.isEmpty()) {
       throw new KnowledgeNotFoundException("Trying to archive knowledge that is not existing.");
     }
 
-    final Knowledge knowledge = knowledgeOptional.orElseThrow();
-    knowledge.setArchived(Boolean.TRUE);
+    knowledgeList.forEach(knowledge -> knowledge.setArchived(Boolean.TRUE));
 
-    return this._update(knowledge);
+    return this._update(knowledgeList);
   }
 
 

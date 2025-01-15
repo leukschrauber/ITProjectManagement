@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import { Container, Box, Button, TextField, Typography, Paper } from '@mui/material';
-import {Configuration, DefaultApi, LanguageEnum} from './api-client';
+import {Configuration, DefaultApi} from './api-client';
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const App: React.FC = () => {
 
@@ -11,9 +13,10 @@ const App: React.FC = () => {
   const [apiToken, setApiToken] = useState('');
   const [apiInitialized, setApiInitialized] = useState(false);
   const [api, setApi] = useState<DefaultApi>();
+  const [loading, setLoading] = useState(false);
 
   const initializeApi = () => {
-    const config = new Configuration({ basePath: 'http://localhost:8080/hti-bot-backend-1.0.0-SNAPSHOT/hti-bot-backend-1.0.0/rest/v1.0', baseOptions: {
+    const config = new Configuration({ basePath: 'http://172.201.109.248:8080/hti-bot-backend-1.0.0-SNAPSHOT/hti-bot-backend-1.0.0/rest/v1.0', baseOptions: {
         headers: {
           'X-API-Key': apiToken,
         },
@@ -23,22 +26,45 @@ const App: React.FC = () => {
   };
 
   const getBotResponse = async (input: string): Promise<string> => {
-      const answerReponse = await api?.getAnswer(input, userId, LanguageEnum.English);
-      await api?.continueConversation('0')
+    try {
+      setLoading(true)
 
+      const hasOpenConversation = await api?.hasOpenConversation(userId);
+
+      if(hasOpenConversation) {
+        await api?.rateConversation(userId, true);
+      }
+
+      const answerReponse = await api?.getAnswer(input, userId);
+
+      const hasOpenConversationAfter = await api?.hasOpenConversation(userId);
+
+      if(!hasOpenConversationAfter) {
+        await api?.continueConversation(userId)
+      }
 
       return ""+answerReponse?.data.answer;
+    } finally {
+      setLoading(false);
+    }
   };
 
 
   const startConversation = async () => {
     setConversationStarted(true);
-    setMessages(['Hello! How can I assist you today?']);
+    setMessages(["Hello! I'm Leisure Time Bot, your guide for regulatory information regarding leisure time activities in Tyrol, Austria." +
+    "Please provide me a question and I will try my best to answer." +
+    "If you want to chat about another topic, close the conversation and start a new one please! ❤️"]);
   };
 
   const endConversation = async () => {
     setConversationStarted(false);
-    const response = await api?.rateConversation(userId, true);
+
+    const hasOpenConversation = await api?.hasOpenConversation(userId);
+
+    if(hasOpenConversation) {
+      await api?.rateConversation(userId, true);
+    }
     setMessages([]);
     setUserInput('');
   };
@@ -146,6 +172,13 @@ const App: React.FC = () => {
               </Box>
           )}
         </Paper>
+        <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={loading}
+        >
+          <CircularProgress color="inherit" />
+          <span style={{ marginLeft: "10px" }}>Getting answer...</span>
+        </Backdrop>
       </Container>
   );
 };

@@ -35,7 +35,7 @@ class KnowledgeIT {
 
   @Test
   void verifyCreateAndSave() throws Exception {
-    final List<Double> knowledgeVector = List.of(1.0, -2.0, 3.0);
+    final List<Float> knowledgeVector = List.of(1.0f, -2.0f, 3.0f);
     Knowledge knowledge = this.createKnowledge(knowledgeVector);
     knowledge = this.knowledgeService.reload(knowledge);
 
@@ -48,9 +48,9 @@ class KnowledgeIT {
         knowledge.getKnowledgeResources().stream().findFirst().orElseThrow().getKnowledge());
 
     assertEquals(knowledgeVector.size(), knowledge.getQuestionVector().size());
-    assertEquals(1.0, knowledge.getQuestionVector().get(0));
-    assertEquals(-2.0, knowledge.getQuestionVector().get(1));
-    assertEquals(3.0, knowledge.getQuestionVector().get(2));
+    assertEquals(1.0f, knowledge.getQuestionVector().get(0));
+    assertEquals(-2.0f, knowledge.getQuestionVector().get(1));
+    assertEquals(3.0f, knowledge.getQuestionVector().get(2));
     assertEquals(EmbeddingUtil.getAsString(knowledgeVector), knowledge.getQuestionVectorString());
     assertEquals("Whats the question?", knowledge.getQuestion());
     assertEquals("Whats the answer?", knowledge.getAnswer());
@@ -61,8 +61,8 @@ class KnowledgeIT {
 
   @Test
   void verifyRetrieveKnowledge() throws Exception {
-    final List<Double> similarityVector = List.of(2.0, 3.9, 4.0);
-    final List<Double> dissimilarityVector = List.of(-0.5, -0.2, -0.1);
+    final List<Float> similarityVector = List.of(2.0f, 3.9f, 4.0f);
+    final List<Float> dissimilarityVector = List.of(-0.5f, -0.2f, -0.1f);
 
     final Knowledge similarKnowledge = this.createKnowledge(similarityVector);
     this.createKnowledge(dissimilarityVector);
@@ -77,7 +77,7 @@ class KnowledgeIT {
 
   @Test
   void verifyArchiveSystemKnowledgeByFilename() throws Exception {
-    final List<Double> knowledgeVector = List.of(1.0, 2.0, 3.0);
+    final List<Float> knowledgeVector = List.of(1.0f, 2.0f, 3.0f);
     Knowledge knowledge = this.createKnowledge(knowledgeVector);
 
     assertEquals(Boolean.FALSE, knowledge.getArchived());
@@ -89,7 +89,7 @@ class KnowledgeIT {
 
   @Test
   void verifyArchiveSystemKnowledge() throws Exception {
-    final List<Double> knowledgeVector = List.of(1.0, 2.0, 3.0);
+    final List<Float> knowledgeVector = List.of(1.0f, 2.0f, 3.0f);
     Knowledge knowledge = this.createKnowledge(knowledgeVector);
     Knowledge knowledge2 = this.createKnowledge(knowledgeVector);
 
@@ -110,7 +110,7 @@ class KnowledgeIT {
     assertThrows(KnowledgeNotFoundException.class,
         () -> this.knowledgeService.archiveSystemKnowledge("find/me/here"));
 
-    final List<Double> knowledgeVector = List.of(1.0, 2.0, 3.0);
+    final List<Float> knowledgeVector = List.of(1.0f, 2.0f, 3.0f);
     this.createKnowledge(knowledgeVector);
     this.knowledgeService.archiveSystemKnowledge("find/me/here");
 
@@ -120,7 +120,7 @@ class KnowledgeIT {
 
   @Test
   void verifyGetKnowledgeFileNames() throws Exception {
-    final List<Double> knowledgeVector = List.of(1.0, 2.0, 3.0);
+    final List<Float> knowledgeVector = List.of(1.0f, 2.0f, 3.0f);
     this.createKnowledge(knowledgeVector);
 
     final List<String> knowledgeFileNames = this.knowledgeService.getKnowledgeFileNames();
@@ -135,7 +135,7 @@ class KnowledgeIT {
     assertEquals(0, this.knowledgeService.getKnowledgeFileNames().size());
   }
 
-  private Knowledge createKnowledge(final List<Double> vector) throws Exception {
+  private Knowledge createKnowledge(final List<Float> vector) throws Exception {
     final Knowledge knowledge = this.knowledgeService.createAndSave(
         EmbeddingUtil.getAsString(vector),
         "Whats the question?", "Whats the answer?", UserType.SYSTEM, new HashSet<>(), Boolean.FALSE,

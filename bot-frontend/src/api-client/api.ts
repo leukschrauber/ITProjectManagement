@@ -106,22 +106,6 @@ export interface HasOpenConversation200Response {
     'hasOpenConversation'?: boolean;
 }
 /**
- * Enumeration of supported languages
- * @export
- * @enum {string}
- */
-
-export const LanguageEnum = {
-    English: 'English',
-    French: 'French',
-    Italian: 'Italian',
-    German: 'German'
-} as const;
-
-export type LanguageEnum = typeof LanguageEnum[keyof typeof LanguageEnum];
-
-
-/**
  * 
  * @export
  * @interface RateConversation200Response
@@ -133,12 +117,6 @@ export interface RateConversation200Response {
      * @memberof RateConversation200Response
      */
     'resultCode'?: number;
-    /**
-     * If the user has closed the conversation, an incident report on the conversation is generated.
-     * @type {string}
-     * @memberof RateConversation200Response
-     */
-    'incidentReport'?: string;
 }
 
 /**
@@ -192,17 +170,14 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @summary Retrieves an answer to a user prompt.
          * @param {string} prompt The prompt of the user
          * @param {string} userId The user id as determined by the caller
-         * @param {LanguageEnum} language The language for the operation.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAnswer: async (prompt: string, userId: string, language: LanguageEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAnswer: async (prompt: string, userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'prompt' is not null or undefined
             assertParamExists('getAnswer', 'prompt', prompt)
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('getAnswer', 'userId', userId)
-            // verify required parameter 'language' is not null or undefined
-            assertParamExists('getAnswer', 'language', language)
             const localVarPath = `/htibot/getAnswer`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -224,10 +199,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
             if (userId !== undefined) {
                 localVarQueryParameter['userId'] = userId;
-            }
-
-            if (language !== undefined) {
-                localVarQueryParameter['language'] = language;
             }
 
 
@@ -269,6 +240,126 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             if (userId !== undefined) {
                 localVarQueryParameter['userId'] = userId;
             }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotContinueConversationOptions: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/htibot/continueConversation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotGetAnswerOptions: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/htibot/getAnswer`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotHasOpenConversationOptions: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/htibot/hasOpenConversation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotRateConversationOptions: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/htibot/rateConversation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
 
 
     
@@ -356,12 +447,11 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary Retrieves an answer to a user prompt.
          * @param {string} prompt The prompt of the user
          * @param {string} userId The user id as determined by the caller
-         * @param {LanguageEnum} language The language for the operation.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAnswer(prompt: string, userId: string, language: LanguageEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetAnswer200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAnswer(prompt, userId, language, options);
+        async getAnswer(prompt: string, userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetAnswer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAnswer(prompt, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getAnswer']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -377,6 +467,54 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.hasOpenConversation(userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.hasOpenConversation']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async htibotContinueConversationOptions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.htibotContinueConversationOptions(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.htibotContinueConversationOptions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async htibotGetAnswerOptions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.htibotGetAnswerOptions(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.htibotGetAnswerOptions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async htibotHasOpenConversationOptions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.htibotHasOpenConversationOptions(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.htibotHasOpenConversationOptions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async htibotRateConversationOptions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.htibotRateConversationOptions(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.htibotRateConversationOptions']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -418,12 +556,11 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @summary Retrieves an answer to a user prompt.
          * @param {string} prompt The prompt of the user
          * @param {string} userId The user id as determined by the caller
-         * @param {LanguageEnum} language The language for the operation.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAnswer(prompt: string, userId: string, language: LanguageEnum, options?: RawAxiosRequestConfig): AxiosPromise<GetAnswer200Response> {
-            return localVarFp.getAnswer(prompt, userId, language, options).then((request) => request(axios, basePath));
+        getAnswer(prompt: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<GetAnswer200Response> {
+            return localVarFp.getAnswer(prompt, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * A user that has not closed his conversation yet and that has not requested to continue the current conversation has an open conversation.
@@ -434,6 +571,42 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         hasOpenConversation(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<HasOpenConversation200Response> {
             return localVarFp.hasOpenConversation(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotContinueConversationOptions(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.htibotContinueConversationOptions(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotGetAnswerOptions(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.htibotGetAnswerOptions(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotHasOpenConversationOptions(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.htibotHasOpenConversationOptions(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Enable CORS by returning correct headers
+         * @summary CORS support
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        htibotRateConversationOptions(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.htibotRateConversationOptions(options).then((request) => request(axios, basePath));
         },
         /**
          * Rates the currently open conversation as positive or negative.
@@ -473,13 +646,12 @@ export class DefaultApi extends BaseAPI {
      * @summary Retrieves an answer to a user prompt.
      * @param {string} prompt The prompt of the user
      * @param {string} userId The user id as determined by the caller
-     * @param {LanguageEnum} language The language for the operation.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public getAnswer(prompt: string, userId: string, language: LanguageEnum, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getAnswer(prompt, userId, language, options).then((request) => request(this.axios, this.basePath));
+    public getAnswer(prompt: string, userId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getAnswer(prompt, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -492,6 +664,50 @@ export class DefaultApi extends BaseAPI {
      */
     public hasOpenConversation(userId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).hasOpenConversation(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Enable CORS by returning correct headers
+     * @summary CORS support
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public htibotContinueConversationOptions(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).htibotContinueConversationOptions(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Enable CORS by returning correct headers
+     * @summary CORS support
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public htibotGetAnswerOptions(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).htibotGetAnswerOptions(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Enable CORS by returning correct headers
+     * @summary CORS support
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public htibotHasOpenConversationOptions(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).htibotHasOpenConversationOptions(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Enable CORS by returning correct headers
+     * @summary CORS support
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public htibotRateConversationOptions(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).htibotRateConversationOptions(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

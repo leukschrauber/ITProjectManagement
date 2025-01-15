@@ -1,13 +1,11 @@
 package at.uni.innsbruck.htibot.core;
 
 import at.uni.innsbruck.htibot.core.business.services.ConnectorService;
-import at.uni.innsbruck.htibot.core.business.services.KnowledgeResourceService;
 import at.uni.innsbruck.htibot.core.business.services.KnowledgeService;
 import at.uni.innsbruck.htibot.core.business.util.Logger;
 import at.uni.innsbruck.htibot.core.exceptions.KnowledgeNotFoundException;
 import at.uni.innsbruck.htibot.core.exceptions.PersistenceException;
 import at.uni.innsbruck.htibot.core.model.enums.UserType;
-import at.uni.innsbruck.htibot.core.model.knowledge.Knowledge;
 import at.uni.innsbruck.htibot.core.util.EmbeddingUtil;
 import at.uni.innsbruck.htibot.core.util.properties.ConfigProperties;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,20 +16,15 @@ import jakarta.enterprise.event.Reception;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.flywaydb.core.Flyway;
-import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 @Dependent
 @WebListener
@@ -45,9 +38,6 @@ public class SetupListener implements ServletContextListener {
 
   @Inject
   private KnowledgeService knowledgeService;
-
-  @Inject
-  private KnowledgeResourceService knowledgeResourceService;
 
   @Inject
   private ConnectorService connectorService;
@@ -64,7 +54,7 @@ public class SetupListener implements ServletContextListener {
       this.logger.info("Loading FAQs to database...");
       final Path faqPath = Paths.get(
           this.configProperties.getProperty(ConfigProperties.KNOWLEDGE_FAQ_PATH));
-      this.archiveDeletedKnowledge(faqPath);
+      this.archiveDeletedKnowledge();
       this.addNewFaqs(faqPath);
     } catch (final Exception e) {
       this.logger.error("Exception while setting up FAQ Knowledge Base.");
@@ -73,134 +63,64 @@ public class SetupListener implements ServletContextListener {
     }
   }
 
-  private void archiveDeletedKnowledge(final Path faqPath)
-      throws IOException, KnowledgeNotFoundException, PersistenceException {
+  private void archiveDeletedKnowledge()
+      throws PersistenceException {
     if (Boolean.TRUE.equals(this.configProperties.getProperty(ConfigProperties.FAQ_CLEAN_UP))) {
       this.knowledgeService.archiveSystemKnowledge();
-    } else {
-      final List<String> existingFileNames = this.knowledgeService.getKnowledgeFileNames();
-      final List<String> newFileNames = Files.list(faqPath)
-          .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".html"))
-          .map(file -> file.getFileName().toString())
-          .toList();
-
-      for (final String existingFileName : existingFileNames) {
-        if (!newFileNames.contains(existingFileName)) {
-          this.logger.info(String.format(
-              "Removing %s from knowledge base, as it is not included in the FAQ data anymore.",
-              existingFileName));
-          this.knowledgeService.archiveSystemKnowledge(existingFileName);
-        }
-      }
     }
   }
 
   private void addNewFaqs(final Path faqPath) throws IOException, PersistenceException {
-    final List<String> existingfileNames = this.knowledgeService.getKnowledgeFileNames();
+    if (Boolean.TRUE.equals(this.configProperties.getProperty(ConfigProperties.FAQ_INIT))) {
+      for (final Path faq : Files.list(faqPath)
+                                 .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".csv"))
+                                 .toList()) {
 
-    for (final Path faq : Files.list(faqPath)
-        .filter(path -> Files.isRegularFile(path) && path.toString().endsWith(".html"))
-        .toList()) {
+        try {
+          this.logger.info(
+              String.format("Adding knowledge from file %s", faq.getFileName().toString()));
+          String delimiter = ";";
+          String line;
 
-      try {
-        if (existingfileNames.contains(faq.getFileName().toString())) {
-          this.logger.info(String.format("File %s already exists in knowledge base.",
+          try (BufferedReader br = new BufferedReader(Files.newBufferedReader(faq, StandardCharsets.UTF_8))) {
+            while ((line = br.readLine()) != null) {
+              String[] values = line.split(delimiter);
+
+              if (values.length < 3) {
+                this.logger.warn(String.format(
+                    "FAQ entry %s in file %s does not hold a question or an answer and is thus not considered.",
+                    line, faq.getFileName().toString()));
+                continue;
+              }
+
+              String question = values[1];
+              String answer = values[2];
+
+              final String questionVector = EmbeddingUtil.getAsString(
+                  this.connectorService.getEmbedding(question));
+              this.knowledgeService.createAndSave(questionVector,
+                                                  question,
+                                                  answer,
+                                                  UserType.SYSTEM, new HashSet<>(), Boolean.FALSE,
+                                                  faq.getFileName().toString());
+            }
+          } catch (IOException e) {
+            logger.error("An error occurred while reading the file", e);
+          }
+
+
+        } catch (Exception e) {
+          this.logger.warn(String.format("File %s could not be set up",
                                          faq.getFileName().toString()));
-          continue;
         }
-
-        this.logger.info(
-            String.format("Adding knowledge from file %s", faq.getFileName().toString()));
-        final Document faqHTMLDocument = Jsoup.parse(new File(faq.toString()), "UTF-8");
-
-        final String questionText =
-            this.getQuestionFromHTMLDocument(faqHTMLDocument);
-        final String answerText =
-            this.getAnswerFromHTMLDocument(faqHTMLDocument);
-
-        if (StringUtils.isBlank(questionText) || StringUtils.isBlank(answerText)) {
-          this.logger.warn(String.format(
-              "FAQ file %s does not hold a question or an answer and is thus not considered.",
-              faq.getFileName().toString()));
-          continue;
-        }
-
-        final String questionVector = EmbeddingUtil.getAsString(
-            this.connectorService.getEmbedding(questionText));
-        final Knowledge knowledge = this.knowledgeService.createAndSave(questionVector,
-                                                                        this.connectorService.translateToEnglish(questionText),
-                                                                        this.connectorService.translateToEnglish(answerText),
-                                                                        UserType.SYSTEM, new HashSet<>(), Boolean.FALSE,
-                                                                        faq.getFileName().toString());
-
-        for (final String resourcePath : this.getResourcesFromHTMLDocument(faqPath,
-                                                                           faqHTMLDocument)) {
-
-          if (new File(resourcePath).exists() || StringUtils.startsWith(resourcePath, "http")) {
-            this.knowledgeResourceService.createAndSave(resourcePath, UserType.SYSTEM, knowledge);
-          } else {
-            this.logger.warn(
-                String.format("Resource %s in FAQ %s does not exist.",
-                              knowledge.getFilename().orElseThrow(),
-                              resourcePath));
-          }
-
-        }
-      } catch (Exception e) {
-        this.logger.warn(String.format("File %s could not be set up",
-                                       faq.getFileName().toString()));
       }
-    }
-    this.logger.info("Done loading FAQs to database.");
-  }
-
-  @NotNull
-  private String getAnswerFromHTMLDocument(final Document faqHTMLDocument) {
-    return StringUtils.trimToNull(StringUtils.defaultString(
-        extractText(faqHTMLDocument, "Problem") + " " + StringUtils.defaultString(
-            extractText(faqHTMLDocument, "Solution"))));
-  }
-
-  @NotNull
-  private String getQuestionFromHTMLDocument(final Document faqHTMLDocument) {
-    return StringUtils.trimToNull(
-            StringUtils.defaultString(faqHTMLDocument.selectFirst("title").text()) +
-                " " + StringUtils.defaultString(extractText(faqHTMLDocument, "Symptom")));
-  }
-
-  @NotNull
-  private static String extractText(final Document document, final String kind)
-    {
-      final Elements elements = document.select("h2:contains(" + kind + ")");
-      if (!elements.isEmpty()) {
-        final Element element = elements.first();
-        Element nextElement = element.nextElementSibling();
-        final StringBuilder textBuilder = new StringBuilder();
-
-        while (nextElement != null && !nextElement.tagName().matches("h\\d")) {
-          textBuilder.append(nextElement.text()).append("\n");
-          nextElement = nextElement.nextElementSibling();
-        }
-
-        return textBuilder.toString().trim();
-      }
-
-      return "";
+      this.logger.info("Done loading FAQs to database.");
+    } else {
+      this.logger.info("Not initializing FAQs");
     }
 
-  @NotNull
-  private List<String> getResourcesFromHTMLDocument(final Path faqDirectory,
-      final Document document) {
-    return document.select("img").stream()
-        .map(imgTag -> {
-          if (StringUtils.contains(imgTag.attr("src"), "http")) {
-            return imgTag.attr("src");
-          } else {
-            return faqDirectory.resolve(imgTag.attr("src")).toAbsolutePath().toString();
-          }
-        })
-        .toList();
-    }
+  }
+
 
   private void migrateFlyway() {
     this.logger.info("Migrating with flyway ...");

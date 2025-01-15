@@ -4,7 +4,6 @@ import at.uni.innsbruck.htibot.rest.generated.model.BaseErrorModel;
 import at.uni.innsbruck.htibot.rest.generated.model.BaseSuccessModel;
 import at.uni.innsbruck.htibot.rest.generated.model.GetAnswer200Response;
 import at.uni.innsbruck.htibot.rest.generated.model.HasOpenConversation200Response;
-import at.uni.innsbruck.htibot.rest.generated.model.LanguageEnum;
 import at.uni.innsbruck.htibot.rest.generated.model.RateConversation200Response;
 
 import jakarta.ws.rs.*;
@@ -51,7 +50,7 @@ public interface HtibotApi {
         @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
         @ApiResponse(code = 409, message = "Error.", response = BaseErrorModel.class),
         @ApiResponse(code = 500, message = "Error.", response = BaseErrorModel.class) })
-    Response getAnswer(@QueryParam("prompt") @NotNull  @ApiParam("The prompt of the user")  String prompt,@QueryParam("userId") @NotNull  @ApiParam("The user id as determined by the caller")  String userId,@QueryParam("language") @NotNull @DefaultValue("English")  @ApiParam("The language for the operation.")  LanguageEnum language);
+    Response getAnswer(@QueryParam("prompt") @NotNull  @ApiParam("The prompt of the user")  String prompt,@QueryParam("userId") @NotNull  @ApiParam("The user id as determined by the caller")  String userId);
 
     @GET
     @Path("/hasOpenConversation")
